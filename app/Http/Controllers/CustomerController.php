@@ -55,17 +55,17 @@ class CustomerController extends Controller
         $customer->status = $request->status === "true" ? 1 : 0;
         $customer->save();
         // customer details
-        $customer_detail->customer_id = $customer->id; 
-        $customer_detail->transaction_id = $customer->id; 
+        $customer_detail->customer_id = $customer->id;
+        $customer_detail->transaction_id = $customer->id;
         $customer_detail->type = "Old Amount";
         $customer_detail->date = date('Y-m-d');
- 
+
         if ($request->old_amount < 0) {
-            $customer_detail->credit = abs($request->old_amount); 
-            $customer_detail->debit = 0; 
+            $customer_detail->credit = abs($request->old_amount);
+            $customer_detail->debit = 0;
         } else {
-            $customer_detail->credit = 0; 
-            $customer_detail->debit = $request->old_amount; 
+            $customer_detail->credit = 0;
+            $customer_detail->debit = $request->old_amount;
         }
         $customer_detail->save();
 
@@ -93,7 +93,7 @@ class CustomerController extends Controller
     }
     public function pluck()
     {
-        $customers = Customer::pluck('name', 'id'); 
+        $customers = Customer::pluck('name', 'id');
         return $customers;
     }
 
