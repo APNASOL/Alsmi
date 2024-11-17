@@ -449,8 +449,7 @@
             </div>
         </section>
     </main>
-</template>
-
+</template> 
 <script>
 import Master from "../Layout/Master.vue";
 import axios from "axios";
