@@ -343,4 +343,8 @@ export default {
 .theme-bg-color {
     background-color: rgb(13, 32, 201) !important;
 }
+.text-primary
+{
+    color:rgb(13, 32, 201) !important;
+}
 </style>

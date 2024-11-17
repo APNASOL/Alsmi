@@ -144,7 +144,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6 col-12">
+                                    <div class="col-12">
                                         <label for="name" class="form-label"
                                             >Name</label
                                         >
@@ -165,7 +165,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6 col-12">
+                                    <div class="col-12">
                                         <label for="contact" class="form-label"
                                             >Contact</label
                                         >
@@ -186,7 +186,7 @@
                                             {{ formErrors.contact[0] }}
                                         </div>
                                     </div>
-                                    <div class="col-md-6 col-12">
+                                    <div class="col-12">
                                         <label for="contact" class="form-label"
                                             >Old Amount</label
                                         >
@@ -208,7 +208,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6 col-12">
+                                    <div class="col-12">
                                         <label for="address" class="form-label"
                                             >Address</label
                                         >

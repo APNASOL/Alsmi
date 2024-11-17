@@ -37,7 +37,7 @@ class OrdersController extends Controller
             }
         }
 
-        return ['trips' => $trips, 'customer' => $customer];
+        return ['trips' => $trips, 'customer' => $customer,'order'=>$order];
     }
 
     // Fetch all orders with transformed status
@@ -111,6 +111,11 @@ class OrdersController extends Controller
             ->pluck('customer_name', 'order_id');
 
         return $orders_customers;
+    }
+
+    public function closeOrder($order_id)
+    {
+        return Inertia::render('Order/Close', ['orderId' => $order_id]);
     }
 
 }

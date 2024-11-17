@@ -36,18 +36,48 @@ class SuppliersController extends Controller
             'status' => 'required|string|in:true,false', // Validate as boolean
         ]);
 
-        $supplier = $request->id ? Supplier::findOrFail($request->id) : new Supplier;
-        $supplier->id = $supplier->id ?? Str::orderedUuid();
+      
+
+        if ($request->id) {
+            $supplier = Supplier::findOrFail($request->id);
+            $supplier_detail = SupplierDetail::where('supplier_id', $supplier->id)->first();
+
+        } else {
+            $supplier = new Supplier;
+            $supplier->id = Str::orderedUuid();
+            $supplier_detail = new SupplierDetail;
+            $supplier_detail->id = Str::orderedUuid();
+        }
 
         $supplier->name = $request->name;
         $supplier->contact = $request->contact;
         $supplier->address = $request->address;
-        $customer->old_amount = $request->old_amount;
+         
 
         // Convert string to boolean
         $supplier->status = $request->status === "true" ? 1 : 0;
-
+ 
         $supplier->save();
+
+         // supplier details
+         $supplier_detail->supplier_id = $supplier->id;
+         $supplier_detail->transaction_id = $supplier->id;
+         $supplier_detail->type = "Old Amount";
+         $supplier_detail->date = date('Y-m-d');
+        if($request->old_amount)
+        {
+
+            if ($request->old_amount < 0) {
+                 
+                $supplier_detail->credit = 0;
+                $supplier_detail->debit = $request->old_amount;
+            } else {
+               
+                $supplier_detail->credit =  $request->old_amount;
+                $supplier_detail->debit = 0;
+            }
+        }
+         $supplier_detail->save();
 
         return 'success';
     }

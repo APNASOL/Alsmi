@@ -1,13 +1,11 @@
 <?php
 
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
- 
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\MineController;
-use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\SuppliersController;
 use App\Http\Controllers\OrdersController;
+use App\Http\Controllers\SuppliersController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -24,37 +22,40 @@ use Inertia\Inertia;
 Route::get('/', [HomeController::class, 'index'])->name('/');
 Route::get('/login', [HomeController::class, 'index'])->name('login');
 Route::middleware(['web'])->group(function () {
-    
+
     // Dashboard Routes
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
-     
+
     // Profile Routes
     Route::get('/users', [UserController::class, 'index'])->name('users');
     // Admissions
-    
- 
-// mines
-    Route::get('/mines', function(){
+
+    // mines
+    Route::get('/mines', function () {
         return Inertia::render('Mines/Index');
     })->name('mines');
-// customer
-    
+    // customer
+
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers');
     Route::get('/customer/details/{id}', [CustomerController::class, 'details'])->name('customer.details');
-// suppliers
-   
+    // suppliers
+
     Route::get('/suppliers', [SuppliersController::class, 'index'])->name('suppliers');
     Route::get('/supplier/details/{id}', [SuppliersController::class, 'details'])->name('supplier.details');
-// orders
-     
+    // orders
+
     Route::get('/orders', [OrdersController::class, 'index'])->name('orders');
     Route::get('/order/details/{id}', [OrdersController::class, 'details'])->name('order.details');
-    
+    Route::get('/order/close/{id}', [OrdersController::class, 'closeOrder'])->name('close.order');
+
     // orders
-    Route::get('/trips', function(){
+    Route::get('/trips', function () {
         return Inertia::render('Trip/Index');
     })->name('trips');
-    
-    
+
 });
+
+
+
+
+

@@ -36,8 +36,7 @@
                                     <th scope="col">#</th>
                                     <th scope="col">Name</th>
                                     <th scope="col">Contact</th>
-                                    <th scope="col">Address</th>
-                                    <th scope="col">Old amount</th>
+                                    <th scope="col">Address</th> 
                                     <th scope="col">Status</th>
                                     <th scope="col">Actions</th>
                                 </tr>
@@ -63,7 +62,7 @@
                                     </td>
                                     <td>{{ supplier.contact }}</td>
                                     <td>{{ supplier.address }}</td>
-                                    <td>{{ supplier.old_amount }}</td>
+                                    
                                     <td>
                                         {{ supplier.status }}
                                     </td>
@@ -103,7 +102,7 @@
                 aria-labelledby="exampleModalLabel"
                 aria-hidden="true"
             >
-                <div class="modal-dialog modal-lg">
+                <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
                             <div class="section-title mt-1">
@@ -145,7 +144,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-4 col-12">
+                                    <div class="col-12">
                                         <label class="form-label">Name</label>
                                         <input
                                             type="name"
@@ -162,7 +161,7 @@
                                             {{ formErrors.name[0] }}
                                         </div>
                                     </div>
-                                    <div class="col-md-4 col-12">
+                                    <div class="col-12">
                                         <label class="form-label"
                                             >Contact</label
                                         >
@@ -182,7 +181,7 @@
                                             {{ formErrors.contact[0] }}
                                         </div>
                                     </div>
-                                    <div class="col-md-4 col-12">
+                                    <div class="col-12">
                                         <label for="contact" class="form-label"
                                             >Old Amount</label
                                         >
@@ -301,7 +300,7 @@ export default {
                 });
         },
         submit() {
-            this.formStatus = 0;
+             
             let formData = new FormData();
             formData.append("id", this.form.id);
             formData.append("name", this.form.name || "");
@@ -358,7 +357,7 @@ export default {
                     this.form.name = response.data.name;
                     this.form.address = response.data.address;
                     this.form.contact = response.data.contact;
-                    this.form.old_amount = response.data.old_amount;
+               
                     this.form.status = response.data.status;
                 })
                 .catch((error) => {

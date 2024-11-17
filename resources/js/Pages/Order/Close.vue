@@ -2,20 +2,25 @@
     <main id="main" class="main">
         <div class="pagetitle d-flex justify-content-between">
             <div>
-                <h1 class="theme-text-color">{{ customerDetails.name }}</h1>
+                <h1 class="theme-text-color">
+                    {{ customerDetails.name }} - Order Closing
+                </h1>
                 <nav>
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item">
                             <a href="/">R & R Coal</a>
                         </li>
                         <li class="breadcrumb-item">Order</li>
-                        <li class="breadcrumb-item active">Details</li>
+                        <li class="breadcrumb-item active">Closing</li>
                     </ol>
                 </nav>
             </div>
             <div>
-                <a :href="route('orders')" class="btn btn-success mt-3">
-                    <i class="bi bi-back"></i> Orders
+                <a
+                    class="btn btn-success mt-3"
+                    :href="route('order.details', orderId)"
+                >
+                    Go Back
                 </a>
             </div>
         </div>
@@ -102,138 +107,69 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Card: Price Per Ton -->
+                            <div class="col-md-3 col-12">
+                                <div
+                                    class="card border-0 shadow-sm rounded-3 bg-light"
+                                >
+                                    <div class="card-body">
+                                        <h5 class="text-primary fw-bold">
+                                            Price Per Ton
+                                        </h5>
+                                        <p
+                                            class="card-text fs-5 fw-bold text-dark"
+                                        >
+                                            {{
+                                                formatCurrency(totalPricePerTon)
+                                            }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Card: Truck Price -->
+                            <div class="col-md-3 col-12">
+                                <div
+                                    class="card border-0 shadow-sm rounded-3 bg-light"
+                                >
+                                    <div class="card-body">
+                                        <h5 class="text-primary fw-bold">
+                                            Truck Price
+                                        </h5>
+                                        <p
+                                            class="card-text fs-5 fw-bold text-dark"
+                                        >
+                                            {{
+                                                formatCurrency(totalTruckPrice)
+                                            }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Card: Total Bill -->
+                            <div class="col-md-3 col-12">
+                                <div
+                                    class="card border-0 shadow-sm rounded-3 bg-light"
+                                >
+                                    <div class="card-body">
+                                        <h5 class="text-primary fw-bold">
+                                            Total Bill
+                                        </h5>
+                                        <p
+                                            class="card-text fs-5 fw-bold text-dark"
+                                        >
+                                            {{ formatCurrency(totalBill) }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Table Section -->
-                    <div class="col-md-12">
-                        <div class="mb-1 text-end">
-                            <button
-                                v-if="pdfBtnSpinner"
-                                @click="downloadPDF"
-                                class="btn btn-primary mt-3 ml-3"
-                            >
-                                <i class="bi bi-file-earmark-pdf"></i> Download
-                                PDF
-                            </button>
-                            <button
-                                v-else
-                                class="btn btn-success"
-                                type="button"
-                                disabled
-                            >
-                                <span
-                                    class="spinner-border spinner-border-sm"
-                                ></span>
-                            </button>
-                        </div>
-                        <div class="table-responsive">
-                            <div class="col-md-12">
-                                <table
-                                    class="table table-striped"
-                                    ref="orderTable"
-                                >
-                                    <thead class="table-dark">
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Date</th>
-                                            <th>Supplier</th>
-                                            <th>Mine</th>
-                                            <th>Weight</th>
-                                            <th>Price</th>
-                                            <th>Truck Price</th>
-                                            <th>Vehicle</th>
-                                            <th>Expense</th>
-                                            <th>Transport</th>
-                                            <th>Tax</th>
-                                            <th>Total Bill</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr
-                                            v-for="(
-                                                trip, index
-                                            ) in orderDetails"
-                                            :key="trip.id"
-                                        >
-                                            <td>{{ index + 1 }}</td>
-                                            <td>{{ formatDate(trip.date) }}</td>
-                                            <td>{{ trip.supplier_name }}</td>
-                                            <td>{{ trip.mine_name }}</td>
-                                            <td>{{ trip.truck_weight }}</td>
-                                            <td>
-                                                {{
-                                                    formatCurrency(
-                                                        trip.price_per_ton
-                                                    )
-                                                }}
-                                            </td>
-                                            <td>
-                                                {{
-                                                    formatCurrency(
-                                                        trip.truck_price
-                                                    )
-                                                }}
-                                            </td>
-                                            <td>{{ trip.vehicle }}</td>
-                                            <td>
-                                                {{
-                                                    formatCurrency(
-                                                        trip.mine_expense
-                                                    )
-                                                }}
-                                            </td>
-                                            <td>
-                                                {{
-                                                    formatCurrency(
-                                                        trip.transport
-                                                    )
-                                                }}
-                                            </td>
-                                            <td>
-                                                {{ formatCurrency(trip.tax) }}
-                                            </td>
-                                            <td>
-                                                {{
-                                                    formatCurrency(
-                                                        trip.total_bill
-                                                    )
-                                                }}
-                                            </td>
-                                            <td>
-                                                {{
-                                                    trip.status === 1
-                                                        ? "Active"
-                                                        : "Inactive"
-                                                }}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-end">
-                            <button
-                                v-if="orderBtnSpinner"
-                                @click="closeOrder"
-                                class="btn btn-danger mt-3 ml-3"
-                            >
-                                <i class="bi bi-x-circle"></i> Close Order
-                            </button>
-                            <button
-                                v-else
-                                class="btn btn-danger mt-3 ml-3"
-                                type="button"
-                                disabled
-                            >
-                                <span
-                                    class="spinner-border spinner-border-sm"
-                                ></span>
-                                Closing
-                            </button>
-                        </div>
-                    </div>
+                    <div class="col-md-12"></div>
                 </div>
             </div>
         </section>
@@ -264,7 +200,6 @@ export default {
             order: [],
             customerDetails: [],
             pdfBtnSpinner: 1,
-            orderBtnSpinner: 1,
         };
     },
     computed: {
@@ -298,12 +233,27 @@ export default {
                 0
             );
         },
+
+        totalPricePerTon() {
+            return this.orderDetails.reduce(
+                (total, trip) => total + (trip.price_per_ton || 0),
+                0
+            );
+        },
+
+        totalBill() {
+            return this.orderDetails.reduce(
+                (total, trip) => total + (trip.total_bill || 0),
+                0
+            );
+        },
     },
     methods: {
         closeOrder() {
-            this.orderBtnSpinner = 0; // Start spinner
-            this.$inertia.get(route("close.order", [this.orderId]));
+            this.pdfBtnSpinner = 0; // Start spinner
+            this.$inertia.visit(route("order.close", [this.orderId]));
         },
+
         fetchDetails() {
             axios
                 .get(route("api.order.fetch.details", [this.orderId]), {
@@ -313,8 +263,8 @@ export default {
                 })
                 .then((response) => {
                     this.orderDetails = response.data.trips;
-                    this.order = response.data.order;
                     this.customerDetails = response.data.customer;
+                    this.order = response.data.order;
                 })
                 .catch((error) => {
                     toastr.error(error.response.data.message);
@@ -401,5 +351,12 @@ export default {
 <style lang="scss" scoped>
 .card-body {
     padding: 20px !important;
+}
+.card-body {
+    padding: 20px !important;
+}
+
+.card {
+    margin-bottom: 15px;
 }
 </style>

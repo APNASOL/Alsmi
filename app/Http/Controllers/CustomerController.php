@@ -59,13 +59,15 @@ class CustomerController extends Controller
         $customer_detail->transaction_id = $customer->id;
         $customer_detail->type = "Old Amount";
         $customer_detail->date = date('Y-m-d');
+        if ($request->old_amount) {
 
-        if ($request->old_amount < 0) {
-            $customer_detail->credit = abs($request->old_amount);
-            $customer_detail->debit = 0;
-        } else {
-            $customer_detail->credit = 0;
-            $customer_detail->debit = $request->old_amount;
+            if ($request->old_amount < 0) {
+                $customer_detail->credit = abs($request->old_amount);
+                $customer_detail->debit = 0;
+            } else {
+                $customer_detail->credit = 0;
+                $customer_detail->debit = $request->old_amount;
+            }
         }
         $customer_detail->save();
 
