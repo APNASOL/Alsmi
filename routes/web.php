@@ -5,7 +5,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\SuppliersController;
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CashbookController;
+use App\Http\Controllers\BankController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -42,16 +45,20 @@ Route::middleware(['web'])->group(function () {
 
     Route::get('/suppliers', [SuppliersController::class, 'index'])->name('suppliers');
     Route::get('/supplier/details/{id}', [SuppliersController::class, 'details'])->name('supplier.details');
-    // orders
-
+    // orders 
     Route::get('/orders', [OrdersController::class, 'index'])->name('orders');
     Route::get('/order/details/{id}', [OrdersController::class, 'details'])->name('order.details');
     Route::get('/order/close/{id}', [OrdersController::class, 'closeOrder'])->name('close.order');
 
-    // orders
-    Route::get('/trips', function () {
-        return Inertia::render('Trip/Index');
-    })->name('trips');
+    // trips
+    Route::get('/trips', [OrdersController::class, 'index'])->name('trips');
+    // trips
+    //  Cashbook
+    Route::get('/cashbook', [CashbookController::class, 'Index'])->name('cashbook');
+    //  Banks
+    Route::get('/banks', [BankController::class, 'Index'])->name('banks');
+
+ 
 
 });
 

@@ -95,106 +95,157 @@
 
         <!-- ======= Sidebar ======= -->
         <aside id="sidebar" class="sidebar">
-    <ul class="sidebar-nav" id="sidebar-nav">
-      <!-- Dashboard Nav Item -->
-      <li class="nav-item">
-        <a
-          class="nav-link collapsed"
-          :class="{ active: isActive('/dashboard') }"
-          href="/dashboard"
-        >
-          <i class="bi bi-house"></i>
-          <span>Dashboard</span>
-        </a>
-      </li>
+            <ul class="sidebar-nav" id="sidebar-nav">
+                <!-- Dashboard Nav Item -->
+                <li class="nav-item">
+                    <a
+                        class="nav-link collapsed"
+                        :class="{ active: isActive('/dashboard') }"
+                        href="/dashboard"
+                    >
+                        <i class="bi bi-house"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
 
-      <!-- Customers Nav Item -->
-      <li class="nav-item">
-        <a
-          class="nav-link collapsed"
-          :class="{ active: isActive('/customers') }"
-          href="/customers"
-        >
-          <i class="bi bi-person-circle"></i>
-          <span>Customers</span>
-        </a>
-      </li>
+                <!-- Customers Nav Item -->
+                <li class="nav-item">
+                    <a
+                        class="nav-link collapsed"
+                        :class="{ active: isActive('/customers') }"
+                        href="/customers"
+                    >
+                        <i class="bi bi-person-circle"></i>
+                        <span>Customers</span>
+                    </a>
+                </li>
 
-      <!-- Suppliers Nav Item -->
-      <li class="nav-item">
-        <a
-          class="nav-link collapsed"
-          :class="{ active: isActive('/suppliers') }"
-          href="/suppliers"
-        >
-          <i class="bi bi-box-seam"></i>
-          <span>Suppliers</span>
-        </a>
-      </li>
+                <!-- Suppliers Nav Item -->
+                <li class="nav-item">
+                    <a
+                        class="nav-link collapsed"
+                        :class="{ active: isActive('/suppliers') }"
+                        href="/suppliers"
+                    >
+                        <i class="bi bi-box-seam"></i>
+                        <span>Suppliers</span>
+                    </a>
+                </li>
 
-      <!-- Orders Nav Item -->
-      <li class="nav-item">
-        <a
-          class="nav-link collapsed"
-          :class="{ active: isActive('/orders') || isActive('/order/details') }"
-          href="/orders"
-        >
-          <i class="bi bi-cart3"></i>
-          <span>Orders</span>
-        </a>
-      </li>
+                <!-- Orders Nav Item -->
+                <li class="nav-item">
+                    <a
+                        class="nav-link collapsed"
+                        :class="{
+                            active:
+                                isActive('/orders') ||
+                                isActive('/order/details'),
+                        }"
+                        href="/orders"
+                    >
+                        <i class="bi bi-cart3"></i>
+                        <span>Orders</span>
+                    </a>
+                </li>
 
-      <!-- Trips Nav Item -->
-      <li class="nav-item">
-        <a
-          class="nav-link collapsed"
-          :class="{ active: isActive('/trips') }"
-          href="/trips"
-        >
-          <i class="bi bi-receipt"></i>
-          <span>Trips</span>
-        </a>
-      </li>
+                <!-- Trips Nav Item -->
+                <li class="nav-item">
+                    <a
+                        class="nav-link collapsed"
+                        :class="{ active: isActive('/trips') }"
+                        href="/trips"
+                    >
+                        <i class="bi bi-receipt"></i>
+                        <span>Trips</span>
+                    </a>
+                </li>
 
-       
+                <!-- Accounts Nav Item -->
+                <li class="nav-item">
+                    <a
+                        class="nav-link collapsed"
+                        :class="{
+                            active:
+                                isActive('/cashbook') ||
+                                isActive('/banks') ||
+                                isActive('/accounts'),
+                        }"
+                        data-bs-target="#icons-nav"
+                        data-bs-toggle="collapse"
+                        href="#"
+                    >
+                        <i class="bi bi-wallet"></i>
+                        <span>Accounts</span>
+                        <i class="bi bi-chevron-down ms-auto"></i>
+                    </a>
+                    <ul
+                        id="icons-nav"
+                        class="nav-content collapse"
+                        :class="{
+                            show: isActive('/cashbook') || isActive('/banks'),
+                        }"
+                        data-bs-parent="#sidebar-nav"
+                    >
+                        <li>
+                            <a
+                                href="/banks"
+                                :class="{ active: isActive('/banks') }"
+                            >
+                                <i
+                                    class="bi bi-bank fs-5"
+                                    :class="{
+                                        active: isActive('/banks'),
+                                        'text-white': isActive('/banks'),
+                                    }"
+                                ></i>
 
-      <!-- Accounts Nav Item -->
-      <li class="nav-item">
-        <a
-          class="nav-link collapsed"
-          :class="{ active: isActive('/accounts') }"
-          href="/accounts"
-        >
-          <i class="bi bi-cash"></i>
-          <span>Accounts</span>
-        </a>
-      </li>
+                                <span>Banks</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a
+                                class="nav-link collapsed"
+                                href="/cashbook"
+                                :class="{ active: isActive('/cashbook') }"
+                            >
+                                <i
+                                    class="bi bi-cash fs-5"
+                                    :class="{
+                                        active: isActive('/cashbook'),
+                                        'text-white': isActive('/cashbook'),
+                                    }"
+                                ></i>
+                                <span>Cash Book</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
-      <!-- Reports Nav Item -->
-      <li class="nav-item">
-        <a
-          class="nav-link collapsed"
-          :class="{ active: isActive('/reports') }"
-          href="/reports"
-        >
-          <i class="bi bi-bar-chart"></i>
-          <span>Reports</span>
-        </a>
-      </li>
+                <!-- Reports Nav Item -->
+                <li class="nav-item">
+                    <a
+                        class="nav-link collapsed"
+                        :class="{ active: isActive('/reports') }"
+                        href="/reports"
+                    >
+                        <i class="bi bi-bar-chart"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
 
-      <!-- Users Nav Item -->
-      <li class="nav-item">
-        <a
-          class="nav-link collapsed"
-          :class="{ active: isActive('/users') }"
-          href="/users"
-        >
-          <i class="bi bi-people-fill"></i>
-          <span>Software Users</span>
-        </a>
-      </li>
-    </ul>
-  </aside>
+                <!-- Users Nav Item -->
+                <li class="nav-item">
+                    <a
+                        class="nav-link collapsed"
+                        :class="{ active: isActive('/users') }"
+                        href="/users"
+                    >
+                        <i class="bi bi-people-fill"></i>
+                        <span>Software Users</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
 
         <!-- End Sidebar-->
 
@@ -235,8 +286,8 @@ export default {
     },
     methods: {
         isActive(route) {
-      return window.location.pathname === route;
-    },
+            return window.location.pathname === route;
+        },
         logout() {
             axios
                 .post(route("api.logout"), this.form, {
@@ -343,8 +394,7 @@ export default {
 .theme-bg-color {
     background-color: rgb(13, 32, 201) !important;
 }
-.text-primary
-{
-    color:rgb(13, 32, 201) !important;
+.text-primary {
+    color: rgb(13, 32, 201) !important;
 }
 </style>

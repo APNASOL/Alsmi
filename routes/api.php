@@ -1,13 +1,14 @@
 <?php
 
+use App\Http\Controllers\BankController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MineController;
- 
-use App\Http\Controllers\SuppliersController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrdersController;
+use App\Http\Controllers\SuppliersController;
 use App\Http\Controllers\TripsController;
+use App\Http\Controllers\CashBookController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,7 +28,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('login', [HomeController::class, 'login'])->name('api.login');
 Route::middleware(['web'])->group(function () {
     Route::post('/logout', [HomeController::class, 'logout_user'])->name('api.logout');
-    
+
     // MineController routes
     Route::get('/mine/fetch', [MineController::class, 'mines'])->name('api.mine.fetch');
     Route::post('/mine/store', [MineController::class, 'store'])->name('api.mine.store');
@@ -72,5 +73,19 @@ Route::middleware(['web'])->group(function () {
     Route::delete('/users/delete/{id}', [UserController::class, 'delete'])->name('api.users.delete');
     Route::get('/users/show/{id}', [UserController::class, 'show'])->name('api.users.show');
     Route::post('/users/update', [UserController::class, 'users_update'])->name('api.users.update');
+
+    // Bank routes
+    Route::get('/', [BankController::class, 'fetch'])->name('api.bank.fetch'); // Fetch all banks
+    Route::post('/store', [BankController::class, 'store'])->name('api.bank.store'); // Create or update a bank
+    Route::get('/show/{id}', [BankController::class, 'show'])->name('api.bank.show'); // Show a specific bank
+    Route::delete('/delete/{id}', [BankController::class, 'delete'])->name('api.bank.delete'); // Delete a specific bank
+    Route::get('/pluck', [BankController::class, 'pluck'])->name('api.bank.pluck'); // Fetch bank names and IDs
+
+    // Cashbook routes
+    Route::get('/', [CashbookController::class, 'fetch'])->name('api.cashbook.fetch'); // Fetch all cashbook entries
+    Route::post('/store', [CashbookController::class, 'store'])->name('api.cashbook.store'); // Create or update a cashbook entry
+    Route::get('/show/{id}', [CashbookController::class, 'show'])->name('api.cashbook.show'); // Show a specific cashbook entry
+    Route::delete('/delete/{id}', [CashbookController::class, 'destroy'])->name('api.cashbook.delete'); // Delete a specific cashbook entry
+    Route::get('/pluck', [CashbookController::class, 'pluck'])->name('api.cashbook.pluck'); // (Optional) Fetch cashbook data for dropdowns or other purposes
 
 });
