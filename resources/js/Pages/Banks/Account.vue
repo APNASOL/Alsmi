@@ -13,22 +13,135 @@
                     </ol>
                 </nav>
             </div>
-            <div>
-                <button
-                    class="btn btn-success mt-3"
-                    data-bs-toggle="modal"
-                    data-bs-target="#cashbookmodal"
-                    @click="clearFields"
-                >
-                    <i class="bi bi-plus-lg"></i> Add New Entry
-                </button>
-            </div>
         </div>
 
         <section class="section">
+            
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title theme-text-color">Account Ledger</h5>
+
+                    <!-- PDF Download Button -->
+
+                    <div class="filters mb-3">
+                        <div class="row">
+                            <!-- Filter Type Dropdown using Multiselect -->
+                            <div class="col-md-4">
+                                <label for="filterType">Filter By</label>
+                                <Multiselect
+                                    v-model="filterType"
+                                    :options="filterOptions"
+                                    :placeholder="'Select Filter Type'"
+                                    :searchable="true"
+                                    @change="resetFilters"
+                                    :class="{
+                                        'invalid-bg': formErrors.filterType,
+                                    }"
+                                />
+                            </div>
+
+                            <!-- Month and Year Fields -->
+                            <div
+                                class="col-md-3"
+                                v-if="filterType === 'monthYear'"
+                            >
+                                <label for="month">Month</label>
+                                <Multiselect
+                                    v-model="filters.month"
+                                    :options="months"
+                                    :placeholder="'Select Month'"
+                                    :searchable="true"
+                                    @update:model-value="fetchDetails"
+                                />
+                                <div
+                                    class="invalid-feedback animated fadeIn"
+                                    v-if="formErrors.month"
+                                >
+                                    {{ formErrors.month[0] }}
+                                </div>
+                            </div>
+                            <div
+                                class="col-md-3"
+                                v-if="
+                                    filterType === 'monthYear' ||
+                                    filterType === 'yearOnly'
+                                "
+                            >
+                                <label for="year">Year</label>
+                                <Multiselect
+                                    v-model="filters.year"
+                                    :options="years"
+                                    :placeholder="'Select Year'"
+                                    :searchable="true"
+                                    @update:model-value="fetchDetails"
+                                />
+                                <div
+                                    class="invalid-feedback animated fadeIn"
+                                    v-if="formErrors.year"
+                                >
+                                    {{ formErrors.year[0] }}
+                                </div>
+                            </div>
+
+                            <!-- Date Range Fields -->
+                            <div
+                                class="col-md-3"
+                                v-if="filterType === 'dateRange'"
+                            >
+                                <label for="fromDate">From Date</label>
+                                <Datepicker
+                                    autoApply
+                                    :enableTimePicker="false"
+                                    id="fromDate"
+                                    v-model="filters.fromDate"
+                                    @update:model-value="fetchDetails"
+                                />
+                                <div
+                                    class="invalid-feedback animated fadeIn"
+                                    v-if="formErrors.fromDate"
+                                >
+                                    {{ formErrors.fromDate[0] }}
+                                </div>
+                            </div>
+                            <div
+                                class="col-md-3"
+                                v-if="filterType === 'dateRange'"
+                            >
+                                <label for="toDate">To Date</label>
+                                <Datepicker
+                                    autoApply
+                                    :enableTimePicker="false"
+                                    id="toDate"
+                                    v-model="filters.toDate"
+                                    @update:model-value="fetchDetails"
+                                />
+                                <div
+                                    class="invalid-feedback animated fadeIn"
+                                    v-if="formErrors.toDate"
+                                >
+                                    {{ formErrors.toDate[0] }}
+                                </div>
+                            </div>
+
+                            <!-- Search Button with Spinner -->
+                            <div class="col-md-2">
+                                <button
+                                    class="btn btn-primary mt-4"
+                                    @click="handleSearch"
+                                    :disabled="isLoading"
+                                >
+                                    <span
+                                        v-if="isLoading"
+                                        class="spinner-border spinner-border-sm"
+                                        role="status"
+                                        aria-hidden="true"
+                                    ></span>
+                                    <span v-else>Search</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+<hr>
                     <div class="table-responsive">
                         <table class="table table-striped">
                             <thead>
@@ -82,6 +195,23 @@
                                 </tr>
                             </tbody>
                         </table>
+                        <div class="d-flex justify-content-end mb-1" v-if="Accounts && Accounts.length>0">
+                            <button
+                                v-if="!pdfBtnSpinner"
+                                @click="downloadPDF"
+                                class="btn btn-primary mt-3 ml-3"
+                            >
+                                <i class="bi bi-file-earmark-pdf"></i> Download PDF
+                            </button>
+                            <button
+                                v-else
+                                class="btn btn-success"
+                                type="button"
+                                disabled
+                            >
+                                <span class="spinner-border spinner-border-sm"></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -95,6 +225,8 @@ import axios from "axios";
 import Multiselect from "@vueform/multiselect";
 import Datepicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 export default {
     layout: Master,
@@ -107,21 +239,69 @@ export default {
         this.fetchDetails();
     },
     data() {
+        const currentYear = new Date().getFullYear();
         return {
+            isLoading: false,
             Accounts: [], // Stores account entries with balance
-            customer: {}, // Stores customer details
-            pdfBtnSpinner: false, // Tracks the loading state of PDF generation
+            filters: {
+                month: "",
+                year: "",
+                fromDate: "",
+                toDate: "",
+            },
+            filterType: "monthYear", // Default filter type
+            filterOptions: [
+                { value: "monthYear", label: "Month and Year" },
+                { value: "yearOnly", label: "Year Only" },
+                { value: "dateRange", label: "Date Range" },
+            ],
+            months: [
+                { value: "01", label: "January" },
+                { value: "02", label: "February" },
+                { value: "03", label: "March" },
+                { value: "04", label: "April" },
+                { value: "05", label: "May" },
+                { value: "06", label: "June" },
+                { value: "07", label: "July" },
+                { value: "08", label: "August" },
+                { value: "09", label: "September" },
+                { value: "10", label: "October" },
+                { value: "11", label: "November" },
+                { value: "12", label: "December" },
+            ],
+            years: Array.from({ length: 10 }, (_, i) => currentYear - i), // Last 10 years
+            formErrors: {},
+            pdfBtnSpinner: false,
         };
     },
     methods: {
+        resetFilters() {
+            this.filters.month = "";
+            this.filters.year = "";
+            this.filters.fromDate = "";
+            this.filters.toDate = "";
+        },
+        handleSearch() {
+            this.isLoading = true; // Show spinner
+            this.fetchDetails();
+        },
+
         // Fetch account details
         fetchDetails() {
+            const params = {
+                month:
+                    this.filterType === "monthYear" ? this.filters.month : "",
+                year: this.filterType !== "dateRange" ? this.filters.year : "",
+                fromDate:
+                    this.filterType === "dateRange"
+                        ? this.filters.fromDate
+                        : "",
+                toDate:
+                    this.filterType === "dateRange" ? this.filters.toDate : "",
+            };
+
             axios
-                .get(route("api.fetch.account.details"), {
-                    headers: {
-                        Authorization: "Bearer " + this.$page.props.auth_token,
-                    },
-                })
+                .get(route("api.fetch.account.details"), { params })
                 .then((response) => {
                     let runningBalance = 0;
                     this.Accounts = response.data.map((entry) => {
@@ -137,103 +317,84 @@ export default {
                     });
                 })
                 .catch((error) => {
-                    toastr.error(
-                        error.response?.data?.message ||
-                            "Error fetching account details."
-                    );
+                    toastr.error("Error fetching account details.");
+                })
+                .finally(() => {
+                    this.isLoading = false; // Hide spinner
                 });
         },
+
+        // Format date (convert to proper format)
         formatDate(date) {
-            const options = { year: "numeric", month: "long", day: "numeric" };
-            return new Date(date).toLocaleDateString(undefined, options);
+            return new Date(date).toLocaleDateString();
         },
-        // Format a number with commas
+
+        // Format numbers with commas
         formatNumber(value) {
-            if (value == null) return "-"; // Handle null or undefined values
+            if (value == null) return "-";
             return value.toLocaleString();
         },
-        // Convert a number to words, supporting numbers up to crores
+
+        // Convert numbers to words (optional logic)
         convertToWords(number) {
             if (number == null) return "No balance";
+            // Add logic to convert number to words if needed
+            return number.toString(); // For simplicity
+        },
 
-            const units = [
-                "Zero",
-                "One",
-                "Two",
-                "Three",
-                "Four",
-                "Five",
-                "Six",
-                "Seven",
-                "Eight",
-                "Nine",
-            ];
-            const teens = [
-                "Ten",
-                "Eleven",
-                "Twelve",
-                "Thirteen",
-                "Fourteen",
-                "Fifteen",
-                "Sixteen",
-                "Seventeen",
-                "Eighteen",
-                "Nineteen",
-            ];
-            const tens = [
-                "",
-                "",
-                "Twenty",
-                "Thirty",
-                "Forty",
-                "Fifty",
-                "Sixty",
-                "Seventy",
-                "Eighty",
-                "Ninety",
-            ];
-            const scales = ["", "Thousand", "Lakh", "Crore"];
+        // PDF Download Logic
+        downloadPDF() {
+            this.pdfBtnSpinner = true;
+            const doc = new jsPDF();
+            
+            // Title of the document
+            doc.setFontSize(18);
+            doc.setTextColor(40);
+            doc.text("Account Ledger Details", 14, 20);
 
-            function toWords(n) {
-                if (n < 10) return units[n];
-                if (n >= 10 && n < 20) return teens[n - 10];
-                if (n >= 20 && n < 100)
-                    return (
-                        tens[Math.floor(n / 10)] +
-                        (n % 10 > 0 ? " " + units[n % 10] : "")
-                    );
-                if (n >= 100 && n < 1000)
-                    return (
-                        units[Math.floor(n / 100)] +
-                        " Hundred" +
-                        (n % 100 > 0 ? " and " + toWords(n % 100) : "")
-                    );
-                return "";
-            }
+            // Table data generation
+            const tableData = this.Accounts.map((entry, index) => [
+                index + 1,
+                entry.consumer_name,
+                entry.process_type,
+                entry.note || "-",
+                this.formatNumber(entry.cash_in),
+                this.formatNumber(entry.cash_out),
+                this.formatDate(entry.date),
+                entry.ref_no || "-",
+                this.formatNumber(entry.balance),
+            ]);
 
-            function largeNumberToWords(n) {
-                let result = "";
-                let scaleIndex = 0;
+            // Add AutoTable to the document
+            doc.autoTable({
+                startY: 30,
+                head: [
+                    [
+                        "#",
+                        "Consumer Name",
+                        "Process Type",
+                        "Notes",
+                        "Cash In",
+                        "Cash Out",
+                        "Date",
+                        "Ref.No",
+                        "Balance",
+                    ],
+                ],
+                body: tableData,
+                styles: {
+                    fontSize: 10,
+                    halign: "center",
+                },
+                headStyles: {
+                    fillColor: [0, 0, 0], // Header background color (black)
+                    textColor: [255, 255, 255], // White text color
+                },
+            });
 
-                while (n > 0) {
-                    const part = n % 1000;
-                    if (part > 0) {
-                        const scale = scales[scaleIndex];
-                        result =
-                            toWords(part) +
-                            (scale ? " " + scale : "") +
-                            (result ? " " + result : "");
-                    }
-                    n = Math.floor(n / 1000);
-                    scaleIndex++;
-                }
-                return result;
-            }
-
-            // Handle negative numbers
-            const absoluteNumber = Math.abs(number);
-            const words = largeNumberToWords(absoluteNumber);
-            return number < 0 ? words + " Negative" : words;
+            // Save the generated PDF
+            doc.save("Account_Ledger.pdf");
+            this.pdfBtnSpinner = false;
         },
     },
 };
