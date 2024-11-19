@@ -301,7 +301,11 @@ export default {
     methods: {
         fetchBanks() {
             axios
-                .get(route("api.bank.fetch"))
+                .get(route("api.bank.fetch"), {
+                    headers: {
+                        Authorization: "Bearer " + this.$page.props.auth_token,
+                    },
+                })
                 .then((response) => {
                     this.Banks = response.data;
                 })
