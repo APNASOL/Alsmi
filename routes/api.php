@@ -8,6 +8,7 @@ use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\SuppliersController;
 use App\Http\Controllers\TripsController;
 use App\Http\Controllers\CashBookController;
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -80,6 +81,8 @@ Route::middleware(['web'])->group(function () {
     Route::get('/bank/show/{id}', [BankController::class, 'show'])->name('api.bank.show'); // Show a specific bank
     Route::delete('/bank/delete/{id}', [BankController::class, 'delete'])->name('api.bank.delete'); // Delete a specific bank
     Route::get('/bank/pluck', [BankController::class, 'pluck'])->name('api.bank.pluck'); // Fetch bank names and IDs
+    // Account routes
+    Route::get('/fetch/account/details/', [AccountController::class, 'fetch'])->name('api.fetch.account.details');  
 
     // Cashbook routes
     Route::get('/cashbook/fetch', [CashbookController::class, 'fetch'])->name('api.cashbook.fetch'); // Fetch all cashbook entries

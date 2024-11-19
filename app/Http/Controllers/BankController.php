@@ -103,4 +103,6 @@ class BankController extends Controller
         $banks = Bank::pluck('name', 'id');
         return $banks;
     }
+
+    
 }

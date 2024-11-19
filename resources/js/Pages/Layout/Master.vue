@@ -182,10 +182,26 @@
                         id="icons-nav"
                         class="nav-content collapse"
                         :class="{
-                            show: isActive('/cashbook') || isActive('/banks'),
+                            show: isActive('/cashbook') || isActive('/banks') || isActive('/accounts'),
                         }"
                         data-bs-parent="#sidebar-nav"
                     >
+                        <li>
+                            <a
+                                href="/accounts"
+                                :class="{ active: isActive('/accounts') }"
+                            >
+                                <i
+                                    class="bi bi-bank fs-5"
+                                    :class="{
+                                        active: isActive('/accounts'),
+                                        'text-white': isActive('/accounts'),
+                                    }"
+                                ></i>
+
+                                <span>Account</span>
+                            </a>
+                        </li>
                         <li>
                             <a
                                 href="/banks"

@@ -57,7 +57,8 @@ Route::middleware(['web'])->group(function () {
     Route::get('/cashbook', [CashbookController::class, 'Index'])->name('cashbook');
     //  Banks
     Route::get('/banks', [BankController::class, 'Index'])->name('banks');
-
+    //  Accounts 
+    Route::get('/accounts', [AccountController::class, 'index'])->name('accounts'); 
  
 
 });
