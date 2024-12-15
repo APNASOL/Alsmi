@@ -9,6 +9,7 @@ use App\Http\Controllers\SuppliersController;
 use App\Http\Controllers\TripsController;
 use App\Http\Controllers\CashBookController;
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\PartnerController; 
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -44,6 +45,13 @@ Route::middleware(['web'])->group(function () {
     Route::delete('/customer/delete/{id}', [CustomerController::class, 'delete'])->name('api.customer.delete');
     Route::get('/customers/pluck', [CustomerController::class, 'pluck'])->name('api.customers.pluck');
     Route::get('/api/customer/fetch/details/{id}', [CustomerController::class, 'customer_details_fetch'])->name('api.customer.fetch.details');
+    // PartnerController routes
+    Route::get('/partner/fetch', [PartnerController::class, 'partners'])->name('api.partner.fetch');
+    Route::post('/partner/store', [PartnerController::class, 'store'])->name('api.partner.store');
+    Route::get('/partner/show/{id}', [PartnerController::class, 'show'])->name('api.partner.show');
+    Route::delete('/partner/delete/{id}', [PartnerController::class, 'delete'])->name('api.partner.delete');
+    Route::get('/partners/pluck', [PartnerController::class, 'pluck'])->name('api.partners.pluck');
+    Route::get('/api/partner/fetch/details/{id}', [PartnerController::class, 'partner_details_fetch'])->name('api.partner.fetch.details');
 
     // OrdersController routes
     Route::get('/order/fetch', [OrdersController::class, 'orders'])->name('api.order.fetch');
@@ -52,6 +60,7 @@ Route::middleware(['web'])->group(function () {
     Route::get('/api/order/fetch/details/{id}', [OrdersController::class, 'order_details_fetch'])->name('api.order.fetch.details');
     Route::delete('/order/delete/{id}', [OrdersController::class, 'delete'])->name('api.order.delete');
     Route::get('/orders/pluck', [OrdersController::class, 'pluck'])->name('api.orders.pluck');
+    Route::post('/order/close', [OrdersController::class, 'closeOrder'])->name('api.order.close');
 
 // SuppliersController routes
     Route::get('/supplier/fetch', [SuppliersController::class, 'suppliers'])->name('api.supplier.fetch');
@@ -83,6 +92,8 @@ Route::middleware(['web'])->group(function () {
     Route::get('/bank/pluck', [BankController::class, 'pluck'])->name('api.bank.pluck'); // Fetch bank names and IDs
     // Account routes
     Route::get('/fetch/account/details/', [AccountController::class, 'fetch'])->name('api.fetch.account.details');  
+    Route::get('/fetch/consumers/{consumer_type}', [AccountController::class, 'fetch_consumers'])->name('api.fetch.consumers');  
+    Route::post('/account/data/store', [AccountController::class, 'accounts_data_save'])->name('api.account.data.store');
 
     // Cashbook routes
     Route::get('/cashbook/fetch', [CashbookController::class, 'fetch'])->name('api.cashbook.fetch'); // Fetch all cashbook entries

@@ -27,7 +27,7 @@
                         <button
                             v-if="!pdfBtnSpinner"
                             @click="downloadPDF"
-                            class="btn btn-primary mt-3 ml-3"
+                            class="btn btn-success mt-3 ml-3"
                         >
                             <i class="bi bi-file-earmark-pdf"></i> Download PDF
                         </button>

@@ -21,6 +21,17 @@ class CustomerController extends Controller
     {
         $customers = Customer::get();
         foreach ($customers as $customer) {
+            $customer_detail = CustomerDetail::where('customer_id',$customer->id)->first();
+            // dd($customer);
+            if($customer_detail->credit > 0)
+            { 
+                $customer->old_amount = -$customer_detail->credit;
+            } 
+            if($customer_detail->debit)
+            {
+                $customer->old_amount = $customer_detail->debit;
+            }   
+            
             $customer->status = $customer->status == 1 ? 'Active' : 'Inactive';
         }
         return $customers;
@@ -80,6 +91,17 @@ class CustomerController extends Controller
         $customer = Customer::select('id', 'name', 'contact', 'address', 'status', 'created_at', 'updated_at')
             ->findOrFail($id);
 
+
+            $customer_detail = CustomerDetail::where('customer_id',$customer->id)->first();
+            // dd($customer);
+            if($customer_detail->credit > 0)
+            { 
+                $customer->old_amount = -$customer_detail->credit;
+            } 
+            if($customer_detail->debit)
+            {
+                $customer->old_amount = $customer_detail->debit;
+            }   
         $customer->status = $customer->status == 1 ? true : false;
 
         return $customer;

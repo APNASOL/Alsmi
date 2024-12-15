@@ -131,6 +131,17 @@
                         <span>Suppliers</span>
                     </a>
                 </li>
+                <!-- Partners Nav Item -->
+                <li class="nav-item">
+                    <a
+                        class="nav-link collapsed"
+                        :class="{ active: isActive('/partners') }"
+                        href="/partners"
+                    >
+                        <i class="bi bi-box-seam"></i>
+                        <span>Partners</span>
+                    </a>
+                </li>
 
                 <!-- Orders Nav Item -->
                 <li class="nav-item">
@@ -199,7 +210,7 @@
                                     }"
                                 ></i>
 
-                                <span>Account</span>
+                                <span>Bank Accounts</span>
                             </a>
                         </li>
                         <li>

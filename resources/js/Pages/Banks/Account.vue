@@ -13,10 +13,33 @@
                     </ol>
                 </nav>
             </div>
+            <div>
+                <button
+                    class="btn btn-success mt-3"
+                    data-bs-toggle="modal"
+                    data-bs-target="#bankmodal"
+                    @click="
+                        clearFields();
+                        processFor('Cash In');
+                    "
+                >
+                    <i class="bi bi-plus-lg"></i> Cash In
+                </button>
+                <button
+                    class="btn btn-success mt-3 ms-1"
+                    data-bs-toggle="modal"
+                    data-bs-target="#bankmodal"
+                    @click="
+                        clearFields();
+                        processFor('Cash Out');
+                    "
+                >
+                    <i class="bi bi-dash-lg"></i> Cash Out
+                </button>
+            </div>
         </div>
 
         <section class="section">
-            
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title theme-text-color">Account Ledger</h5>
@@ -126,7 +149,7 @@
                             <!-- Search Button with Spinner -->
                             <div class="col-md-2">
                                 <button
-                                    class="btn btn-primary mt-4"
+                                    class="btn btn-success mt-4"
                                     @click="handleSearch"
                                     :disabled="isLoading"
                                 >
@@ -141,7 +164,7 @@
                             </div>
                         </div>
                     </div>
-<hr>
+                    <hr />
                     <div class="table-responsive">
                         <table class="table table-striped">
                             <thead>
@@ -195,13 +218,17 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <div class="d-flex justify-content-end mb-1" v-if="Accounts && Accounts.length>0">
+                        <div
+                            class="d-flex justify-content-end mb-1"
+                            v-if="Accounts && Accounts.length > 0"
+                        >
                             <button
                                 v-if="!pdfBtnSpinner"
                                 @click="downloadPDF"
-                                class="btn btn-primary mt-3 ml-3"
+                                class="btn btn-success mt-3 ml-3"
                             >
-                                <i class="bi bi-file-earmark-pdf"></i> Download PDF
+                                <i class="bi bi-file-earmark-pdf"></i> Download
+                                PDF
                             </button>
                             <button
                                 v-else
@@ -209,13 +236,260 @@
                                 type="button"
                                 disabled
                             >
-                                <span class="spinner-border spinner-border-sm"></span>
+                                <span
+                                    class="spinner-border spinner-border-sm"
+                                ></span>
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
+
+        <!-- Bank Modal -->
+        <div
+            class="modal fade"
+            id="bankmodal"
+            tabindex="-1"
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-primary">
+                            {{ form.process_for }}
+                        </h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="card card-body p-3">
+                            <div class="row g-3">
+                                <div class="col-md-6 col-12">
+                                    <label for="consumer" class="form-label"
+                                        >Choose Type</label
+                                    >
+                                    <Multiselect
+                                        v-model="form.consumer"
+                                        :options="consumerOptions"
+                                        :placeholder="'Process choose type'"
+                                        :searchable="true"
+                                        @select="
+                                            fetchConsumersList(form.consumer)
+                                        "
+                                        :class="{
+                                            'invalid-bg': formErrors.consumer,
+                                        }"
+                                    />
+                                    <div
+                                        v-if="formErrors.consumer"
+                                        class="invalid-feedback"
+                                    >
+                                        {{ formErrors.consumer[0] }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label for="consumer_id" class="form-label"
+                                        >Available {{ form.consumer }}'s
+                                        List</label
+                                    >
+                                    <Multiselect
+                                        v-model="form.consumer_id"
+                                        :options="consumerList"
+                                        :placeholder="'Select name'"
+                                        :searchable="true"
+                                        :class="{
+                                            'invalid-bg':
+                                                formErrors.consumer_id,
+                                        }"
+                                    />
+                                    <div
+                                        v-if="formErrors.consumer_id"
+                                        class="invalid-feedback"
+                                    >
+                                        {{ formErrors.consumer_id[0] }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label for="bank_id" class="form-label"
+                                        >Bank</label
+                                    >
+                                    <Multiselect
+                                        v-model="form.bank_id"
+                                        :options="banksOptions"
+                                        :placeholder="'Select Bank'"
+                                        :searchable="true"
+                                        :class="{
+                                            'invalid-bg': formErrors.bank_id,
+                                        }"
+                                    />
+                                    <div
+                                        v-if="formErrors.bank_id"
+                                        class="invalid-feedback"
+                                    >
+                                        {{ formErrors.bank_id[0] }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label
+                                        for="transaction_type"
+                                        class="form-label"
+                                        >Transaction type</label
+                                    >
+                                    <Multiselect
+                                        v-model="form.transaction_type"
+                                        :options="transaction_typeOptions"
+                                        :placeholder="'Select Bank'"
+                                        :searchable="true"
+                                        :class="{
+                                            'invalid-bg':
+                                                formErrors.transaction_type,
+                                        }"
+                                    />
+                                    <div
+                                        v-if="formErrors.transaction_type"
+                                        class="invalid-feedback"
+                                    >
+                                        {{ formErrors.transaction_type[0] }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label for="amount" class="form-label"
+                                        >amount</label
+                                    >
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="amount"
+                                        v-model="form.amount"
+                                        :class="{
+                                            'invalid-bg': formErrors.amount,
+                                        }"
+                                    />
+                                    <div
+                                        v-if="formErrors.amount"
+                                        class="invalid-feedback"
+                                    >
+                                        {{ formErrors.amount[0] }}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 col-12">
+                                    <label for="ref_no" class="form-label"
+                                        >Ref.No</label
+                                    >
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        id="ref_no"
+                                        v-model="form.ref_no"
+                                        :class="{
+                                            'invalid-bg': formErrors.ref_no,
+                                        }"
+                                    />
+                                    <div
+                                        v-if="formErrors.ref_no"
+                                        class="invalid-feedback"
+                                    >
+                                        {{ formErrors.ref_no[0] }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label for="account" class="form-label"
+                                        >Account #</label
+                                    >
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        id="account"
+                                        v-model="form.account"
+                                        :class="{
+                                            'invalid-bg': formErrors.account,
+                                        }"
+                                    />
+                                    <div
+                                        v-if="formErrors.account"
+                                        class="invalid-feedback"
+                                    >
+                                        {{ formErrors.account[0] }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label
+                                        for="current_amount"
+                                        class="form-label"
+                                        >Current Amount</label
+                                    >
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="current_amount"
+                                        v-model="form.current_amount"
+                                        :class="{
+                                            'invalid-bg':
+                                                formErrors.current_amount,
+                                        }"
+                                    />
+                                    <div
+                                        v-if="formErrors.current_amount"
+                                        class="invalid-feedback"
+                                    >
+                                        {{ formErrors.current_amount[0] }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label for="date" class="form-label"
+                                        >Date</label
+                                    >
+                                    <input
+                                        type="date"
+                                        class="form-control"
+                                        id="date"
+                                        v-model="form.date"
+                                        :class="{
+                                            'invalid-bg': formErrors.date,
+                                        }"
+                                    />
+                                    <!-- <small class="text-muted">
+                                            Date must be before starting order entry date
+                                        </small> -->
+                                    <div
+                                        v-if="formErrors.date"
+                                        class="invalid-feedback"
+                                    >
+                                        {{ formErrors.date[0] }}
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <button
+                                        :disabled="!formStatus"
+                                        class="btn btn-success"
+                                        @click="submit"
+                                    >
+                                        Save
+                                        <span
+                                            v-if="!formStatus"
+                                            class="spinner-border spinner-border-sm"
+                                        ></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button
+                hidden
+                data-bs-toggle="modal"
+                data-bs-target="#customermodal"
+                ref="closeModal"
+            ></button>
+        </div>
     </main>
 </template>
 
@@ -237,10 +511,30 @@ export default {
     },
     created() {
         this.fetchDetails();
+        this.fetchBanks();
+        this.fetchConsumersList(this.form.consumer);
     },
     data() {
         const currentYear = new Date().getFullYear();
         return {
+            form: {
+                id: "",
+                process_for: "",
+                consumer: "Customer",
+                consumer_id: "",
+                bank_id: "",
+                transaction_type: "",
+                amount: "",
+                ref_no: "",
+                account: "",
+                current_amount: "",
+                date: "",
+            },
+
+            consumerOptions: ["Customer", "Supplier", "Partner"],
+            transaction_typeOptions: ["Online", "Cash"],
+            banksOptions: [],
+            consumerList: [],
             isLoading: false,
             Accounts: [], // Stores account entries with balance
             filters: {
@@ -272,9 +566,37 @@ export default {
             years: Array.from({ length: 10 }, (_, i) => currentYear - i), // Last 10 years
             formErrors: {},
             pdfBtnSpinner: false,
+            formStatus: true,
         };
     },
     methods: {
+        processFor(processFor) {
+            this.form.process_for = processFor;
+        },
+        fetchConsumersList(consumer_type) {
+            axios
+                .get(route("api.fetch.consumers", { consumer_type })) // Pass consumer_type as a parameter
+                .then((response) => {
+                    this.consumerList = response.data; // Update the consumer list with API response
+                    this.form.consumer_id = Object.keys(response.data)[0];
+                })
+                .catch((error) => {
+                    toastr.error("Error fetching account details."); // Show error notification
+                    console.error(error); // Optional: Log the error for debugging
+                });
+        },
+        fetchBanks() {
+            axios
+                .get(route("api.bank.pluck"))
+                .then((response) => {
+                    this.form.bank_id = Object.keys(response.data)[0];
+                    this.banksOptions = response.data;
+                })
+                .catch((error) => {
+                    toastr.error("Error fetching account details."); // Show error notification
+                    console.error(error); // Optional: Log the error for debugging
+                });
+        },
         resetFilters() {
             this.filters.month = "";
             this.filters.year = "";
@@ -285,7 +607,7 @@ export default {
             this.isLoading = true; // Show spinner
             this.fetchDetails();
         },
-
+        clearFields() {},
         // Fetch account details
         fetchDetails() {
             const params = {
@@ -323,30 +645,26 @@ export default {
                     this.isLoading = false; // Hide spinner
                 });
         },
-
         // Format date (convert to proper format)
         formatDate(date) {
             return new Date(date).toLocaleDateString();
         },
-
         // Format numbers with commas
         formatNumber(value) {
             if (value == null) return "-";
             return value.toLocaleString();
         },
-
         // Convert numbers to words (optional logic)
         convertToWords(number) {
             if (number == null) return "No balance";
             // Add logic to convert number to words if needed
             return number.toString(); // For simplicity
         },
-
         // PDF Download Logic
         downloadPDF() {
             this.pdfBtnSpinner = true;
             const doc = new jsPDF();
-            
+
             // Title of the document
             doc.setFontSize(18);
             doc.setTextColor(40);
@@ -395,6 +713,30 @@ export default {
             // Save the generated PDF
             doc.save("Account_Ledger.pdf");
             this.pdfBtnSpinner = false;
+        },
+
+        submit() {
+            this.formStatus = false; // Show spinner (disable button)
+
+            axios
+                .post(route("api.account.data.store"), this.form) // Send form data to the backend using the named route
+                .then(() => {
+                    this.formStatus = true; // Enable button (hide spinner)
+                    // Perform any additional actions like fetching updated data
+                    // For example: this.fetchAccounts(); // if you want to refresh the list of accounts
+
+                    toastr.success("Account record saved successfully."); // Show success message
+                    this.$refs.closeModal?.click(); // Close the modal if you have a reference to it
+                })
+                .catch((error) => {
+                    this.formStatus = true; // Enable button (hide spinner)
+                    this.formErrors = error.response.data.errors || {}; // Store form validation errors
+
+                    // You can display error messages as required
+                    toastr.error(
+                        "There was an error saving the account record."
+                    );
+                });
         },
     },
 };

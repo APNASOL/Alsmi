@@ -19,6 +19,18 @@ class SuppliersController extends Controller
     {
         $suppliers = Supplier::all();
         foreach ($suppliers as $supplier) {
+
+            $supplier_detail = SupplierDetail::where('supplier_id',$supplier->id)->first();
+            // dd($supplier);
+            if($supplier_detail->credit > 0)
+            { 
+                $supplier->old_amount = -$supplier_detail->credit;
+            } 
+            if($supplier_detail->debit)
+            {
+                $supplier->old_amount = $supplier_detail->debit;
+            }   
+
             $supplier->status = $supplier->status == 1 ? 'Active' : 'Inactive';
             
         }
@@ -86,9 +98,19 @@ class SuppliersController extends Controller
     {
         $supplier = Supplier::findOrFail($id);
 
+        $supplier_detail = SupplierDetail::where('supplier_id',$supplier->id)->first();
+        // dd($supplier);
+        if($supplier_detail->credit > 0)
+        { 
+            $supplier->old_amount = -$supplier_detail->credit;
+        } 
+        if($supplier_detail->debit)
+        {
+            $supplier->old_amount = $supplier_detail->debit;
+        }     
         // Convert status to boolean
         $supplier->status = $supplier->status == 1 ? true : false;
-
+ 
         return $supplier;
     }
 

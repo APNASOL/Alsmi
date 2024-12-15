@@ -137,7 +137,11 @@
                                             <p
                                                 class="card-text fs-5 fw-bold text-dark"
                                             >
-                                                {{ totalTruckPrice }}
+                                                {{
+                                                    formatNumber(
+                                                        totalTruckPrice
+                                                    )
+                                                }}
                                             </p>
                                         </div>
                                     </div>
@@ -155,7 +159,7 @@
                                             <p
                                                 class="card-text fs-5 fw-bold text-dark"
                                             >
-                                                {{ totalBill }}
+                                                {{ formatNumber(totalBill) }}
                                             </p>
                                         </div>
                                     </div>
@@ -172,7 +176,8 @@
                                             <p
                                                 class="card-text fs-5 fw-bold text-dark"
                                             >
-                                                {{ form.profit }}
+                                                <!-- {{ form.profit }} -->
+                                                {{ formatNumber(form.profit) }}
                                             </p>
                                         </div>
                                     </div>
@@ -187,78 +192,112 @@
                         <div
                             class="col-md-5 card border-0 shadow-sm rounded-3 bg-light"
                         >
-                            <!-- Form Section -->
-
                             <h5 class="text-primary fw-bold mt-3 mb-2">
                                 Profit Calculation
                             </h5>
-                            <form @submit.prevent="handleSubmit">
-                                <div class="row g-3">
-                                    <!-- Total Field -->
-                                    <div class="col-12">
-                                        <label for="total" class="form-label"
-                                            >Total</label
-                                        >
-                                        <input
-                                            type="number"
-                                            class="form-control"
-                                            id="total"
-                                            v-model="form.total"
-                                            readonly
-                                        />
-                                    </div>
 
-                                    <!-- Commission Field -->
-                                    <div class="col-12">
-                                        <label
-                                            for="commission"
-                                            class="form-label"
-                                            >Commission</label
-                                        >
-                                        <input
-                                            type="number"
-                                            class="form-control"
-                                            id="commission"
-                                            v-model="form.commission"
-                                            @input="calculateProfit"
-                                        />
-                                    </div>
-
-                                    <!-- Premium Field -->
-                                    <div class="col-12">
-                                        <label for="premium" class="form-label"
-                                            >Premium</label
-                                        >
-                                        <input
-                                            type="number"
-                                            class="form-control"
-                                            id="premium"
-                                            v-model="form.premium"
-                                            @input="calculateProfit"
-                                        />
-                                    </div>
-
-                                    <!-- Profit Field -->
-                                    <div class="col-12">
-                                        <label for="profit" class="form-label"
-                                            >Profit</label
-                                        >
-                                        <input
-                                            type="number"
-                                            class="form-control"
-                                            id="profit"
-                                            v-model="form.profit"
-                                            readonly
-                                        />
+                            <div class="row g-3">
+                                <!-- Total Field -->
+                                <div class="col-12">
+                                    <label for="total" class="form-label"
+                                        >Total</label
+                                    >
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="total"
+                                        v-model="form.total"
+                                        readonly
+                                        :class="{
+                                            'invalid-bg': formErrors.total,
+                                        }"
+                                    />
+                                    <div
+                                        class="invalid-feedback animated fadeIn"
+                                        v-if="formErrors.total"
+                                    >
+                                        {{ formErrors.total[0] }}
                                     </div>
                                 </div>
-                                <div class="mt-3">
+
+                                <!-- Commission Field -->
+                                <div class="col-12">
+                                    <label for="commission" class="form-label"
+                                        >Commission</label
+                                    >
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="commission"
+                                        v-model="form.commission"
+                                        @input="calculateProfit"
+                                        :class="{
+                                            'invalid-bg': formErrors.commission,
+                                        }"
+                                    />
+                                    <div
+                                        class="invalid-feedback animated fadeIn"
+                                        v-if="formErrors.commission"
+                                    >
+                                        {{ formErrors.commission[0] }}
+                                    </div>
+                                </div>
+
+                                <!-- Premium Field -->
+                                <div class="col-12">
+                                    <label for="premium" class="form-label"
+                                        >Premium</label
+                                    >
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="premium"
+                                        v-model="form.premium"
+                                        @input="calculateProfit"
+                                        :class="{
+                                            'invalid-bg': formErrors.premium,
+                                        }"
+                                    />
+                                    <div
+                                        class="invalid-feedback animated fadeIn"
+                                        v-if="formErrors.premium"
+                                    >
+                                        {{ formErrors.premium[0] }}
+                                    </div>
+                                </div>
+
+                                <!-- Profit Field -->
+                                <div class="col-12">
+                                    <label for="profit" class="form-label"
+                                        >Profit</label
+                                    >
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        id="profit"
+                                        v-model="form.profit"
+                                        readonly
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- Confirmation Modal or Spinner based on form status -->
+
+                            <div class="mt-3">
+                                <template v-if="isLoading">
+                                    <span
+                                        class="text-danger spinner-border spinner-border-sm"
+                                        style="height: 50px; width: 50px"
+                                        role="status"
+                                    ></span>
+                                </template>
+                                <template v-else>
                                     <ConfirmationModal
                                         :recordId="orderId"
                                         @processThis="processThis"
                                     ></ConfirmationModal>
-                                </div>
-                            </form>
+                                </template>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -281,11 +320,15 @@ export default {
             order: [],
             customerDetails: [],
             form: {
+                order_id: 0,
                 total: 0,
                 commission: 0,
                 premium: 0,
                 profit: 0,
             },
+
+            formErrors:[],
+            isLoading: false,
         };
     },
     computed: {
@@ -336,6 +379,10 @@ export default {
         this.fetchDetails();
     },
     methods: {
+        formatNumber(value) {
+            if (value == null) return "-";
+            return value.toLocaleString();
+        },
         fetchDetails() {
             axios
                 .get(route("api.order.fetch.details", [this.orderId]), {
@@ -365,17 +412,29 @@ export default {
             return new Date(dateString).toLocaleDateString(undefined, options);
         },
 
+        // Convert numbers to words (optional logic)
+        convertToWords(number) {
+            if (number == null) return "No balance";
+            // Add logic to convert number to words if needed
+            return number.toString(); // For simplicity
+        },
+
         processThis(id) {
-            toastr.error("incomplete process for record : " + id);
-            // axios
-            //     .delete(route("api.customer.delete", id))
-            //     .then(() => {
-            //         toastr.success("Customer deleted successfully");
-            //         this.fetchCustomers();
-            //     })
-            //     .catch((error) => {
-            //         toastr.error(error.response.data.message);
-            //     });
+            this.form.order_id = id;
+            this.isLoading = true; // Show spinner during the process
+
+            // Make the axios request to close the order
+            axios
+                .post(route("api.order.close"), this.form) // Post the form data to close the order
+                .then((response) => {
+                    this.isLoading = false; // Hide spinner once request is successful
+                    toastr.success("Order closed successfully.");
+                })
+                .catch((error) => {
+                    this.isLoading = false; // Hide spinner on error
+                    toastr.error("Failed to close order.");
+                    this.formErrors = error.response.data.errors || {}; 
+                });
         },
     },
 };

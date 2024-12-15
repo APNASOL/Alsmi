@@ -113,9 +113,25 @@ class OrdersController extends Controller
         return $orders_customers;
     }
 
-    public function closeOrder($order_id)
+    public function orderClose($order_id)
     {
         return Inertia::render('Order/Close', ['orderId' => $order_id]);
+    }
+
+    public function closeOrder(Request $request)
+    {
+
+        // Validate the incoming data
+        $request->validate([
+            'total' => 'required|numeric',
+            'commission' => 'required|numeric',
+            'premium' => 'required|numeric',
+            'profit' => 'required|numeric',
+        ]);
+
+        // Handle the order closure logic here (for example, updating order status)
+        // For now, we just return the validated data for debugging
+        dd($validatedData,$request);
     }
 
 }

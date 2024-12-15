@@ -2,13 +2,13 @@
     <main id="main" class="main">
         <div class="pagetitle d-flex justify-content-between">
             <div>
-                <h1 class="theme-text-color">Supplier</h1>
+                <h1 class="theme-text-color">Partners</h1>
                 <nav>
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item">
                             <a href="/dashboard">R & R Coal</a>
                         </li>
-                        <li class="breadcrumb-item">Supplier</li>
+                        <li class="breadcrumb-item">Partners</li>
                         <li class="breadcrumb-item active">Index</li>
                     </ol>
                 </nav>
@@ -17,10 +17,10 @@
                 <button
                     class="btn btn-success mt-3"
                     data-bs-toggle="modal"
-                    data-bs-target="#suppliermodal"
+                    data-bs-target="#customermodal"
                     @click="clearFields"
                 >
-                    <i class="bi bi-plus-lg"></i> Add New Supplier
+                    <i class="bi bi-plus-lg"></i> Add New Partner
                 </button>
             </div>
         </div>
@@ -28,24 +28,26 @@
         <section class="section">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title theme-text-color">All Supplier</h5>
+                    <h5 class="card-title theme-text-color">All Partners</h5>
                     <div class="table-responsive">
+                        <!-- Table with stripped rows -->
                         <table class="table table-striped">
                             <thead>
                                 <tr>
                                     <th scope="col">#</th>
                                     <th scope="col">Name</th>
                                     <th scope="col">Contact</th>
-                                    <th scope="col">Address</th> 
-                                    <th scope="col">Old Amount</th>
+                                    <th scope="col">Address</th>
+                                    <th scope="col">Old amount</th>
+                                     
                                     <th scope="col">Status</th>
-                                    <th scope="col">Actions</th>
+                                    <th scope="col">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="(supplier, index) in Supplier"
-                                    :key="supplier.id"
+                                    v-for="(partner, index) in Partners"
+                                    :key="partner.id"
                                 >
                                     <th scope="row">{{ index + 1 }}</th>
                                     <td>
@@ -53,21 +55,18 @@
                                             class="theme-text-color"
                                             :href="
                                                 route(
-                                                    'supplier.details',
-                                                    supplier.id
+                                                    'partner.details',
+                                                    partner.id
                                                 )
                                             "
-                                        >
-                                            {{ supplier.name }}</a
-                                        >
+                                            >{{ partner.name }}
+                                        </a>
                                     </td>
-                                    <td>{{ supplier.contact }}</td>
-                                    <td>{{ supplier.address }}</td>
-                                    <td>{{ supplier.old_amount }}</td>
-                                    
-                                    <td>
-                                        {{ supplier.status }}
-                                    </td>
+                                    <td>{{ partner.contact }}</td>
+                                    <td>{{ partner.address }}</td>
+                                    <td>{{ partner.old_amount }}</td>
+                               
+                                    <td>{{ partner.status }}</td>
                                     <td>
                                         <div class="btn-group">
                                             <Link
@@ -75,16 +74,16 @@
                                                 class="btn btn-sm fs-6"
                                                 :title="'Edit'"
                                                 data-bs-toggle="modal"
-                                                data-bs-target="#suppliermodal"
+                                                data-bs-target="#customermodal"
                                                 @click="
-                                                    showSupplier(supplier.id),
+                                                    showPartner(partner.id),
                                                         clearFields()
                                                 "
                                             >
                                                 <i class="bi bi-pencil"></i>
                                             </Link>
                                             <DeleteModal
-                                                :deleteId="supplier.id"
+                                                :deleteId="partner.id"
                                                 @deleteThis="deleteThis"
                                             ></DeleteModal>
                                         </div>
@@ -92,14 +91,15 @@
                                 </tr>
                             </tbody>
                         </table>
+                        <!-- End Table with stripped rows -->
                     </div>
                 </div>
             </div>
 
-            <!-- Supplier Modal -->
+            <!-- Partner modal -->
             <div
                 class="modal fade"
-                id="suppliermodal"
+                id="customermodal"
                 tabindex="-1"
                 aria-labelledby="exampleModalLabel"
                 aria-hidden="true"
@@ -108,7 +108,7 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <div class="section-title mt-1">
-                                <h5 class="c-theme-red">Supplier</h5>
+                                <h5 class="c-theme-red">Partner</h5>
                             </div>
                             <button
                                 type="button"
@@ -147,29 +147,34 @@
                                     </div>
 
                                     <div class="col-12">
-                                        <label class="form-label">Name</label>
+                                        <label for="name" class="form-label"
+                                            >Name</label
+                                        >
                                         <input
-                                            type="name"
+                                            type="text"
                                             class="form-control"
+                                            id="name"
                                             v-model="form.name"
                                             :class="{
                                                 'invalid-bg': formErrors.name,
                                             }"
                                         />
                                         <div
-                                            class="invalid-feedback animated fadeIn"
                                             v-if="formErrors.name"
+                                            class="invalid-feedback"
                                         >
                                             {{ formErrors.name[0] }}
                                         </div>
                                     </div>
+
                                     <div class="col-12">
-                                        <label class="form-label"
+                                        <label for="contact" class="form-label"
                                             >Contact</label
                                         >
                                         <input
                                             type="number"
                                             class="form-control"
+                                            id="contact"
                                             v-model="form.contact"
                                             :class="{
                                                 'invalid-bg':
@@ -177,8 +182,8 @@
                                             }"
                                         />
                                         <div
-                                            class="invalid-feedback animated fadeIn"
                                             v-if="formErrors.contact"
+                                            class="invalid-feedback"
                                         >
                                             {{ formErrors.contact[0] }}
                                         </div>
@@ -204,22 +209,24 @@
                                             {{ formErrors.old_amount[0] }}
                                         </div>
                                     </div>
+
                                     <div class="col-12">
-                                        <label class="form-label"
+                                        <label for="address" class="form-label"
                                             >Address</label
                                         >
                                         <textarea
-                                            type="address"
                                             class="form-control"
+                                            id="address"
                                             v-model="form.address"
                                             :class="{
                                                 'invalid-bg':
                                                     formErrors.address,
                                             }"
+                                            rows="1"
                                         ></textarea>
                                         <div
-                                            class="invalid-feedback animated fadeIn"
                                             v-if="formErrors.address"
+                                            class="invalid-feedback"
                                         >
                                             {{ formErrors.address[0] }}
                                         </div>
@@ -229,7 +236,7 @@
                                         <button
                                             type="submit"
                                             class="btn btn-success"
-                                            v-if="formStatus == 1"
+                                            v-if="formStatus === 1"
                                             @click="submit"
                                         >
                                             Save
@@ -243,8 +250,6 @@
                                             Saving
                                             <span
                                                 class="spinner-border spinner-border-sm"
-                                                role="status"
-                                                aria-hidden="true"
                                             ></span>
                                         </button>
                                     </div>
@@ -254,9 +259,9 @@
                     </div>
                 </div>
                 <button
-                    hidden="hidden"
+                    hidden
                     data-bs-toggle="modal"
-                    data-bs-target="#suppliermodal"
+                    data-bs-target="#customermodal"
                     ref="closeModal"
                 ></button>
             </div>
@@ -272,7 +277,7 @@ export default {
     layout: Master,
     data() {
         return {
-            Supplier: [],
+            Partners: [],
             form: {
                 id: "",
                 name: "",
@@ -283,32 +288,53 @@ export default {
             },
             formErrors: [],
             formStatus: 1,
-            supplied_id: "",
         };
     },
+    created() {
+        this.fetchCustomers();
+    },
     methods: {
-        fetchSupplier() {
+        fetchCustomers() {
             axios
-                .get(route("api.supplier.fetch"), {
-                    headers: {
-                        Authorization: "Bearer " + this.$page.props.auth_token,
-                    },
-                })
+                .get(route("api.partner.fetch"))
                 .then((response) => {
-                    this.Supplier = response.data;
+                    this.Partners = response.data;
                 })
                 .catch((error) => {
                     toastr.error(error.response.data.message);
                 });
         },
         submit() {
-             this.formStatus = 0;
+            this.formStatus = 0;
             let formData = new FormData();
             formData.append("id", this.form.id);
-            formData.append("name", this.form.name || "");
-            formData.append("contact", this.form.contact || "");
-            formData.append("old_amount", this.form.old_amount || "");
-            formData.append("address", this.form.address || "");
+
+            formData.append(
+                "name",
+                this.form.name == "" || this.form.name == null
+                    ? ""
+                    : this.form.name
+            );
+
+            formData.append(
+                "contact",
+                this.form.contact == "" || this.form.contact == null
+                    ? ""
+                    : this.form.contact
+            );
+
+            formData.append(
+                "address",
+                this.form.address == "" || this.form.address == null
+                    ? ""
+                    : this.form.address
+            );
+            formData.append(
+                "old_amount",
+                this.form.old_amount == "" || this.form.old_amount == null
+                    ? ""
+                    : this.form.old_amount
+            );
 
             formData.append(
                 "status",
@@ -320,17 +346,12 @@ export default {
             );
 
             axios
-                .post(route("api.supplier.store"), formData, {
-                    headers: {
-                        Authorization: "Bearer " + this.$page.props.auth_token,
-                    },
-                })
-                .then((response) => {
+                .post(route("api.partner.store"), formData)
+                .then(() => {
                     this.formStatus = 1;
-                    toastr.success("Supplier record saved successfully");
-                    this.fetchSupplier();
+                    toastr.success("Partner saved successfully");
+                    this.fetchCustomers();
                     this.$refs.closeModal.click();
-                    this.supplied_id = "";
                 })
                 .catch((error) => {
                     this.formStatus = 1;
@@ -339,29 +360,22 @@ export default {
                 });
         },
         clearFields() {
-            this.formStatus = 1;
-            this.form.name = "";
-            this.form.contact = "";
-            this.form.address = "";
-            this.form.old_amount = "";
-            this.form.status = "";
+            this.form = {
+                id: "",
+                name: "",
+                contact: "",
+                address: "",
+                old_amount: "",
+                status: false,
+            };
             this.formErrors = [];
+            this.formStatus = 1;
         },
-        showSupplier(supplier_id) {
+        showPartner(customer_id) {
             axios
-                .get(route("api.supplier.show", supplier_id), {
-                    headers: {
-                        Authorization: "Bearer " + this.$page.props.auth_token,
-                    },
-                })
+                .get(route("api.partner.show", customer_id))
                 .then((response) => {
-                    this.form.id = response.data.id;
-                    this.form.name = response.data.name;
-                    this.form.address = response.data.address;
-                    this.form.contact = response.data.contact;
-                    this.form.old_amount = response.data.old_amount;
-               
-                    this.form.status = response.data.status;
+                    this.form = { ...response.data };
                 })
                 .catch((error) => {
                     toastr.error(error.response.data.message);
@@ -369,34 +383,22 @@ export default {
         },
         deleteThis(id) {
             axios
-                .delete(route("api.supplier.delete", id), {
-                    headers: {
-                        Authorization: "Bearer " + this.$page.props.auth_token,
-                    },
-                })
+                .delete(route("api.partner.delete", id))
                 .then(() => {
-                    toastr.success("Supplier deleted successfully.");
-                    this.fetchSupplier();
+                    toastr.success("Partner deleted successfully");
+                    this.fetchCustomers();
                 })
                 .catch((error) => {
                     toastr.error(error.response.data.message);
                 });
         },
     },
-
-    created() {
-        this.fetchSupplier();
-    },
 };
 </script>
 
-<style lang="scss">
-@import "@vueform/multiselect/themes/default.css";
-.invalid-feedback {
-    display: block !important;
-}
+<style scoped>
 .invalid-bg {
-    border-color: #f8d4d4 !important;
-    background-color: #f8d4d4 !important;
+    border-color: #f8d4d4;
+    background-color: #f8d4d4;
 }
 </style>

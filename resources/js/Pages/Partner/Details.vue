@@ -2,20 +2,20 @@
     <main id="main" class="main">
         <div class="pagetitle d-flex justify-content-between">
             <div>
-                <h1 class="theme-text-color">{{ supplier.name }}</h1>
+                <h1 class="theme-text-color">{{ partner.name }}</h1>
                 <nav>
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item">
                             <a href="/">R & R Coal</a>
                         </li>
-                        <li class="breadcrumb-item">Supplier</li>
+                        <li class="breadcrumb-item">Partner</li>
                         <li class="breadcrumb-item active">Details</li>
                     </ol>
                 </nav>
             </div>
             <div>
-                <a :href="route('suppliers')" class="btn btn-success mt-3">
-                    <i class="bi bi-back"></i> Suppliers
+                <a :href="route('partners')" class="btn btn-success mt-3">
+                    <i class="bi bi-back"></i> Partners
                 </a>
             </div>
         </div>
@@ -42,11 +42,10 @@
                             ></span>
                         </button>
                     </div>
-
-                    <!-- Ledger Table -->
                     <div class="table-responsive">
+                        <!-- Ledger Table -->
                         <table class="table table-striped">
-                            <thead>
+                            <thead >
                                 <tr>
                                     <th>#</th>
                                     <th>Date</th>
@@ -58,7 +57,7 @@
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="(entry, index) in supplierDetails"
+                                    v-for="(entry, index) in partnerDetails"
                                     :key="entry.id"
                                 >
                                     <td>{{ index + 1 }}</td>
@@ -88,32 +87,32 @@ import "@vuepic/vue-datepicker/dist/main.css";
 
 export default {
     layout: Master,
-    props: ["supplierId"],
+    props: ["partnerId"],
     components: {
         Multiselect,
         Datepicker,
     },
     created() {
-        this.fetchCustomerDetails();
+        this.fetchPartnerDetails();
     },
     data() {
         return {
-            supplierDetails: [],
-            supplier: [],
+            partnerDetails: [],
+            partner: [],
             pdfBtnSpinner: false,
         };
     },
     methods: {
-        fetchCustomerDetails() {
+        fetchPartnerDetails() {
             axios
-                .get(route("api.supplier.fetch.details", this.supplierId), {
+                .get(route("api.partner.fetch.details", this.partnerId), {
                     headers: {
                         Authorization: "Bearer " + this.$page.props.auth_token,
                     },
                 })
                 .then((response) => {
-                    this.supplier = response.data.supplier;
-                    this.supplierDetails = response.data.details;
+                    this.partner = response.data.partner;
+                    this.partnerDetails = response.data.details;
                 })
                 .catch((error) => {
                     toastr.error(error.response.data.message);
@@ -126,8 +125,8 @@ export default {
         calculateBalance(index) {
             let balance = 0;
             for (let i = 0; i <= index; i++) {
-                balance += this.supplierDetails[i].credit;
-                balance -= this.supplierDetails[i].debit;
+                balance += this.partnerDetails[i].credit;
+                balance -= this.partnerDetails[i].debit;
             }
             return this.formatCurrency(balance);
         },
@@ -144,13 +143,13 @@ export default {
             // Add a title to the PDF
             doc.setFontSize(18);
             doc.setTextColor(40);
-            doc.text(`${this.supplier.name} Ledger Details`, 14, 20);
+            doc.text(`${this.partner.name} Ledger Details`, 14, 20);
 
             // Add AutoTable
             autoTable(doc, {
                 startY: 30,
                 head: [["#", "Date", "Type", "Credit", "Debit", "Balance"]],
-                body: this.supplierDetails.map((entry, index) => [
+                body: this.partnerDetails.map((entry, index) => [
                     index + 1,
                     this.formatDate(entry.date),
                     entry.type,
@@ -169,7 +168,7 @@ export default {
             });
 
             // Save PDF
-            doc.save(`${this.supplier.name}_Ledger.pdf`);
+            doc.save(`${this.partner.name}_Ledger.pdf`);
             this.pdfBtnSpinner = false;
         },
     },

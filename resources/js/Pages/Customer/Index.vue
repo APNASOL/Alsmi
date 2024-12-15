@@ -38,6 +38,7 @@
                                     <th scope="col">Name</th>
                                     <th scope="col">Contact</th>
                                     <th scope="col">Address</th>
+                                    <th scope="col">Old amount</th>
                                      
                                     <th scope="col">Status</th>
                                     <th scope="col">Action</th>
@@ -63,6 +64,7 @@
                                     </td>
                                     <td>{{ customer.contact }}</td>
                                     <td>{{ customer.address }}</td>
+                                    <td>{{ customer.old_amount }}</td>
                                
                                     <td>{{ customer.status }}</td>
                                     <td>
@@ -230,7 +232,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="mt-5">
+                                    <div class="mt-3">
                                         <button
                                             type="submit"
                                             class="btn btn-success"

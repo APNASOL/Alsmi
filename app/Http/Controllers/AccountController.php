@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\BankAccount;
 use App\Models\Bank;
+use App\Models\Customer;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -46,5 +48,47 @@ class AccountController extends Controller
     return $accounts_details;
 }
 
-    
+    public function fetch_consumers($consumer_type)
+    {
+        if($consumer_type == "Customer")
+        {
+            $customers = Customer::pluck('name','id');
+            return $customers;
+        }
+        
+        if($consumer_type == "Supplier")
+        {
+            $suppliers = Supplier::pluck('name','id');
+            return $suppliers;
+        }
+        if($consumer_type == "Partner")
+        {
+
+        }
+
+    }
+
+    public function accounts_data_save(Request $request)
+    {
+        $request->validate([
+            'consumer' => 'required',
+            'consumer_id' => 'required',
+            'bank_id' => 'required',
+            'transaction_type' => 'required',
+            'amount' => 'required|numeric',
+            'ref_no' => 'required|string',
+            'account' => 'required|string',
+            'current_amount' => 'required|numeric',
+            'date' => 'required|date',
+        ]);
+
+        if($request->process_for == 'Cash In'){
+        
+            // do cash in process here
+            
+        }
+        if($request->process_for == 'Cash Out'){
+            // do cash out process here
+        }
+    }
 }
