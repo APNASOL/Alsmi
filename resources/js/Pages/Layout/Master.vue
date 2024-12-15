@@ -115,7 +115,7 @@
                         :class="{ active: isActive('/customers') }"
                         href="/customers"
                     >
-                        <i class="bi bi-person-circle"></i>
+                        <i class="bi bi-person-badge"></i>
                         <span>Customers</span>
                     </a>
                 </li>
@@ -138,7 +138,8 @@
                         :class="{ active: isActive('/partners') }"
                         href="/partners"
                     >
-                        <i class="bi bi-box-seam"></i>
+                        <i class="bi bi-people"></i>
+
                         <span>Partners</span>
                     </a>
                 </li>
@@ -193,7 +194,10 @@
                         id="icons-nav"
                         class="nav-content collapse"
                         :class="{
-                            show: isActive('/cashbook') || isActive('/banks') || isActive('/accounts'),
+                            show:
+                                isActive('/cashbook') ||
+                                isActive('/banks') ||
+                                isActive('/accounts'),
                         }"
                         data-bs-parent="#sidebar-nav"
                     >

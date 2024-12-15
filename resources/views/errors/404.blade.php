@@ -20,7 +20,7 @@
       -o-transform: skew(0deg, -10deg);
       -ms-transform: skew(0deg, -10deg);
       transform: skew(0deg, -10deg);
-      background-color: #1dbc9c;
+      background-color: rgb(47, 66, 238);
       padding: 60px
   }
   
@@ -190,7 +190,7 @@
                    
                   
                   <ul class="error-actions" style="color: white;">
-                   <i class="fa fa-angle-double-right"></i> <a href="/login" style="color: white; text-decoration:none">{{ ('Go to Home Page') }}</a>
+                   <i class="fa fa-angle-double-right"></i> <a href="/dashboard" style="color: white; text-decoration:none">{{ ('Go to Home Page') }}</a>
                   </ul>
               </div>
           </div>
