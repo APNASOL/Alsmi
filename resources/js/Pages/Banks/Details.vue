@@ -6,7 +6,7 @@
                 <nav>
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item">
-                            <a href="/">R & R Coal</a>
+                            <a href="/">Alsmi</a>
                         </li>
                         <li class="breadcrumb-item">Customer</li>
                         <li class="breadcrumb-item active">Details</li>

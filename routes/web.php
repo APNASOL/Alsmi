@@ -34,29 +34,7 @@ Route::middleware(['web'])->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users');
     // Admissions
 
-    // mines
-    Route::get('/mines', function () {
-        return Inertia::render('Mines/Index');
-    })->name('mines');
-    // customer
     
-    Route::get('/customers', [CustomerController::class, 'index'])->name('customers');
-    Route::get('/customer/details/{id}', [CustomerController::class, 'details'])->name('customer.details');
-    // partners
-    Route::get('/partners', [PartnerController::class, 'index'])->name('partners');
-    Route::get('/partner/details/{id}', [PartnerController::class, 'details'])->name('partner.details');
-    // suppliers
-
-    Route::get('/suppliers', [SuppliersController::class, 'index'])->name('suppliers');
-    Route::get('/supplier/details/{id}', [SuppliersController::class, 'details'])->name('supplier.details');
-    // orders 
-    Route::get('/orders', [OrdersController::class, 'index'])->name('orders');
-    Route::get('/order/details/{id}', [OrdersController::class, 'details'])->name('order.details');
-    Route::get('/order/close/{id}', [OrdersController::class, 'orderClose'])->name('close.order');
-
-    // trips
-    Route::get('/trips', [OrdersController::class, 'index'])->name('trips');
-    // trips
     //  Cashbook
     Route::get('/cashbook', [CashbookController::class, 'Index'])->name('cashbook');
     //  Banks

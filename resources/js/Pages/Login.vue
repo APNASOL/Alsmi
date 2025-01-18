@@ -19,7 +19,7 @@
                             <div class="d-flex justify-content-center py-4">
                                 <a :href="route('/')"> 
                                     <img
-                                        src="http://rehmatcoalsoftware.test/backend/assets/img/logo.png"
+                                        src="backend/assets/img/logo.png"
                                         height="60"
                                         alt="logo"
                                     /> 

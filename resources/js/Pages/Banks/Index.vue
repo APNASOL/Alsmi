@@ -6,7 +6,7 @@
                 <nav>
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item">
-                            <a href="/dashboard">R & R Coal</a>
+                            <a href="/dashboard">Alsmi</a>
                         </li>
                         <li class="breadcrumb-item">Banks</li>
                         <li class="breadcrumb-item active">Index</li>

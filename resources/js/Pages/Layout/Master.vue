@@ -7,11 +7,11 @@
                     class="logo d-flex align-items-center"
                 >
                     <img
-                        src="http://rehmatcoalsoftware.test/backend/assets/img/logo.png"
+                        src="http://alsmi.test/backend/assets/img/logo.png"
                         alt=""
                     />
                     <span class="d-none d-lg-block theme-text-color"
-                        >R & R Coal</span
+                        >Alsmi</span
                     >
                 </a>
                 <i class="bi bi-list toggle-sidebar-btn"></i>
@@ -35,7 +35,7 @@
                             data-bs-toggle="dropdown"
                         >
                             <img
-                                src="http://rehmatcoalsoftware.test/backend/assets/img/profile-img.jpg"
+                                src="http://alsmi.test/backend/assets/img/profile-img.jpg"
                                 alt="Profile"
                                 class="rounded-circle"
                             />
@@ -108,72 +108,10 @@
                     </a>
                 </li>
 
-                <!-- Customers Nav Item -->
-                <li class="nav-item">
-                    <a
-                        class="nav-link collapsed"
-                        :class="{ active: isActive('/customers') }"
-                        href="/customers"
-                    >
-                        <i class="bi bi-person-badge"></i>
-                        <span>Customers</span>
-                    </a>
-                </li>
-
-                <!-- Suppliers Nav Item -->
-                <li class="nav-item">
-                    <a
-                        class="nav-link collapsed"
-                        :class="{ active: isActive('/suppliers') }"
-                        href="/suppliers"
-                    >
-                        <i class="bi bi-box-seam"></i>
-                        <span>Suppliers</span>
-                    </a>
-                </li>
-                <!-- Partners Nav Item -->
-                <li class="nav-item">
-                    <a
-                        class="nav-link collapsed"
-                        :class="{ active: isActive('/partners') }"
-                        href="/partners"
-                    >
-                        <i class="bi bi-people"></i>
-
-                        <span>Partners</span>
-                    </a>
-                </li>
-
-                <!-- Orders Nav Item -->
-                <li class="nav-item">
-                    <a
-                        class="nav-link collapsed"
-                        :class="{
-                            active:
-                                isActive('/orders') ||
-                                isActive('/order/details'),
-                        }"
-                        href="/orders"
-                    >
-                        <i class="bi bi-cart3"></i>
-                        <span>Orders</span>
-                    </a>
-                </li>
-
-                <!-- Trips Nav Item -->
-                <li class="nav-item">
-                    <a
-                        class="nav-link collapsed"
-                        :class="{ active: isActive('/trips') }"
-                        href="/trips"
-                    >
-                        <i class="bi bi-receipt"></i>
-                        <span>Trips</span>
-                    </a>
-                </li>
+                 
 
                 <!-- Accounts Nav Item -->
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <a
                         class="nav-link collapsed"
                         :class="{
@@ -250,7 +188,7 @@
                             </a>
                         </li>
                     </ul>
-                </li>
+                </li> -->
 
                 <!-- Reports Nav Item -->
                 <li class="nav-item">
@@ -285,12 +223,12 @@
         <!-- ======= Footer ======= -->
         <footer id="footer" class="footer">
             <div class="copyright">
-                &copy; Copyright <strong><span>R & R Coal</span></strong
+                &copy; Copyright <strong><span>Alsmi</span></strong
                 >. All Rights Reserved
             </div>
             <div class="credits">
                 Designed by
-                <a href="https://apnasol.com/">APNASOL Tech</a>
+                <a href="https://goritmi.co.uk">Goritim Ltd</a>
             </div>
         </footer>
         <!-- End Footer -->
@@ -298,7 +236,7 @@
 </template>
 
 <script>
-import "http://rehmatcoalsoftware.test/backend/assets/vendor/bootstrap/js/bootstrap.bundle.min.js";
+import "http://alsmi.test/backend/assets/vendor/bootstrap/js/bootstrap.bundle.min.js";
 import axios from "axios";
 
 export default {
@@ -306,7 +244,7 @@ export default {
         let mainJs = document.createElement("script");
         mainJs.setAttribute(
             "src",
-            "http://rehmatcoalsoftware.test/backend/assets/js/main.js"
+            "http://alsmi.test/backend/assets/js/main.js"
         );
 
         document.head.appendChild(mainJs);
