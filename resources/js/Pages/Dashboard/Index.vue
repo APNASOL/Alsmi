@@ -238,8 +238,7 @@
 <script>
 import Master from "../Layout/Master.vue";
 export default {
-    layout: Master,
-
+    layout: Master,  
     setup() {
         return {};
     },
