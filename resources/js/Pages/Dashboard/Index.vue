@@ -224,10 +224,8 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <!-- End Account Card -->
-                    </div>
-                    <!-- End Left side columns -->
+                        </div> 
+                    </div> 
                 </div>
             </section>
         </main>
