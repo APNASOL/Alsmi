@@ -109,7 +109,7 @@ export default {
        
         deleteThis(id) {
             axios
-                .delete(route("api.transaction.delete", id))
+            .delete(route("api.income.expanse.delete", [id,this.Expanse]))
                 .then(() => {
                     this.fetchExpanseTypes();
                     toastr.success("Expanse Types deleted successfully.");

@@ -55,8 +55,9 @@ Route::middleware(['web'])->group(function () {
     Route::get('/income/expanse/fetch/{process}', [IncomeExpanseController::class, 'fetch'])->name('api.income.expanse.fetch');             // Fetch all transaction entries
     Route::post('/income/expanse/store', [IncomeExpanseController::class, 'store'])->name('api.income.expanse.store');            // Create or update a transaction entry
     Route::get('/income/expanse/show/{id}/{process}', [IncomeExpanseController::class, 'show'])->name('api.income.expanse.show');           // Show a specific transaction entry
-    Route::delete('/income/expanse/delete/{id}', [IncomeExpanseController::class, 'destroy'])->name('api.income.expanse.delete'); // Delete a specific transaction entry
+    Route::delete('/income/expanse/delete/{id}/{process}', [IncomeExpanseController::class, 'delete'])->name('api.income.expanse.delete'); // Delete a specific transaction entry
     Route::get('/expanse/pluck', [IncomeExpanseController::class, 'pluck'])->name('api.expanse.pluck'); 
     Route::get('/income/pluck', [IncomeExpanseController::class, 'pluckIncome'])->name('api.income.pluck'); 
     Route::get('/expanse/pluck', [IncomeExpanseController::class, 'pluckExpanses'])->name('api.expanse.pluck'); 
-});
+    
+ });
