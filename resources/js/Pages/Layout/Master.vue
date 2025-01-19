@@ -103,93 +103,36 @@
                         :class="{ active: isActive('/dashboard') }"
                         href="/dashboard"
                     >
-                        <i class="bi bi-house"></i>
+                        <i class="bi bi-house-door"></i>
+                        <!-- Icon for Dashboard -->
                         <span>Dashboard</span>
                     </a>
                 </li>
-
-                 
-
-                <!-- Accounts Nav Item -->
-                <!-- <li class="nav-item">
+                <!-- Transactions Nav Item -->
+                <li class="nav-item">
                     <a
                         class="nav-link collapsed"
-                        :class="{
-                            active:
-                                isActive('/cashbook') ||
-                                isActive('/banks') ||
-                                isActive('/accounts'),
-                        }"
-                        data-bs-target="#icons-nav"
-                        data-bs-toggle="collapse"
-                        href="#"
+                        :class="{ active: isActive('/transactions') }"
+                        href="/transactions"
                     >
-                        <i class="bi bi-wallet"></i>
-                        <span>Accounts</span>
-                        <i class="bi bi-chevron-down ms-auto"></i>
+                        <i class="bi bi-cash"></i>
+                        <!-- Icon for Transactions -->
+                        <span>Transactions</span>
                     </a>
-                    <ul
-                        id="icons-nav"
-                        class="nav-content collapse"
-                        :class="{
-                            show:
-                                isActive('/cashbook') ||
-                                isActive('/banks') ||
-                                isActive('/accounts'),
-                        }"
-                        data-bs-parent="#sidebar-nav"
+                </li>
+
+                <!-- Income Statements Nav Item -->
+                <li class="nav-item">
+                    <a
+                        class="nav-link collapsed"
+                        :class="{ active: isActive('/income-statements') }"
+                        href="/income-statements"
                     >
-                        <li>
-                            <a
-                                href="/accounts"
-                                :class="{ active: isActive('/accounts') }"
-                            >
-                                <i
-                                    class="bi bi-bank fs-5"
-                                    :class="{
-                                        active: isActive('/accounts'),
-                                        'text-white': isActive('/accounts'),
-                                    }"
-                                ></i>
-
-                                <span>Bank Accounts</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a
-                                href="/banks"
-                                :class="{ active: isActive('/banks') }"
-                            >
-                                <i
-                                    class="bi bi-bank fs-5"
-                                    :class="{
-                                        active: isActive('/banks'),
-                                        'text-white': isActive('/banks'),
-                                    }"
-                                ></i>
-
-                                <span>Banks</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a
-                                class="nav-link collapsed"
-                                href="/cashbook"
-                                :class="{ active: isActive('/cashbook') }"
-                            >
-                                <i
-                                    class="bi bi-cash fs-5"
-                                    :class="{
-                                        active: isActive('/cashbook'),
-                                        'text-white': isActive('/cashbook'),
-                                    }"
-                                ></i>
-                                <span>Cash Book</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li> -->
-
+                        <i class="bi bi-file-earmark-text"></i>
+                        <!-- Icon for Income Statements -->
+                        <span>Income Statements</span>
+                    </a>
+                </li>
                 <!-- Reports Nav Item -->
                 <li class="nav-item">
                     <a
@@ -197,19 +140,42 @@
                         :class="{ active: isActive('/reports') }"
                         href="/reports"
                     >
-                        <i class="bi bi-bar-chart"></i>
+                        <i class="bi bi-bar-chart-line"></i>
+                        <!-- Icon for Reports -->
                         <span>Reports</span>
                     </a>
                 </li>
-
                 <!-- Users Nav Item -->
+                <li class="nav-item">
+                    <a
+                        class="nav-link collapsed"
+                        :class="{ active: isActive('/expanse/types') }"
+                        href="/expanse/types"
+                    >
+                        <i class="bi bi-person-circle"></i>
+                        <!-- Icon for Users -->
+                        <span>Expanse Types</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a
+                        class="nav-link collapsed"
+                        :class="{ active: isActive('/income/types') }"
+                        href="/income/types"
+                    >
+                        <i class="bi bi-person-circle"></i>
+                        <!-- Icon for Users -->
+                        <span>Income Types</span>
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a
                         class="nav-link collapsed"
                         :class="{ active: isActive('/users') }"
                         href="/users"
                     >
-                        <i class="bi bi-people-fill"></i>
+                        <i class="bi bi-person-circle"></i>
+                        <!-- Icon for Users -->
                         <span>Software Users</span>
                     </a>
                 </li>

@@ -2,13 +2,13 @@
     <main id="main" class="main">
         <div class="pagetitle d-flex justify-content-between">
             <div>
-                <h1 class="theme-text-color">Cashbook</h1>
+                <h1 class="theme-text-color">Transaction</h1>
                 <nav>
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item">
                             <a href="/dashboard">Alsmi</a>
                         </li>
-                        <li class="breadcrumb-item">Cashbook</li>
+                        <li class="breadcrumb-item">Transaction</li>
                         <li class="breadcrumb-item active">Index</li>
                     </ol>
                 </nav>
@@ -17,10 +17,10 @@
                 <button
                     class="btn btn-success mt-3"
                     data-bs-toggle="modal"
-                    data-bs-target="#cashbookmodal"
+                    data-bs-target="#transactionmodal"
                     @click="clearFields"
                 >
-                    <i class="bi bi-plus-lg"></i> Add New Entry
+                    <i class="bi bi-plus-lg"></i> New Transaction
                 </button>
             </div>
         </div>
@@ -29,7 +29,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title theme-text-color">
-                        All Cashbook Entries
+                        All Transaction Entries
                     </h5>
                     <div class="table-responsive">
                         <table class="table table-striped">
@@ -47,7 +47,7 @@
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="(entry, index) in cashbookEntries"
+                                    v-for="(entry, index) in transactionEntries"
                                     :key="entry.id"
                                 >
                                     <th scope="row">{{ index + 1 }}</th>
@@ -64,7 +64,7 @@
                                                 class="btn btn-sm fs-6"
                                                 title="Edit"
                                                 data-bs-toggle="modal"
-                                                data-bs-target="#cashbookmodal"
+                                                data-bs-target="#transactionmodal"
                                                 @click="
                                                     showEntry(entry.id);
                                                     clearFields();
@@ -85,10 +85,10 @@
                 </div>
             </div>
 
-            <!-- Cashbook Modal -->
+            <!-- Transaction Modal -->
             <div
                 class="modal fade"
-                id="cashbookmodal"
+                id="transactionmodal"
                 tabindex="-1"
                 aria-labelledby="exampleModalLabel"
                 aria-hidden="true"
@@ -101,7 +101,7 @@
                                 <small>({{ form.date }})</small>
                             </h5>
                             <h5 class="modal-title text-primary" v-else>
-                                New Cashbook Entry
+                                New Transaction Entry
                             </h5>
                             <button
                                 type="button"
@@ -267,7 +267,7 @@ export default {
     layout: Master,
     data() {
         return {
-            cashbookEntries: [],
+            transactionEntries: [],
             form: {
                 id: "",
                 notes: "",
@@ -283,14 +283,14 @@ export default {
         };
     },
     created() {
-        this.fetchCashbookEntries();
+        this.fetchTransactionEntries();
     },
     methods: {
-        fetchCashbookEntries() {
+        fetchTransactionEntries() {
             axios
-                .get(route("api.cashbook.fetch"))
+                .get(route("api.transaction.fetch"))
                 .then((response) => {
-                    this.cashbookEntries = response.data;
+                    this.transactionEntries = response.data;
                 })
                 .catch((error) => {
                     console.error(error);
@@ -299,11 +299,11 @@ export default {
         submit() {
             this.formStatus = 0;
             axios
-                .post(route("api.cashbook.store"), this.form)
+                .post(route("api.transaction.store"), this.form)
                 .then(() => {
                     this.formStatus = 1;
-                    this.fetchCashbookEntries();
-                    toastr.success("Cashbook entry saved successfully.");
+                    this.fetchTransactionEntries();
+                    toastr.success("Transaction entry saved successfully.");
                     this.$refs.closeModal?.click();
                 })
                 .catch((error) => {
@@ -316,7 +316,7 @@ export default {
         calculateBalance(index) {
     let balance = 0;
     for (let i = 0; i <= index; i++) {
-        const entry = this.cashbookEntries[i];
+        const entry = this.transactionEntries[i];
         const cashIn = parseFloat(entry.cash_in) || 0;  // Ensure it's a number
         const cashOut = parseFloat(entry.cash_out) || 0; // Ensure it's a number
         balance += cashIn;
@@ -349,7 +349,7 @@ export default {
         },
         showEntry(entry_id) {
             axios
-                .get(route("api.cashbook.show", entry_id))
+                .get(route("api.transaction.show", entry_id))
                 .then((response) => {
                     this.form = { ...response.data };
                 })
@@ -359,10 +359,10 @@ export default {
         },
         deleteThis(id) {
             axios
-                .delete(route("api.cashbook.delete", id))
+                .delete(route("api.transaction.delete", id))
                 .then(() => {
-                    this.fetchCashbookEntries();
-                    toastr.success("Cashbook entry deleted successfully.");
+                    this.fetchTransactionEntries();
+                    toastr.success("Transaction entry deleted successfully.");
                 })
                 .catch((error) => {
                     console.error(error);

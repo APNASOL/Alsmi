@@ -3,13 +3,11 @@
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\OrdersController;
-use App\Http\Controllers\SuppliersController;
-use App\Http\Controllers\AccountController;
+ 
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\CashbookController;
-use App\Http\Controllers\PartnerController;
-use App\Http\Controllers\BankController;
+use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\IncomeExpanseController;
+ 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -36,11 +34,14 @@ Route::middleware(['web'])->group(function () {
 
     
     //  Cashbook
-    Route::get('/cashbook', [CashbookController::class, 'Index'])->name('cashbook');
+    Route::get('/transactions', [TransactionController::class, 'Index'])->name('transactions');
     //  Banks
     Route::get('/banks', [BankController::class, 'Index'])->name('banks');
     //  Accounts 
     Route::get('/accounts', [AccountController::class, 'index'])->name('accounts'); 
+    //  Accounts 
+    Route::get('/expanse/types', [IncomeExpanseController::class, 'expanse_index'])->name('expanse.types'); 
+    Route::get('/income/types', [IncomeExpanseController::class, 'income_index'])->name('income.types'); 
  
 
 });

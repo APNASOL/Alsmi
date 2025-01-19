@@ -16,6 +16,7 @@ import ConfirmationModal from './Pages/Global/ConfirmationModal.vue';
 import ImageZooming from './Pages/Global/ImageZooming.vue';
 // import Cropper from './Pages/Global/Cropper.vue';
 import CropperOffCanvas from './Pages/Global/CropperOffCanvas.vue';
+import IncomeExpanseCreateComponent from './Pages/Global/IncomeExpanseCreateComponent.vue';
 
 
 createInertiaApp({
@@ -33,6 +34,7 @@ createInertiaApp({
             .component("ImageZooming", ImageZooming)
             
             .component("CropperOffCanvas", CropperOffCanvas)
+            .component("IncomeExpanseCreateComponent", IncomeExpanseCreateComponent)
             .mount(el);
     },
 });

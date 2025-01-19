@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CashBook extends Model
+class Transaction extends Model
 {
     use HasFactory;
     public $incrementing=false;
-    protected $table = 'cashbook';
+    protected $table = 'transactions';
     
 }
 

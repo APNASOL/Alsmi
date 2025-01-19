@@ -1,11 +1,11 @@
 <?php
 
-use App\Http\Controllers\AccountController;
-use App\Http\Controllers\BankController;
-use App\Http\Controllers\CashBookController;
+ 
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\IncomeExpanseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,10 +44,19 @@ Route::middleware(['web'])->group(function () {
     Route::post('/account/data/store', [AccountController::class, 'accounts_data_save'])->name('api.account.data.store');
 
                                                                                                                  // Cashbook routes
-    Route::get('/cashbook/fetch', [CashbookController::class, 'fetch'])->name('api.cashbook.fetch');             // Fetch all cashbook entries
-    Route::post('/cashbook/store', [CashbookController::class, 'store'])->name('api.cashbook.store');            // Create or update a cashbook entry
-    Route::get('/cashbook/show/{id}', [CashbookController::class, 'show'])->name('api.cashbook.show');           // Show a specific cashbook entry
-    Route::delete('/cashbook/delete/{id}', [CashbookController::class, 'destroy'])->name('api.cashbook.delete'); // Delete a specific cashbook entry
-    Route::get('/cashbook/pluck', [CashbookController::class, 'pluck'])->name('api.cashbook.pluck');             // (Optional) Fetch cashbook data for dropdowns or other purposes
-
+    Route::get('/transaction/fetch', [TransactionController::class, 'fetch'])->name('api.transaction.fetch');             // Fetch all transaction entries
+    Route::post('/transaction/store', [TransactionController::class, 'store'])->name('api.transaction.store');            // Create or update a transaction entry
+    Route::get('/transaction/show/{id}', [TransactionController::class, 'show'])->name('api.transaction.show');           // Show a specific transaction entry
+    Route::delete('/transaction/delete/{id}', [TransactionController::class, 'destroy'])->name('api.transaction.delete'); // Delete a specific transaction entry
+    Route::get('/transaction/pluck', [TransactionController::class, 'pluck'])->name('api.transaction.pluck');             // (Optional) Fetch transaction data for dropdowns or other purposes
+    
+    // /Income Expanse routes
+    Route::post('/income/expanse/store', [IncomeExpanseController::class, 'store'])->name('api.income.expanse.store');             // Fetch all transaction entries
+    Route::get('/income/expanse/fetch/{process}', [IncomeExpanseController::class, 'fetch'])->name('api.income.expanse.fetch');             // Fetch all transaction entries
+    Route::post('/income/expanse/store', [IncomeExpanseController::class, 'store'])->name('api.income.expanse.store');            // Create or update a transaction entry
+    Route::get('/income/expanse/show/{id}/{process}', [IncomeExpanseController::class, 'show'])->name('api.income.expanse.show');           // Show a specific transaction entry
+    Route::delete('/income/expanse/delete/{id}', [IncomeExpanseController::class, 'destroy'])->name('api.income.expanse.delete'); // Delete a specific transaction entry
+    Route::get('/expanse/pluck', [IncomeExpanseController::class, 'pluck'])->name('api.expanse.pluck'); 
+    Route::get('/income/pluck', [IncomeExpanseController::class, 'pluckIncome'])->name('api.income.pluck'); 
+    Route::get('/expanse/pluck', [IncomeExpanseController::class, 'pluckExpanses'])->name('api.expanse.pluck'); 
 });
