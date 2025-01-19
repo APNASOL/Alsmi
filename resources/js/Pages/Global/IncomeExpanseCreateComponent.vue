@@ -1,18 +1,14 @@
 <template>
     <button
-        v-if="id"
+        v-if="record_id"
         class="btn btn-sm fs-6"
         title="Edit"
         data-bs-toggle="modal"
         data-bs-target="#updateRecordModal"
-        @click="
-             
-            showEntry(id);
-        "
     >
         <i class="bi bi-pencil"></i>
     </button>
-    
+
     <button
         v-else
         class="btn btn-success mt-3"
@@ -34,8 +30,10 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title text-primary" v-if="id">
-                        {{ form.name }}  
+                    {{ record_id }}
+                    {{ record_id }}-{{ form.id }}
+                    <h5 class="modal-title text-primary" v-if="record_id">
+                        {{ form.name }}
                     </h5>
                     <h5 class="modal-title text-primary" v-else>
                         New {{ process }} Entry
@@ -104,13 +102,20 @@
             ref="closeModal"
         ></button>
     </div>
-    
 </template>
 
 <script>
 import axios from "axios";
 export default {
-    props: ["process", "id"],
+    props: ["process", "record_id"],
+    emits: ["save-success"], // Declare custom events
+
+    crated() {
+        console.log("commming".this.process);
+        console.log("commming".this.record_id);
+        if (this.record_id) {
+        }
+    },
     data() {
         return {
             transactionEntries: [],
@@ -133,6 +138,7 @@ export default {
                 .then(() => {
                     this.formStatus = 1;
                     toastr.success("Record saved successfully.");
+                    this.$emit("save-success");
                     this.$refs.closeModal.click();
                 })
                 .catch((error) => {
@@ -143,7 +149,7 @@ export default {
         showEntry(entry_id) {
             console.log(entry_id);
             axios
-                .get(route("api.income.expanse.show", [entry_id,this.process]))
+                .get(route("api.income.expanse.show", [entry_id, this.process]))
                 .then((response) => {
                     this.form.id = response.data.id;
                     this.form.name = response.data.name;
@@ -153,9 +159,8 @@ export default {
                     console.error(error);
                 });
         },
-        clearFields ()
-        {
-            this.form.name ="";
+        clearFields() {
+            this.form.name = "";
         },
     },
 };

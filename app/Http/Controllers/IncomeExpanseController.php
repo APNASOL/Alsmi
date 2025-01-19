@@ -40,9 +40,9 @@ class IncomeExpanseController extends Controller
 
         ]);
 
-     
-    
+        
         if ($request->id) {
+           
             if ($request->process == 'Expanse') {
                 $record = ExpanseType::findOrFail($request->id);
 

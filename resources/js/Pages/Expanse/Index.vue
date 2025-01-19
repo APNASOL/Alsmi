@@ -14,15 +14,14 @@
                 </nav>
             </div>
             <div>
-                <!-- <button
+                <button
                     class="btn btn-success mt-3"
                     data-bs-toggle="modal"
                     data-bs-target="#updateRecordModal"
                     @click="clearFields"
                 >
                     <i class="bi bi-plus-lg"></i> New Expanse Types
-                </button> -->
-                <IncomeExpanseCreateComponent :process="Expanse" />
+                </button>
             </div>
         </div>
 
@@ -38,26 +37,32 @@
                                 <tr>
                                     <th scope="col">#</th>
                                     <th scope="col">Name</th>
-                                     
-                              
+
                                     <th scope="col">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="(expanse, index) in ExpanseTypes"
+                                    v-for="(expanse, index) in expanseType"
                                     :key="expanse.id"
                                 >
                                     <th scope="row">{{ index + 1 }}</th>
                                     <td>{{ expanse.name }}</td>
-                                     
-                                  
-                                     
+
                                     <td>
                                         <div class="btn-group">
-                                            <IncomeExpanseCreateComponent :process="Expanse" :id="expanse.id" />
-
-                                            
+                                            <button
+                                                class="btn btn-sm fs-6"
+                                                title="Edit"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#updateRecordModal"
+                                                @click="
+                                                    showEntry(expanse.id);
+                                                    clearFields();
+                                                "
+                                            >
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
                                             <DeleteModal
                                                 :deleteId="expanse.id"
                                                 @deleteThis="deleteThis"
@@ -71,7 +76,87 @@
                 </div>
             </div>
 
-           
+            <!-- Transaction Modal -->
+            <div
+                class="modal fade"
+                id="updateRecordModal"
+                tabindex="-1"
+                aria-labelledby="exampleModalLabel"
+                aria-hidden="true"
+            >
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-primary" v-if="form.id">
+                                {{ form.name }}
+                            </h5>
+                            <h5 class="modal-title text-primary" v-else>
+                                New {{ process }} Entry
+                            </h5>
+                            <button
+                                type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"
+                            ></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="card card-body p-3">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label for="name" class="form-label"
+                                            >{{ process }} name</label
+                                        >
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="name"
+                                            v-model="form.name"
+                                            :class="{
+                                                'invalid-bg': formErrors.name,
+                                            }"
+                                        />
+                                        <div
+                                            v-if="formErrors.name"
+                                            class="invalid-feedback"
+                                        >
+                                            {{ formErrors.name[0] }}
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <button
+                                            type="submit"
+                                            class="btn btn-success"
+                                            v-if="formStatus === 1"
+                                            @click="submit"
+                                        >
+                                            Save
+                                        </button>
+                                        <button
+                                            class="btn btn-success"
+                                            type="button"
+                                            disabled
+                                            v-else
+                                        >
+                                            Saving
+                                            <span
+                                                class="spinner-border spinner-border-sm"
+                                            ></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button
+                    hidden
+                    data-bs-toggle="modal"
+                    data-bs-target="#customermodal"
+                    ref="closeModal"
+                ></button>
+            </div>
         </section>
     </main>
 </template>
@@ -84,51 +169,77 @@ export default {
     layout: Master,
     data() {
         return {
-            ExpanseTypes: [],
-            Expanse:'Expanse',
-              
+            expanseType: [],
+            form: {
+                id: "",
+                name: "",
+                process: "",
+            },
+            formErrors: [],
+            formStatus: 1, // 1 = ready, 0 = saving
+            process: "Expanse",
         };
     },
     created() {
-        this.fetchExpanseTypes();
+        this.fetchExpanses();
     },
     methods: {
-        fetchExpanseTypes() {
+        fetchExpanses() {
             axios
-                .get(route("api.income.expanse.fetch",this.Expanse))
+                .get(route("api.income.expanse.fetch", this.process))
                 .then((response) => {
-                   
-                    this.ExpanseTypes = response.data;
-                    console.log(response.data);
+                    this.expanseType = response.data;
                 })
                 .catch((error) => {
                     console.error(error);
                 });
         },
-        
-       
+        showEntry(entry_id) {
+            axios
+                .get(route("api.income.expanse.show", [entry_id, this.process]))
+                .then((response) => {
+                    this.form.id = response.data.id;
+                    this.form.name = response.data.name;
+                })
+                .catch((error) => {
+                    toastr.error(error);
+                });
+        },
+        submit() {
+            this.formStatus = 0;
+            this.form.process = "Expanse";
+            // Create new income type
+            axios
+                .post(route("api.income.expanse.store"), this.form)
+                .then(() => {
+                    this.formStatus = 1;
+                    toastr.success("Expanse Type created successfully.");
+                    this.fetchExpanses();
+                    this.$refs.closeModal.click();
+                })
+                .catch((error) => {
+                    this.formStatus = 1;
+                    this.formErrors = error.response.data.errors || {};
+
+                    toastr.error(error.response.data.message);
+                });
+        },
         deleteThis(id) {
             axios
-            .delete(route("api.income.expanse.delete", [id,this.Expanse]))
+                .delete(route("api.income.expanse.delete", [id, this.process]))
                 .then(() => {
-                    this.fetchExpanseTypes();
-                    toastr.success("Expanse Types deleted successfully.");
+                    this.fetchExpanses();
+                    toastr.success("Expanse Type deleted successfully.");
                 })
                 .catch((error) => {
                     console.error(error);
                 });
+        },
+        clearFields() {
+            this.form.id = "";
+            this.form.name = "";
+            this.formErrors = [];
         },
     },
 };
 </script>
-
-<style scoped>
-.invalid-bg {
-    border-color: #f8d4d4;
-    background-color: #f8d4d4;
-}
-.invalid-feedback {
-    color: red;
-    font-size: 0.875rem;
-}
-</style>
