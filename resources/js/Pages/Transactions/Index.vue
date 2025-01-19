@@ -41,7 +41,7 @@
                                     <th scope="col">Credit (Cash Out)</th>
                                     <th scope="col">Balance</th>
                                     <th scope="col">Date</th>
-                              
+
                                     <th scope="col">Action</th>
                                 </tr>
                             </thead>
@@ -57,7 +57,7 @@
                                     <td>{{ calculateBalance(index) }}</td>
                                     <!-- Dynamically calculated balance -->
                                     <td>{{ entry.date }}</td>
-                                     
+
                                     <td>
                                         <div class="btn-group">
                                             <button
@@ -93,7 +93,7 @@
                 aria-labelledby="exampleModalLabel"
                 aria-hidden="true"
             >
-                <div class="modal-dialog">
+                <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title text-primary" v-if="form.id">
@@ -113,6 +113,56 @@
                         <div class="modal-body">
                             <div class="card card-body p-3">
                                 <div class="row g-3">
+                                    <div class="col-md-6 col-12">
+                                        <label for="cash_in" class="form-label"
+                                            >Cash In</label
+                                        >
+                                        <input
+                                            type="number"
+                                            class="form-control"
+                                            id="cash_in"
+                                            v-model="form.cash_in"
+                                            :class="{
+                                                'invalid-bg':
+                                                    formErrors.cash_in,
+                                            }"
+                                            @input="checkFields"
+                                            :readonly="isCashInReadonly"
+                                            @click="showMessage('cash_in')"
+                                        />
+                                        <div
+                                            v-if="formErrors.cash_in"
+                                            class="invalid-feedback"
+                                        >
+                                            {{ formErrors.cash_in[0] }}
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 col-12">
+                                        <label for="cash_out" class="form-label"
+                                            >Cash Out</label
+                                        >
+                                        <input
+                                            type="number"
+                                            class="form-control"
+                                            id="cash_out"
+                                            v-model="form.cash_out"
+                                            :class="{
+                                                'invalid-bg':
+                                                    formErrors.cash_out,
+                                            }"
+                                            :readonly="isCashOutReadonly"
+                                            @input="checkFields"
+                                            @click="showMessage('cash_out')"
+                                        />
+                                        <div
+                                            v-if="formErrors.cash_out"
+                                            class="invalid-feedback"
+                                        >
+                                            {{ formErrors.cash_out[0] }}
+                                        </div>
+                                    </div>
+
                                     <div class="col-md-6 col-12">
                                         <label for="notes" class="form-label"
                                             >Notes</label
@@ -156,50 +206,6 @@
                                     </div>
 
                                     <div class="col-md-6 col-12">
-                                        <label for="cash_in" class="form-label"
-                                            >Cash In</label
-                                        >
-                                        <input
-                                            type="number"
-                                            class="form-control"
-                                            id="cash_in"
-                                            v-model="form.cash_in"
-                                            :class="{
-                                                'invalid-bg':
-                                                    formErrors.cash_in,
-                                            }"
-                                        />
-                                        <div
-                                            v-if="formErrors.cash_in"
-                                            class="invalid-feedback"
-                                        >
-                                            {{ formErrors.cash_in[0] }}
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6 col-12">
-                                        <label for="cash_out" class="form-label"
-                                            >Cash Out</label
-                                        >
-                                        <input
-                                            type="number"
-                                            class="form-control"
-                                            id="cash_out"
-                                            v-model="form.cash_out"
-                                            :class="{
-                                                'invalid-bg':
-                                                    formErrors.cash_out,
-                                            }"
-                                        />
-                                        <div
-                                            v-if="formErrors.cash_out"
-                                            class="invalid-feedback"
-                                        >
-                                            {{ formErrors.cash_out[0] }}
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6 col-12">
                                         <label for="date" class="form-label"
                                             >Date</label
                                         >
@@ -219,8 +225,6 @@
                                             {{ formErrors.date[0] }}
                                         </div>
                                     </div>
-
-                                     
 
                                     <div class="mt-3">
                                         <button
@@ -276,16 +280,46 @@ export default {
                 cash_out: "",
 
                 date: "",
-                
             },
             formErrors: [],
             formStatus: 1, // 1 = ready, 0 = saving
+            isCashInReadonly: false,
+            isCashOutReadonly: false,
         };
     },
     created() {
         this.fetchTransactionEntries();
     },
     methods: {
+        checkFields() {
+            if (this.form.cash_in > 0) {
+                this.form.cash_out = 0;
+                this.isCashOutReadonly = true;
+            } else {
+                this.isCashOutReadonly = false;
+            }
+
+            if (this.form.cash_out > 0) {
+                this.form.cash_in = 0;
+                this.isCashInReadonly = true;
+            } else {
+                this.isCashInReadonly = false;
+            }
+        },
+        showMessage(field) {
+            if (this.form.cash_in > 0 && field === "cash_out") {
+                this.formErrors.cash_out = [
+                    "At a time, you can enter either Cash In or Cash Out. If you want to proceed, kindly first clear the 'Cash In' field.",
+                ];
+            } else if (this.form.cash_out > 0 && field === "cash_in") {
+                this.formErrors.cash_in = [
+                    "At a time, you can enter either Cash In or Cash Out. If you want to proceed, kindly first clear the 'Cash Out' field.",
+                ];
+            } else {
+                this.formErrors.cash_out = null;
+                this.formErrors.cash_in = null;
+            }
+        },
         fetchTransactionEntries() {
             axios
                 .get(route("api.transaction.fetch"))
@@ -312,19 +346,18 @@ export default {
                 });
         },
         // Calculate running balance dynamically based on the previous entries
-        
-        calculateBalance(index) {
-    let balance = 0;
-    for (let i = 0; i <= index; i++) {
-        const entry = this.transactionEntries[i];
-        const cashIn = parseFloat(entry.cash_in) || 0;  // Ensure it's a number
-        const cashOut = parseFloat(entry.cash_out) || 0; // Ensure it's a number
-        balance += cashIn;
-        balance -= cashOut;
-    }
-    return this.formatCurrency(balance);
-},
 
+        calculateBalance(index) {
+            let balance = 0;
+            for (let i = 0; i <= index; i++) {
+                const entry = this.transactionEntries[i];
+                const cashIn = parseFloat(entry.cash_in) || 0; // Ensure it's a number
+                const cashOut = parseFloat(entry.cash_out) || 0; // Ensure it's a number
+                balance += cashIn;
+                balance -= cashOut;
+            }
+            return this.formatCurrency(balance);
+        },
 
         formatCurrency(value) {
             return new Intl.NumberFormat("en-PK", {
@@ -332,7 +365,6 @@ export default {
                 maximumFractionDigits: 2,
             }).format(value);
         },
-        
 
         clearFields() {
             this.form = {
@@ -343,7 +375,6 @@ export default {
                 cash_out: "",
 
                 date: "",
-        
             };
             this.formErrors = [];
         },
