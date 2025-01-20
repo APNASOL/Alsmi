@@ -18,10 +18,12 @@
         "@vueform/multiselect": "^2.2.1",
         "@vuepic/vue-datepicker": "^3.4.8",
         "jquery": "^3.7.1",
+        "jspdf": "^2.5.2",
         "jspdf-autotable": "^3.8.4",
         "nprogress": "^0.2.0",
         "toastr": "^2.1.4",
         "vue": "^3.3.7",
-        "vue-cropperjs": "^5.0.0"
+        "vue-cropperjs": "^5.0.0",
+        "xlsx": "^0.18.5"
     }
 }

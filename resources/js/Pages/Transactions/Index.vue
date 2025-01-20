@@ -31,17 +31,40 @@
                     <h5 class="card-title theme-text-color">
                         All Transaction Entries
                     </h5>
+                    <div class="d-flex justify-content-end">
+                        <div class="btn-group" role="group">
+                            <!-- Excel Icon Button -->
+                            <button
+                                class="btn btn-primary"
+                                title="Download as Excel"
+                                @click="exportToExcel"
+                            >
+                                <i class="bi bi-file-earmark-excel"></i>
+                            </button>
+                            <!-- PDF Icon Button -->
+                            <button
+                                class="btn btn-danger"
+                                title="Download as PDF"
+                                @click="exportToPDF"
+                            >
+                                <i class="bi bi-file-earmark-pdf"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    
                     <div class="table-responsive">
                         <table class="table table-striped">
                             <thead>
                                 <tr>
                                     <th scope="col">#</th>
-                                    <th scope="col">Notes</th>
-                                    <th scope="col">Debit (Cash In)</th>
-                                    <th scope="col">Credit (Cash Out)</th>
-                                    <th scope="col">Balance</th>
                                     <th scope="col">Date</th>
-
+                                    <th scope="col">Remarks</th>
+                                    <th scope="col">Method</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Cash In</th>
+                                    <th scope="col">Cash Out</th>
+                                    <th scope="col">Balance</th>
                                     <th scope="col">Action</th>
                                 </tr>
                             </thead>
@@ -51,13 +74,14 @@
                                     :key="entry.id"
                                 >
                                     <th scope="row">{{ index + 1 }}</th>
-                                    <td>{{ entry.notes }}</td>
-                                    <td>{{ entry.cash_in }}</td>
-                                    <td>{{ entry.cash_out }}</td>
+                                    <td>{{ entry.transaction_date }}</td>
+                                    <td>{{ entry.remarks }}</td>
+                                    <td>{{ entry.method }}</td>
+                                    <td>{{ entry.income_type ??   entry.expanse_type}}</td>
+                                    <td>{{ entry.cash_in ?? 0 }}</td>
+                                    <td>{{ entry.cash_out ?? 0 }}</td>
                                     <td>{{ calculateBalance(index) }}</td>
                                     <!-- Dynamically calculated balance -->
-                                    <td>{{ entry.date }}</td>
-
                                     <td>
                                         <div class="btn-group">
                                             <button
@@ -97,7 +121,7 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title text-primary" v-if="form.id">
-                                {{ form.notes }} - {{ form.type }}
+                                {{ form.remarks }} - {{ form.method }}
                                 <small>({{ form.date }})</small>
                             </h5>
                             <h5 class="modal-title text-primary" v-else>
@@ -113,7 +137,52 @@
                         <div class="modal-body">
                             <div class="card card-body p-3">
                                 <div class="row g-3">
-                                    <div class="col-md-6 col-12">
+                                    <div class="col-12 col-md-12 mb-3">
+                                        <label>{{ "Process Type" }} </label>
+                                        <Multiselect
+                                            v-model="form.process_type"
+                                            :options="processTypeOptions"
+                                            :searchable="true"
+                                            @select="clearProcessType"
+                                            :class="{
+                                                'invalid-bg':
+                                                    formErrors.process_type,
+                                            }"
+                                        />
+                                        <div
+                                            class="invalid-feedback animated fadeIn"
+                                            v-if="formErrors.process_type"
+                                        >
+                                            {{ formErrors.process_type[0] }}
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="col-12 col-md-6"
+                                        v-if="form.process_type == 'Income'"
+                                    >
+                                        <label>{{ "Income Type" }} </label>
+                                        <Multiselect
+                                            v-model="form.income_type"
+                                            :options="IncomeTypesOpions"
+                                            :searchable="true"
+                                            :class="{
+                                                'invalid-bg':
+                                                    formErrors.income_type,
+                                            }"
+                                        />
+                                        <div
+                                            class="invalid-feedback animated fadeIn"
+                                            v-if="formErrors.income_type"
+                                        >
+                                            {{ formErrors.income_type[0] }}
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="col-md-6 col-12"
+                                        v-if="form.process_type == 'Income'"
+                                    >
                                         <label for="cash_in" class="form-label"
                                             >Cash In</label
                                         >
@@ -126,9 +195,6 @@
                                                 'invalid-bg':
                                                     formErrors.cash_in,
                                             }"
-                                            @input="checkFields"
-                                            :readonly="isCashInReadonly"
-                                            @click="showMessage('cash_in')"
                                         />
                                         <div
                                             v-if="formErrors.cash_in"
@@ -138,7 +204,32 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-md-6 col-12">
+                                    <div
+                                        class="col-12 col-md-6"
+                                        v-if="form.process_type == 'Expanse'"
+                                    >
+                                        <label>{{ "Expanse Type" }} </label>
+                                        <Multiselect
+                                            v-model="form.expanse_type"
+                                            :options="ExpansTypesOpions"
+                                            :searchable="true"
+                                            :class="{
+                                                'invalid-bg':
+                                                    formErrors.expanse_type,
+                                            }"
+                                        />
+                                        <div
+                                            class="invalid-feedback animated fadeIn"
+                                            v-if="formErrors.expanse_type"
+                                        >
+                                            {{ formErrors.expanse_type[0] }}
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="col-md-6 col-12"
+                                        v-if="form.process_type == 'Expanse'"
+                                    >
                                         <label for="cash_out" class="form-label"
                                             >Cash Out</label
                                         >
@@ -151,9 +242,6 @@
                                                 'invalid-bg':
                                                     formErrors.cash_out,
                                             }"
-                                            :readonly="isCashOutReadonly"
-                                            @input="checkFields"
-                                            @click="showMessage('cash_out')"
                                         />
                                         <div
                                             v-if="formErrors.cash_out"
@@ -164,44 +252,63 @@
                                     </div>
 
                                     <div class="col-md-6 col-12">
-                                        <label for="notes" class="form-label"
-                                            >Notes</label
+                                        <label for="remarks" class="form-label"
+                                            >Remarks</label
                                         >
                                         <input
                                             type="text"
                                             class="form-control"
-                                            id="notes"
-                                            v-model="form.notes"
+                                            id="remarks"
+                                            v-model="form.remarks"
                                             :class="{
-                                                'invalid-bg': formErrors.notes,
+                                                'invalid-bg':
+                                                    formErrors.remarks,
                                             }"
                                         />
                                         <div
-                                            v-if="formErrors.notes"
+                                            v-if="formErrors.remarks"
                                             class="invalid-feedback"
                                         >
-                                            {{ formErrors.notes[0] }}
+                                            {{ formErrors.remarks[0] }}
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-md-6">
+                                        <label>{{ "Payment Method" }} </label>
+                                        <Multiselect
+                                            v-model="form.method"
+                                            :options="methodTypesOpions"
+                                            :searchable="true"
+                                            :class="{
+                                                'invalid-bg': formErrors.method,
+                                            }"
+                                        />
+                                        <div
+                                            class="invalid-feedback animated fadeIn"
+                                            v-if="formErrors.method"
+                                        >
+                                            {{ formErrors.method[0] }}
                                         </div>
                                     </div>
 
                                     <div class="col-md-6 col-12">
                                         <label for="type" class="form-label"
-                                            >Type</label
+                                            >Ref no</label
                                         >
                                         <input
                                             type="text"
                                             class="form-control"
                                             id="type"
-                                            v-model="form.type"
+                                            v-model="form.ref_no"
                                             :class="{
-                                                'invalid-bg': formErrors.type,
+                                                'invalid-bg': formErrors.ref_no,
                                             }"
                                         />
                                         <div
-                                            v-if="formErrors.type"
+                                            v-if="formErrors.ref_no"
                                             class="invalid-feedback"
                                         >
-                                            {{ formErrors.type[0] }}
+                                            {{ formErrors.ref_no[0] }}
                                         </div>
                                     </div>
 
@@ -266,6 +373,10 @@
 <script>
 import axios from "axios";
 import Master from "../Layout/Master.vue";
+import Multiselect from "@vueform/multiselect";
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import "jspdf-autotable"; // Add this for table support in jsPDF
 
 export default {
     layout: Master,
@@ -274,79 +385,52 @@ export default {
             transactionEntries: [],
             form: {
                 id: "",
-                notes: "",
-                type: "",
                 cash_in: "",
                 cash_out: "",
-
                 date: "",
+                ref_no: "",
+                method: "",
+                remarks: "",
+                expanse_type: "",
+                income_type: "",
+                process_type: "",
             },
             formErrors: [],
             formStatus: 1, // 1 = ready, 0 = saving
             isCashInReadonly: false,
             isCashOutReadonly: false,
+            ExpansTypesOpions: [],
+            IncomeTypesOpions: [],
+            methodTypesOpions: ["Bank", "Cash"],
+            processTypeOptions: ["Expanse", "Income"],
         };
     },
     created() {
         this.fetchTransactionEntries();
+        this.pluckExpansTypes();
+        this.pluckIncomeTypes();
+        this.process_type = "Income";
+    },
+    components: {
+        Multiselect,
     },
     methods: {
-        checkFields() {
-            if (this.form.cash_in > 0) {
-                this.form.cash_out = 0;
-                this.isCashOutReadonly = true;
-            } else {
-                this.isCashOutReadonly = false;
-            }
+        clearProcessType() {
+            this.form.cash_in = "";
+            this.form.cash_out = "";
+        },
 
-            if (this.form.cash_out > 0) {
-                this.form.cash_in = 0;
-                this.isCashInReadonly = true;
-            } else {
-                this.isCashInReadonly = false;
-            }
-        },
-        showMessage(field) {
-            if (this.form.cash_in > 0 && field === "cash_out") {
-                this.formErrors.cash_out = [
-                    "At a time, you can enter either Cash In or Cash Out. If you want to proceed, kindly first clear the 'Cash In' field.",
-                ];
-            } else if (this.form.cash_out > 0 && field === "cash_in") {
-                this.formErrors.cash_in = [
-                    "At a time, you can enter either Cash In or Cash Out. If you want to proceed, kindly first clear the 'Cash Out' field.",
-                ];
-            } else {
-                this.formErrors.cash_out = null;
-                this.formErrors.cash_in = null;
-            }
-        },
         fetchTransactionEntries() {
             axios
                 .get(route("api.transaction.fetch"))
                 .then((response) => {
                     this.transactionEntries = response.data;
+                    console.log(this.transactionEntries);
                 })
                 .catch((error) => {
                     console.error(error);
                 });
         },
-        submit() {
-            this.formStatus = 0;
-            axios
-                .post(route("api.transaction.store"), this.form)
-                .then(() => {
-                    this.formStatus = 1;
-                    this.fetchTransactionEntries();
-                    toastr.success("Transaction entry saved successfully.");
-                    this.$refs.closeModal?.click();
-                })
-                .catch((error) => {
-                    this.formStatus = 1;
-                    this.formErrors = error.response.data.errors || {};
-                });
-        },
-        // Calculate running balance dynamically based on the previous entries
-
         calculateBalance(index) {
             let balance = 0;
             for (let i = 0; i <= index; i++) {
@@ -358,6 +442,39 @@ export default {
             }
             return this.formatCurrency(balance);
         },
+        // calculateBalance(index) {
+        //     let balance = 0;
+
+        //     // Iterate through transactions up to the current index to calculate the running balance
+        //     for (let i = 0; i <= index; i++) {
+        //         const entry = this.transactionEntries[i];
+        //         balance += parseFloat(entry.cash_in || 0);  // Add cash_in
+        //         balance -= parseFloat(entry.cash_out || 0); // Subtract cash_out
+        //     }
+
+        //     return balance.toFixed(2);  // Format balance to 2 decimal places
+        // },
+        submit() {
+            this.formStatus = 1;
+            axios
+                .post(route("api.transaction.store"), this.form)
+                .then(() => {
+                    this.formStatus = 1;
+                    this.fetchTransactionEntries();
+                    toastr.success("Transaction entry saved successfully.");
+                    this.$refs.closeModal?.click();
+                })
+                .catch((error) => {
+                    this.formStatus = 1;
+
+                    toastr.error(error.response.data.message);
+                    this.formErrors = error.response.data.errors;
+                    console.log(this.formErrors);
+                    if (error.response.data.errors) {
+                    }
+                });
+        },
+        // Calculate running balance dynamically based on the previous entries
 
         formatCurrency(value) {
             return new Intl.NumberFormat("en-PK", {
@@ -369,8 +486,8 @@ export default {
         clearFields() {
             this.form = {
                 id: "",
-                notes: "",
-                type: "",
+                remarks: "",
+
                 cash_in: "",
                 cash_out: "",
 
@@ -399,11 +516,91 @@ export default {
                     console.error(error);
                 });
         },
+        pluckExpansTypes() {
+            axios
+                .get(route("api.income.pluck"))
+                .then((response) => {
+                    this.IncomeTypesOpions = response.data;
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        },
+        pluckIncomeTypes() {
+            axios
+                .get(route("api.expanse.pluck"))
+                .then((response) => {
+                    this.ExpansTypesOpions = response.data;
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        },
+        // Export data to Excel
+        exportToExcel() {
+            const ws = XLSX.utils.json_to_sheet(
+                this.transactionEntries.map((entry) => ({
+                    Date: entry.transaction_date,
+                    Remarks: entry.remarks,
+                    Method: entry.method,
+                    "Type": entry.expanse_type ?? entry.income_type ,
+                    "Cash In": entry.cash_in  ?? 0,
+                    "Cash Out": entry.cash_out  ?? 0,
+                    Balance: this.calculateBalance(
+                        this.transactionEntries.indexOf(entry)
+                    ),
+                }))
+            );
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Transactions");
+            XLSX.writeFile(wb, "transactions.xlsx");
+        },
+
+        // Export data to PDF
+        exportToPDF() {
+            const doc = new jsPDF();
+
+            // Add title to the PDF
+            doc.setFontSize(18); // Set the font size for the title
+            doc.text("All Transactions List", 14, 20); // Add the title at coordinates (14, 20)
+
+            // Create the table content
+            const rows = this.transactionEntries.map((entry) => [
+                entry.transaction_date,
+                entry.remarks,
+                entry.method,
+                entry.expanse_type ?? entry.income_type,
+                entry.cash_in ?? 0,
+                entry.cash_out ?? 0,
+                this.calculateBalance(this.transactionEntries.indexOf(entry)),
+            ]);
+
+            // Add table below the title
+            doc.autoTable({
+                head: [
+                    [
+                        "Date",
+                        "Remarks",
+                        "Method",
+                        "Type",
+                        "Cash In",
+                        "Cash Out",
+                        "Balance",
+                    ],
+                ],
+                body: rows,
+                startY: 30, // Set starting Y position for the table (below the title)
+            });
+
+            // Save the PDF
+            doc.save("transactions.pdf");
+        },
     },
 };
 </script>
 
 <style scoped>
+@import "@vueform/multiselect/themes/default.css";
 .invalid-bg {
     border-color: #f8d4d4;
     background-color: #f8d4d4;
