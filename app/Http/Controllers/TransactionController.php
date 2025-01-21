@@ -9,6 +9,7 @@ use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class TransactionController extends Controller
 {
@@ -40,7 +41,11 @@ class TransactionController extends Controller
 
                 $transaction->income_type = $income_type->name." (Income)";
 
-            }
+            } 
+            $carbonDate = Carbon::parse($transaction->transaction_date)->format('j F Y');
+            $transaction->transaction_date = $carbonDate;
+            
+          
         }
 
         return $transactions; // Return the transactions with related data

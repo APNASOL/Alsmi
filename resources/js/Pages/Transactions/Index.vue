@@ -33,83 +33,99 @@
                     </h5>
                     <!-- Filter Section -->
                     <div class="card card-body p-2">
-    <div class="d-flex justify-content-between align-items-center">
-        <!-- Filters Section -->
-        <div class="d-flex align-items-center gap-2">
-            <!-- Main Filter -->
-            <div class="col-auto">
-                <Multiselect
-                    v-model="selectedFilter"
-                    :options="['Monthly', 'Yearly', 'Custom']"
-                    :searchable="true"
-                    @select="applyFilter"
-                    placeholder="Filter By"
-                />
-            </div>
+                        <div
+                            class="d-flex justify-content-between align-items-center c-filter"
+                        >
+                            <!-- Filters Section -->
+                            <div class="d-flex align-items-center gap-2">
+                                <!-- Main Filter -->
+                                <div class="col-auto">
+                                    <Multiselect
+                                        v-model="selectedFilter"
+                                        :options="[
+                                            'Monthly',
+                                            'Yearly',
+                                            'Custom',
+                                        ]"
+                                        :searchable="true"
+                                        @select="applyFilter"
+                                        placeholder="Filter By"
+                                    />
+                                </div>
 
-            <!-- Monthly Filter -->
-            <div class="col-auto" v-if="selectedFilter === 'Monthly'">
-                <Multiselect
-                    v-model="selectedMonth"
-                    :options="monthsOptions"
-                    :searchable="true"
-                    @select="applyFilter"
-                    placeholder="Select Month"
-                />
-            </div>
+                                <!-- Monthly Filter -->
+                                <div
+                                    class="col-auto"
+                                    v-if="selectedFilter === 'Monthly'"
+                                >
+                                    <Multiselect
+                                        v-model="selectedMonth"
+                                        :options="monthsOptions"
+                                        :searchable="true"
+                                        @select="applyFilter"
+                                        @clear="fetchTransactionEntries"
+                                        placeholder="Select Month"
+                                    />
+                                </div>
 
-            <!-- Yearly Filter -->
-            <div class="col-auto" v-if="selectedFilter === 'Yearly'">
-                <Multiselect
-                    v-model="selectedYear"
-                    :options="yearsOptions"
-                    :searchable="true"
-                    @select="applyFilter"
-                    placeholder="Select Year"
-                />
-            </div>
+                                <!-- Yearly Filter -->
+                                <div
+                                    class="col-auto"
+                                    v-if="selectedFilter === 'Yearly'"
+                                >
+                                    <Multiselect
+                                        v-model="selectedYear"
+                                        :options="yearsOptions"
+                                        :searchable="true"
+                                        @select="applyFilter"
+                                        @clear="fetchTransactionEntries"
+                                        placeholder="Select Year"
+                                    />
+                                </div>
 
-            <!-- Custom Date Range -->
-            <div class="col-auto d-flex gap-2" v-if="selectedFilter === 'Custom'">
-                <Datepicker
-                    autoApply
-                    :enableTimePicker="false"
-                    id="fromDate"
-                    v-model="startDate"
-                    @update:model-value="applyFilter"
-                    placeholder="Start Date"
-                />
-                <Datepicker
-                    autoApply
-                    :enableTimePicker="false"
-                    id="toDate"
-                    v-model="endDate"
-                    @update:model-value="applyFilter"
-                    placeholder="End Date"
-                />
-            </div>
-        </div>
+                                <!-- Custom Date Range -->
+                                <div
+                                    class="col-auto d-flex gap-2"
+                                    v-if="selectedFilter === 'Custom'"
+                                >
+                                    <Datepicker
+                                        autoApply
+                                        :enableTimePicker="false"
+                                        id="fromDate"
+                                        v-model="startDate"
+                                        @update:model-value="applyFilter"
+                                        placeholder="Start Date"
+                                    />
+                                    <Datepicker
+                                        autoApply
+                                        :enableTimePicker="false"
+                                        id="toDate"
+                                        v-model="endDate"
+                                        @update:model-value="applyFilter"
+                                        placeholder="End Date"
+                                    />
+                                </div>
+                            </div>
 
-        <!-- Export Buttons -->
-        <div class="btn-group" role="group">
-            <button
-                class="btn btn-primary"
-                title="Download as Excel"
-                @click="exportToExcel"
-            >
-                <i class="bi bi-file-earmark-excel"></i>
-            </button>
-            <button
-                class="btn btn-danger"
-                title="Download as PDF"
-                @click="exportToPDF"
-            >
-                <i class="bi bi-file-earmark-pdf"></i>
-            </button>
-        </div>
-    </div>
-</div>
-
+                            <!-- Export Buttons -->
+                            <div class="btn-group" role="group">
+                                <button
+                                    class="btn btn-primary"
+                                    title="Download as Excel"
+                                    @click="exportToExcel"
+                                >
+                                    <i class="bi bi-file-earmark-excel"></i>
+                                </button>
+                                <button
+                                    class="btn btn-danger"
+                                    title="Download as PDF"
+                                    @click="exportToPDF"
+                                >
+                                    <i class="bi bi-file-earmark-pdf"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Table Section -->
                     <div class="table-responsive">
@@ -142,8 +158,8 @@
                                             entry.expanse_type
                                         }}
                                     </td>
-                                    <td>{{ entry.cash_in ?? 0 }}</td>
-                                    <td>{{ entry.cash_out ?? 0 }}</td>
+                                    <td>{{ formatCurrency(entry.cash_in) ?? 0 }}</td>
+                                    <td>{{ formatCurrency(entry.cash_out) ?? 0 }}</td>
                                     <td>{{ calculateBalance(index) }}</td>
                                     <td>
                                         <div class="btn-group">
@@ -199,7 +215,7 @@
                         </div>
                         <div class="modal-body">
                             <div class="card card-body p-3">
-                                <div class="row g-3">
+                                <div class="row g-3 ">
                                     <div class="col-12 col-md-12 mb-3">
                                         <label>{{ "Process Type" }} </label>
                                         <Multiselect
@@ -603,18 +619,7 @@ export default {
             }
             return this.formatCurrency(balance);
         },
-        // calculateBalance(index) {
-        //     let balance = 0;
-
-        //     // Iterate through transactions up to the current index to calculate the running balance
-        //     for (let i = 0; i <= index; i++) {
-        //         const entry = this.transactionEntries[i];
-        //         balance += parseFloat(entry.cash_in || 0);  // Add cash_in
-        //         balance -= parseFloat(entry.cash_out || 0); // Subtract cash_out
-        //     }
-
-        //     return balance.toFixed(2);  // Format balance to 2 decimal places
-        // },
+        
         submit() {
             this.formStatus = 1;
             axios
@@ -639,8 +644,8 @@ export default {
 
         formatCurrency(value) {
             return new Intl.NumberFormat("en-PK", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
             }).format(value);
         },
 
@@ -770,9 +775,9 @@ export default {
     color: red;
     font-size: 0.875rem;
 }
-.multiselect
-{
+.c-filter .multiselect {
     width: 200px !important;
-    
 }
+ 
+
 </style>
