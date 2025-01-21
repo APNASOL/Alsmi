@@ -31,28 +31,87 @@
                     <h5 class="card-title theme-text-color">
                         All Transaction Entries
                     </h5>
-                    <div class="d-flex justify-content-end">
-                        <div class="btn-group" role="group">
-                            <!-- Excel Icon Button -->
-                            <button
-                                class="btn btn-primary"
-                                title="Download as Excel"
-                                @click="exportToExcel"
-                            >
-                                <i class="bi bi-file-earmark-excel"></i>
-                            </button>
-                            <!-- PDF Icon Button -->
-                            <button
-                                class="btn btn-danger"
-                                title="Download as PDF"
-                                @click="exportToPDF"
-                            >
-                                <i class="bi bi-file-earmark-pdf"></i>
-                            </button>
-                        </div>
-                    </div>
+                    <!-- Filter Section -->
+                    <div class="card card-body p-2">
+    <div class="d-flex justify-content-between align-items-center">
+        <!-- Filters Section -->
+        <div class="d-flex align-items-center gap-2">
+            <!-- Main Filter -->
+            <div class="col-auto">
+                <Multiselect
+                    v-model="selectedFilter"
+                    :options="['Monthly', 'Yearly', 'Custom']"
+                    :searchable="true"
+                    @select="applyFilter"
+                    placeholder="Filter By"
+                />
+            </div>
 
-                    
+            <!-- Monthly Filter -->
+            <div class="col-auto" v-if="selectedFilter === 'Monthly'">
+                <Multiselect
+                    v-model="selectedMonth"
+                    :options="monthsOptions"
+                    :searchable="true"
+                    @select="applyFilter"
+                    placeholder="Select Month"
+                />
+            </div>
+
+            <!-- Yearly Filter -->
+            <div class="col-auto" v-if="selectedFilter === 'Yearly'">
+                <Multiselect
+                    v-model="selectedYear"
+                    :options="yearsOptions"
+                    :searchable="true"
+                    @select="applyFilter"
+                    placeholder="Select Year"
+                />
+            </div>
+
+            <!-- Custom Date Range -->
+            <div class="col-auto d-flex gap-2" v-if="selectedFilter === 'Custom'">
+                <Datepicker
+                    autoApply
+                    :enableTimePicker="false"
+                    id="fromDate"
+                    v-model="startDate"
+                    @update:model-value="applyFilter"
+                    placeholder="Start Date"
+                />
+                <Datepicker
+                    autoApply
+                    :enableTimePicker="false"
+                    id="toDate"
+                    v-model="endDate"
+                    @update:model-value="applyFilter"
+                    placeholder="End Date"
+                />
+            </div>
+        </div>
+
+        <!-- Export Buttons -->
+        <div class="btn-group" role="group">
+            <button
+                class="btn btn-primary"
+                title="Download as Excel"
+                @click="exportToExcel"
+            >
+                <i class="bi bi-file-earmark-excel"></i>
+            </button>
+            <button
+                class="btn btn-danger"
+                title="Download as PDF"
+                @click="exportToPDF"
+            >
+                <i class="bi bi-file-earmark-pdf"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+
+                    <!-- Table Section -->
                     <div class="table-responsive">
                         <table class="table table-striped">
                             <thead>
@@ -70,18 +129,22 @@
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="(entry, index) in transactionEntries"
+                                    v-for="(entry, index) in filteredEntries"
                                     :key="entry.id"
                                 >
                                     <th scope="row">{{ index + 1 }}</th>
                                     <td>{{ entry.transaction_date }}</td>
                                     <td>{{ entry.remarks }}</td>
                                     <td>{{ entry.method }}</td>
-                                    <td>{{ entry.income_type ??   entry.expanse_type}}</td>
+                                    <td>
+                                        {{
+                                            entry.income_type ??
+                                            entry.expanse_type
+                                        }}
+                                    </td>
                                     <td>{{ entry.cash_in ?? 0 }}</td>
                                     <td>{{ entry.cash_out ?? 0 }}</td>
                                     <td>{{ calculateBalance(index) }}</td>
-                                    <!-- Dynamically calculated balance -->
                                     <td>
                                         <div class="btn-group">
                                             <button
@@ -376,12 +439,49 @@ import Master from "../Layout/Master.vue";
 import Multiselect from "@vueform/multiselect";
 import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
-import "jspdf-autotable"; // Add this for table support in jsPDF
+import "jspdf-autotable";
+import Datepicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
 
 export default {
     layout: Master,
+    created() {
+        // this.fetchTransactionEntries();
+        this.pluckExpansTypes();
+        this.pluckIncomeTypes();
+        this.process_type = "Income";
+    },
+    components: {
+        Multiselect,
+        Datepicker,
+    },
     data() {
         return {
+            filteredEntries: [],
+            selectedFilter: "",
+            selectedMonth: "",
+            selectedYear: "",
+            startDate: "",
+            endDate: "",
+            months: [
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December",
+            ],
+            years: Array.from(
+                { length: 10 },
+                (_, i) => new Date().getFullYear() - i
+            ),
+
             transactionEntries: [],
             form: {
                 id: "",
@@ -403,34 +503,95 @@ export default {
             IncomeTypesOpions: [],
             methodTypesOpions: ["Bank", "Cash"],
             processTypeOptions: ["Expanse", "Income"],
+            monthsOptions: [
+                { value: 1, label: "January" },
+                { value: 2, label: "February" },
+                { value: 3, label: "March" },
+                { value: 4, label: "April" },
+                { value: 5, label: "May" },
+                { value: 6, label: "June" },
+                { value: 7, label: "July" },
+                { value: 8, label: "August" },
+                { value: 9, label: "September" },
+                { value: 10, label: "October" },
+                { value: 11, label: "November" },
+                { value: 12, label: "December" },
+            ],
+            yearsOptions: [
+                2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024,
+                2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034,
+                2035,
+            ],
         };
     },
-    created() {
+    mounted() {
         this.fetchTransactionEntries();
-        this.pluckExpansTypes();
-        this.pluckIncomeTypes();
-        this.process_type = "Income";
     },
-    components: {
-        Multiselect,
-    },
+
     methods: {
         clearProcessType() {
             this.form.cash_in = "";
             this.form.cash_out = "";
         },
 
+        // fetchTransactionEntries() {
+        //     axios
+        //         .get(route("api.transaction.fetch"))
+        //         .then((response) => {
+        //             this.transactionEntries = response.data;
+        //             console.log(this.transactionEntries);
+        //         })
+        //         .catch((error) => {
+        //             console.error(error);
+        //         });
+        // },
         fetchTransactionEntries() {
             axios
                 .get(route("api.transaction.fetch"))
                 .then((response) => {
                     this.transactionEntries = response.data;
-                    console.log(this.transactionEntries);
+                    this.filteredEntries = response.data; // Default to all entries
                 })
                 .catch((error) => {
                     console.error(error);
                 });
         },
+
+        applyFilter() {
+            const filter = this.selectedFilter;
+
+            if (filter === "Monthly" && this.selectedMonth) {
+                this.filteredEntries = this.transactionEntries.filter(
+                    (entry) => {
+                        return (
+                            new Date(entry.transaction_date).getMonth() + 1 ===
+                            parseInt(this.selectedMonth)
+                        );
+                    }
+                );
+            } else if (filter === "Yearly" && this.selectedYear) {
+                this.filteredEntries = this.transactionEntries.filter(
+                    (entry) => {
+                        return (
+                            new Date(entry.transaction_date).getFullYear() ===
+                            parseInt(this.selectedYear)
+                        );
+                    }
+                );
+            } else if (filter === "Custom" && this.startDate && this.endDate) {
+                const start = new Date(this.startDate);
+                const end = new Date(this.endDate);
+                this.filteredEntries = this.transactionEntries.filter(
+                    (entry) => {
+                        const date = new Date(entry.transaction_date);
+                        return date >= start && date <= end;
+                    }
+                );
+            } else {
+                this.filteredEntries = this.transactionEntries; // Reset to all
+            }
+        },
+
         calculateBalance(index) {
             let balance = 0;
             for (let i = 0; i <= index; i++) {
@@ -543,9 +704,9 @@ export default {
                     Date: entry.transaction_date,
                     Remarks: entry.remarks,
                     Method: entry.method,
-                    "Type": entry.expanse_type ?? entry.income_type ,
-                    "Cash In": entry.cash_in  ?? 0,
-                    "Cash Out": entry.cash_out  ?? 0,
+                    Type: entry.expanse_type ?? entry.income_type,
+                    "Cash In": entry.cash_in ?? 0,
+                    "Cash Out": entry.cash_out ?? 0,
                     Balance: this.calculateBalance(
                         this.transactionEntries.indexOf(entry)
                     ),
@@ -608,5 +769,10 @@ export default {
 .invalid-feedback {
     color: red;
     font-size: 0.875rem;
+}
+.multiselect
+{
+    width: 200px !important;
+    
 }
 </style>
