@@ -155,7 +155,7 @@
                                     <td>
                                         {{
                                             entry.income_type ??
-                                            entry.expanse_type
+                                            entry.expense_type
                                         }}
                                     </td>
                                     <td>{{ formatCurrency(entry.cash_in) ?? 0 }}</td>
@@ -163,7 +163,7 @@
                                     <td>{{ calculateBalance(index) }}</td>
                                     <td>
                                         <div class="btn-group">
-                                            <button
+                                            <!-- <button
                                                 class="btn btn-sm fs-6"
                                                 title="Edit"
                                                 data-bs-toggle="modal"
@@ -178,7 +178,9 @@
                                             <DeleteModal
                                                 :deleteId="entry.id"
                                                 @deleteThis="deleteThis"
-                                            ></DeleteModal>
+                                            ></DeleteModal> -->
+                                            <i class="bi bi-pencil me-2" @click="warning"></i>
+                                            <i class="bi bi-trash" @click="warning"></i>
                                         </div>
                                     </td>
                                 </tr>
@@ -285,29 +287,29 @@
 
                                     <div
                                         class="col-12 col-md-6"
-                                        v-if="form.process_type == 'Expanse'"
+                                        v-if="form.process_type == 'Expense'"
                                     >
-                                        <label>{{ "Expanse Type" }} </label>
+                                        <label>{{ "Expense Type" }} </label>
                                         <Multiselect
-                                            v-model="form.expanse_type"
+                                            v-model="form.expense_type"
                                             :options="ExpansTypesOpions"
                                             :searchable="true"
                                             :class="{
                                                 'invalid-bg':
-                                                    formErrors.expanse_type,
+                                                    formErrors.expense_type,
                                             }"
                                         />
                                         <div
                                             class="invalid-feedback animated fadeIn"
-                                            v-if="formErrors.expanse_type"
+                                            v-if="formErrors.expense_type"
                                         >
-                                            {{ formErrors.expanse_type[0] }}
+                                            {{ formErrors.expense_type[0] }}
                                         </div>
                                     </div>
 
                                     <div
                                         class="col-md-6 col-12"
-                                        v-if="form.process_type == 'Expanse'"
+                                        v-if="form.process_type == 'Expense'"
                                     >
                                         <label for="cash_out" class="form-label"
                                             >Cash Out</label
@@ -507,7 +509,7 @@ export default {
                 ref_no: "",
                 method: "",
                 remarks: "",
-                expanse_type: "",
+                expense_type: "",
                 income_type: "",
                 process_type: "",
             },
@@ -518,7 +520,7 @@ export default {
             ExpansTypesOpions: [],
             IncomeTypesOpions: [],
             methodTypesOpions: ["Bank", "Cash"],
-            processTypeOptions: ["Expanse", "Income"],
+            processTypeOptions: ["Expense", "Income"],
             monthsOptions: [
                 { value: 1, label: "January" },
                 { value: 2, label: "February" },
@@ -694,7 +696,7 @@ export default {
         },
         pluckIncomeTypes() {
             axios
-                .get(route("api.expanse.pluck"))
+                .get(route("api.expense.pluck"))
                 .then((response) => {
                     this.ExpansTypesOpions = response.data;
                 })
@@ -709,7 +711,7 @@ export default {
                     Date: entry.transaction_date,
                     Remarks: entry.remarks,
                     Method: entry.method,
-                    Type: entry.expanse_type ?? entry.income_type,
+                    Type: entry.expense_type ?? entry.income_type,
                     "Cash In": entry.cash_in ?? 0,
                     "Cash Out": entry.cash_out ?? 0,
                     Balance: this.calculateBalance(
@@ -735,7 +737,7 @@ export default {
                 entry.transaction_date,
                 entry.remarks,
                 entry.method,
-                entry.expanse_type ?? entry.income_type,
+                entry.expense_type ?? entry.income_type,
                 entry.cash_in ?? 0,
                 entry.cash_out ?? 0,
                 this.calculateBalance(this.transactionEntries.indexOf(entry)),
@@ -760,6 +762,9 @@ export default {
 
             // Save the PDF
             doc.save("transactions.pdf");
+        },
+        warning() {
+            toastr.warning("This feature is not added yet! Working in progress.");
         },
     },
 };

@@ -134,7 +134,7 @@ export default {
             this.formStatus = 0;
 
             axios
-                .post(route("api.income.expanse.store"), this.form)
+                .post(route("api.income.expense.store"), this.form)
                 .then(() => {
                     this.formStatus = 1;
                     toastr.success("Record saved successfully.");
@@ -149,7 +149,7 @@ export default {
         showEntry(entry_id) {
             console.log(entry_id);
             axios
-                .get(route("api.income.expanse.show", [entry_id, this.process]))
+                .get(route("api.income.expense.show", [entry_id, this.process]))
                 .then((response) => {
                     this.form.id = response.data.id;
                     this.form.name = response.data.name;

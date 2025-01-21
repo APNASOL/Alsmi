@@ -1,29 +1,29 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Models\ExpanseType;
+use App\Models\ExpenseType;
 use App\Models\IncomeType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
-class IncomeExpanseController extends Controller
+class IncomeExpenseController extends Controller
 {
-    // Display the expanse index view
-    public function expanse_index()
+    // Display the expense index view
+    public function expense_index()
     {
-        return Inertia::render('Expanse/Index');
+        return Inertia::render('Expense/Index');
     }
     public function income_index()
     {
         return Inertia::render('Income/Index');
     }
 
-    // Fetch all expanse entries
+    // Fetch all expense entries
     public function fetch($process)
     { 
-        if ($process == 'Expanse') {
-            $record = ExpanseType::all();
+        if ($process == 'Expense') {
+            $record = ExpenseType::all();
 
         } else {
             $record = IncomeType::all();
@@ -32,7 +32,7 @@ class IncomeExpanseController extends Controller
         return $record;
     }
 
-    // Store or update a expanse entry
+    // Store or update a expense entry
     public function store(Request $request)
     {
         $request->validate([
@@ -43,16 +43,16 @@ class IncomeExpanseController extends Controller
         
         if ($request->id) {
            
-            if ($request->process == 'Expanse') {
-                $record = ExpanseType::findOrFail($request->id);
+            if ($request->process == 'Expense') {
+                $record = ExpenseType::findOrFail($request->id);
 
             } else {
                 $record = IncomeType::findOrFail($request->id);
 
             }
         } else {
-            if ($request->process == 'Expanse') {
-                $record = new ExpanseType;
+            if ($request->process == 'Expense') {
+                $record = new ExpenseType;
 
             } else {
 
@@ -71,12 +71,12 @@ class IncomeExpanseController extends Controller
         return 'success';
     }
 
-    // Display a specific expanse entry
+    // Display a specific expense entry
     public function show($id, $process)
     {  
-        if ($process == 'Expanse') {
+        if ($process == 'Expense') {
 
-            $record = ExpanseType::findOrFail($id);
+            $record = ExpenseType::findOrFail($id);
         } else {
             $record = IncomeType::findOrFail($id);
         }
@@ -84,11 +84,11 @@ class IncomeExpanseController extends Controller
         return $record;
     }
 
-    // Delete a specific expanse entry
+    // Delete a specific expense entry
     public function delete($id, $process)
     {
-        if ($process == 'Expanse') {
-            $record = ExpanseType::findOrFail($id);
+        if ($process == 'Expense') {
+            $record = ExpenseType::findOrFail($id);
 
         } else {
             $record = IncomeType::findOrFail($id);
@@ -98,10 +98,10 @@ class IncomeExpanseController extends Controller
         return 'success';
     }
 
-    public function pluckExpanses()
+    public function pluckExpenses()
     {
-        $expanse = ExpanseType::pluck('name', 'id');
-        return $expanse;
+        $expense = ExpenseType::pluck('name', 'id');
+        return $expense;
     }
     public function pluckIncome()
     {

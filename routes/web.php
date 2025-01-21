@@ -6,7 +6,7 @@ use App\Http\Controllers\HomeController;
  
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TransactionController;
-use App\Http\Controllers\IncomeExpanseController;
+use App\Http\Controllers\IncomeExpenseController;
  
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -40,8 +40,8 @@ Route::middleware(['web'])->group(function () {
     //  Accounts 
     Route::get('/accounts', [AccountController::class, 'index'])->name('accounts'); 
     //  Accounts 
-    Route::get('/expanse/types', [IncomeExpanseController::class, 'expanse_index'])->name('expanse.types'); 
-    Route::get('/income/types', [IncomeExpanseController::class, 'income_index'])->name('income.types'); 
+    Route::get('/expense/types', [IncomeExpenseController::class, 'expense_index'])->name('expense.types'); 
+    Route::get('/income/types', [IncomeExpenseController::class, 'income_index'])->name('income.types'); 
  
 
 });

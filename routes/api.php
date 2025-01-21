@@ -5,7 +5,7 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\IncomeExpanseController;
+use App\Http\Controllers\IncomeExpenseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,14 +50,14 @@ Route::middleware(['web'])->group(function () {
     Route::delete('/transaction/delete/{id}', [TransactionController::class, 'destroy'])->name('api.transaction.delete'); // Delete a specific transaction entry
     Route::get('/transaction/pluck', [TransactionController::class, 'pluck'])->name('api.transaction.pluck');             // (Optional) Fetch transaction data for dropdowns or other purposes
     
-    // /Income Expanse routes
-    Route::post('/income/expanse/store', [IncomeExpanseController::class, 'store'])->name('api.income.expanse.store');             // Fetch all transaction entries
-    Route::get('/income/expanse/fetch/{process}', [IncomeExpanseController::class, 'fetch'])->name('api.income.expanse.fetch');             // Fetch all transaction entries
-    Route::post('/income/expanse/store', [IncomeExpanseController::class, 'store'])->name('api.income.expanse.store');            // Create or update a transaction entry
-    Route::get('/income/expanse/show/{id}/{process}', [IncomeExpanseController::class, 'show'])->name('api.income.expanse.show');           // Show a specific transaction entry
-    Route::delete('/income/expanse/delete/{id}/{process}', [IncomeExpanseController::class, 'delete'])->name('api.income.expanse.delete'); // Delete a specific transaction entry
-    Route::get('/expanse/pluck', [IncomeExpanseController::class, 'pluck'])->name('api.expanse.pluck'); 
-    Route::get('/income/pluck', [IncomeExpanseController::class, 'pluckIncome'])->name('api.income.pluck'); 
-    Route::get('/expanse/pluck', [IncomeExpanseController::class, 'pluckExpanses'])->name('api.expanse.pluck'); 
+    // /Income Expense routes
+    Route::post('/income/expense/store', [IncomeExpenseController::class, 'store'])->name('api.income.expense.store');             // Fetch all transaction entries
+    Route::get('/income/expense/fetch/{process}', [IncomeExpenseController::class, 'fetch'])->name('api.income.expense.fetch');             // Fetch all transaction entries
+    Route::post('/income/expense/store', [IncomeExpenseController::class, 'store'])->name('api.income.expense.store');            // Create or update a transaction entry
+    Route::get('/income/expense/show/{id}/{process}', [IncomeExpenseController::class, 'show'])->name('api.income.expense.show');           // Show a specific transaction entry
+    Route::delete('/income/expense/delete/{id}/{process}', [IncomeExpenseController::class, 'delete'])->name('api.income.expense.delete'); // Delete a specific transaction entry
+    Route::get('/expense/pluck', [IncomeExpenseController::class, 'pluck'])->name('api.expense.pluck'); 
+    Route::get('/income/pluck', [IncomeExpenseController::class, 'pluckIncome'])->name('api.income.pluck'); 
+    Route::get('/expense/pluck', [IncomeExpenseController::class, 'pluckExpenses'])->name('api.expense.pluck'); 
     
  });

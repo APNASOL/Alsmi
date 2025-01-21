@@ -2,13 +2,13 @@
     <main id="main" class="main">
         <div class="pagetitle d-flex justify-content-between">
             <div>
-                <h1 class="theme-text-color">Expanse Types</h1>
+                <h1 class="theme-text-color">Expense Types</h1>
                 <nav>
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item">
                             <a href="/dashboard">Alsmi</a>
                         </li>
-                        <li class="breadcrumb-item">Expanse Types</li>
+                        <li class="breadcrumb-item">Expense Types</li>
                         <li class="breadcrumb-item active">Index</li>
                     </ol>
                 </nav>
@@ -20,7 +20,7 @@
                     data-bs-target="#updateRecordModal"
                     @click="clearFields"
                 >
-                    <i class="bi bi-plus-lg"></i> New Expanse Types
+                    <i class="bi bi-plus-lg"></i> New Expense Types
                 </button>
             </div>
         </div>
@@ -29,7 +29,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title theme-text-color">
-                        All Expanse Types
+                        All Expense Types
                     </h5>
                     <div class="table-responsive">
                         <table class="table table-striped">
@@ -43,11 +43,11 @@
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="(expanse, index) in expanseType"
-                                    :key="expanse.id"
+                                    v-for="(expense, index) in expenseType"
+                                    :key="expense.id"
                                 >
                                     <th scope="row">{{ index + 1 }}</th>
-                                    <td>{{ expanse.name }}</td>
+                                    <td>{{ expense.name }}</td>
 
                                     <td>
                                         <div class="btn-group">
@@ -57,14 +57,14 @@
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#updateRecordModal"
                                                 @click="
-                                                    showEntry(expanse.id);
+                                                    showEntry(expense.id);
                                                     clearFields();
                                                 "
                                             >
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <DeleteModal
-                                                :deleteId="expanse.id"
+                                                :deleteId="expense.id"
                                                 @deleteThis="deleteThis"
                                             ></DeleteModal>
                                         </div>
@@ -169,7 +169,7 @@ export default {
     layout: Master,
     data() {
         return {
-            expanseType: [],
+            expenseType: [],
             form: {
                 id: "",
                 name: "",
@@ -177,18 +177,18 @@ export default {
             },
             formErrors: [],
             formStatus: 1, // 1 = ready, 0 = saving
-            process: "Expanse",
+            process: "Expense",
         };
     },
     created() {
-        this.fetchExpanses();
+        this.fetchExpenses();
     },
     methods: {
-        fetchExpanses() {
+        fetchExpenses() {
             axios
-                .get(route("api.income.expanse.fetch", this.process))
+                .get(route("api.income.expense.fetch", this.process))
                 .then((response) => {
-                    this.expanseType = response.data;
+                    this.expenseType = response.data;
                 })
                 .catch((error) => {
                     console.error(error);
@@ -196,7 +196,7 @@ export default {
         },
         showEntry(entry_id) {
             axios
-                .get(route("api.income.expanse.show", [entry_id, this.process]))
+                .get(route("api.income.expense.show", [entry_id, this.process]))
                 .then((response) => {
                     this.form.id = response.data.id;
                     this.form.name = response.data.name;
@@ -207,14 +207,14 @@ export default {
         },
         submit() {
             this.formStatus = 0;
-            this.form.process = "Expanse";
+            this.form.process = "Expense";
             // Create new income type
             axios
-                .post(route("api.income.expanse.store"), this.form)
+                .post(route("api.income.expense.store"), this.form)
                 .then(() => {
                     this.formStatus = 1;
-                    toastr.success("Expanse Type created successfully.");
-                    this.fetchExpanses();
+                    toastr.success("Expense Type created successfully.");
+                    this.fetchExpenses();
                     this.$refs.closeModal.click();
                 })
                 .catch((error) => {
@@ -226,10 +226,10 @@ export default {
         },
         deleteThis(id) {
             axios
-                .delete(route("api.income.expanse.delete", [id, this.process]))
+                .delete(route("api.income.expense.delete", [id, this.process]))
                 .then(() => {
-                    this.fetchExpanses();
-                    toastr.success("Expanse Type deleted successfully.");
+                    this.fetchExpenses();
+                    toastr.success("Expense Type deleted successfully.");
                 })
                 .catch((error) => {
                     console.error(error);

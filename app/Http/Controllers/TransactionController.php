@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Models\ExpanseType;
+use App\Models\ExpenseType;
 use App\Models\Expense;
 use App\Models\Income;
 use App\Models\IncomeType;
@@ -28,10 +28,10 @@ class TransactionController extends Controller
             // Check if the transaction has cash_out
             if ($transaction->cash_out) {
                 // Fetch related expense data
-                $expanse      = Expense::where('transaction_id', $transaction->id)->first();
-                $expanse_type = ExpanseType::where('id', $expanse->expense_type_id)->first();
+                $expense      = Expense::where('transaction_id', $transaction->id)->first();
+                $expense_type = ExpenseType::where('id', $expense->expense_type_id)->first();
 
-                $transaction->expanse_type = $expanse_type->name." (Expanse)";
+                $transaction->expense_type = $expense_type->name." (Expense)";
             }
             // Check if the transaction has cash_in
             elseif ($transaction->cash_in) {
@@ -58,7 +58,7 @@ class TransactionController extends Controller
         $request->validate([
             'process_type' => 'required',
             'income_type'  => 'required_if:process_type,Income',
-            'expanse_type' => 'required_if:process_type,Expanse',
+            'expense_type' => 'required_if:process_type,Expense',
             'cash_in'      => 'nullable|numeric|required_without:cash_out',
             'cash_out'     => 'nullable|numeric|required_without:cash_in',
             'date'         => 'required|date',
@@ -70,15 +70,15 @@ class TransactionController extends Controller
         // Check if updating or creating a new transaction entry
         if ($request->id) {
             $transaction = Transaction::findOrFail($request->id);
-            $expanse     = Expense::where('transaction_id', $request->id)->first();
+            $expense     = Expense::where('transaction_id', $request->id)->first();
             $income      = Income::where('transaction_id', $request->id)->first();
         } else {
             $transaction     = new Transaction;
             $transaction->id = Str::orderedUuid(); // Generate UUID for new record
 
-            if ($request->process_type == 'Expanse') {
-                $expanse     = new Expense();
-                $expanse->id = Str::orderedUuid();
+            if ($request->process_type == 'Expense') {
+                $expense     = new Expense();
+                $expense->id = Str::orderedUuid();
             }
 
             if ($request->process_type == 'Income') {
@@ -96,14 +96,14 @@ class TransactionController extends Controller
 
         $transaction->save(); // Save the transaction first, this will generate the `transaction_id`
 
-        // Handle saving Expanses and Incomes after transaction is saved
-        if ($request->process_type == 'Expanse') {
-            $expanse->transaction_id   = $transaction->id; // Link the transaction ID
-            $expanse->expense_type_id  = $request->expanse_type;
-            $expanse->transaction_date = $request->date;
-            $expanse->amount           = $request->cash_out;
+        // Handle saving Expenses and Incomes after transaction is saved
+        if ($request->process_type == 'Expense') {
+            $expense->transaction_id   = $transaction->id; // Link the transaction ID
+            $expense->expense_type_id  = $request->expense_type;
+            $expense->transaction_date = $request->date;
+            $expense->amount           = $request->cash_out;
             $transaction->cash_out     = $request->cash_out;
-            $expanse->save();
+            $expense->save();
         }
 
         if ($request->process_type == 'Income') {

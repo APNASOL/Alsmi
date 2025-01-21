@@ -149,12 +149,12 @@
                 <li class="nav-item">
                     <a
                         class="nav-link collapsed"
-                        :class="{ active: isActive('/expanse/types') }"
-                        href="/expanse/types"
+                        :class="{ active: isActive('/expense/types') }"
+                        href="/expense/types"
                     >
                         <i class="bi bi-person-circle"></i>
                         <!-- Icon for Users -->
-                        <span>Expanse Types</span>
+                        <span>Expense Types</span>
                     </a>
                 </li>
                 <li class="nav-item">
