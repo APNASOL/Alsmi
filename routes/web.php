@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\IncomeExpenseController;
+use App\Http\Controllers\IncomeStatementController;
 use App\Http\Controllers\ReportController;
  
 use Illuminate\Support\Facades\Route;
@@ -45,6 +46,8 @@ Route::middleware(['web'])->group(function () {
     Route::get('/income/types', [IncomeExpenseController::class, 'income_index'])->name('income.types'); 
     //  reports 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports'); 
+    //  reports 
+    Route::get('/income-statements', [IncomeStatementController::class, 'index'])->name('income-statements'); 
    
  
 

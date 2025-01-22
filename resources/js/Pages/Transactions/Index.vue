@@ -623,7 +623,7 @@ export default {
         },
         
         submit() {
-            this.formStatus = 1;
+            this.formStatus = 0;
             axios
                 .post(route("api.transaction.store"), this.form)
                 .then(() => {

@@ -121,8 +121,32 @@
                     </a>
                 </li>
 
-                <!-- Income Statements Nav Item -->
+               
+                <!-- Users Nav Item -->
                 <li class="nav-item">
+                    <a
+                        class="nav-link collapsed"
+                        :class="{ active: isActive('/expense/types') }"
+                        href="/expense/types"
+                    >
+                        <i class="bi bi-dash-circle"></i>
+                        <!-- Icon for Users -->
+                        <span>Expense Types</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a
+                        class="nav-link collapsed"
+                        :class="{ active: isActive('/income/types') }"
+                        href="/income/types"
+                    >
+                        <i class="bi bi-plus-circle"></i>
+                        <!-- Icon for Users -->
+                        <span>Income Types</span>
+                    </a>
+                </li>
+                 <!-- Income Statements Nav Item -->
+                 <li class="nav-item">
                     <a
                         class="nav-link collapsed"
                         :class="{ active: isActive('/income-statements') }"
@@ -145,29 +169,7 @@
                         <span>Reports</span>
                     </a>
                 </li>
-                <!-- Users Nav Item -->
-                <li class="nav-item">
-                    <a
-                        class="nav-link collapsed"
-                        :class="{ active: isActive('/expense/types') }"
-                        href="/expense/types"
-                    >
-                        <i class="bi bi-person-circle"></i>
-                        <!-- Icon for Users -->
-                        <span>Expense Types</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a
-                        class="nav-link collapsed"
-                        :class="{ active: isActive('/income/types') }"
-                        href="/income/types"
-                    >
-                        <i class="bi bi-person-circle"></i>
-                        <!-- Icon for Users -->
-                        <span>Income Types</span>
-                    </a>
-                </li>
+                
                 <li class="nav-item">
                     <a
                         class="nav-link collapsed"
