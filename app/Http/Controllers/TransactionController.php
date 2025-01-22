@@ -50,6 +50,35 @@ class TransactionController extends Controller
 
         return $transactions; // Return the transactions with related data
     }
+    public function dashboard_fetch()
+    {
+        $transactions = Transaction::all(); // Fetch all transactions
+
+        foreach ($transactions as $transaction) {
+            // Check if the transaction has cash_out
+            if ($transaction->cash_out) {
+                // Fetch related expense data
+                $expense      = Expense::where('transaction_id', $transaction->id)->first();
+                $expense_type = ExpenseType::where('id', $expense->expense_type_id)->first();
+
+                $transaction->expense_type = $expense_type->name." (Expense)";
+            }
+            // Check if the transaction has cash_in
+            elseif ($transaction->cash_in) {
+                // Fetch related income data
+                $income      = Income::where('transaction_id', $transaction->id)->first();
+                $income_type = IncomeType::where('id', $income->income_type_id)->first();
+
+                $transaction->income_type = $income_type->name." (Income)";
+
+            } 
+            
+            
+          
+        }
+
+        return $transactions; // Return the transactions with related data
+    }
 
     // Store or update a transaction entry
     public function store(Request $request)

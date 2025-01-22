@@ -24,7 +24,9 @@ use App\Http\Controllers\ReportController;
 Route::post('login', [HomeController::class, 'login'])->name('api.login');
 Route::middleware(['web'])->group(function () {
     Route::post('/logout', [HomeController::class, 'logout_user'])->name('api.logout');
-  
+    
+    Route::get('/dashbaord/transaction/fetch', [TransactionController::class, 'dashboard_fetch'])->name('api.dashbaord.transaction.fetch');    
+             // Fetch all transaction entries
     // Users Api
     Route::get('/users/fetch', [UserController::class, 'users_fetch'])->name('api.users.fetch');
     Route::post('/users/store', [UserController::class, 'store'])->name('api.users.store');
