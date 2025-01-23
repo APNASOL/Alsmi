@@ -7,11 +7,12 @@
                     class="logo d-flex align-items-center"
                 >
                     <img
-                        src="http://alsmi.test/backend/assets/img/logo.png"
+                         src="/images/logo.png"
+                         height="150"
                         alt=""
                     />
                     <span class="d-none d-lg-block theme-text-color"
-                        >Alsmi</span
+                        >ASH</span
                     >
                 </a>
                 <i class="bi bi-list toggle-sidebar-btn"></i>
@@ -333,5 +334,9 @@ export default {
 }
 .text-primary {
     color: rgb(13, 32, 201) !important;
+}
+.logo img {
+  max-height: 57px;
+  margin-right: 6px;
 }
 </style>

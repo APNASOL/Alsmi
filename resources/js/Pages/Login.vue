@@ -19,8 +19,8 @@
                             <div class="d-flex justify-content-center py-4">
                                 <a :href="route('/')"> 
                                     <img
-                                        src="backend/assets/img/logo.png"
-                                        height="60"
+                                        src="/images/logo.png"
+                                        height="150"
                                         alt="logo"
                                     /> 
                                 </a>
