@@ -128,7 +128,7 @@
                                                 </button>
                                             </div>
                                         </div>
-                                        <div class="col-12">
+                                        <!-- <div class="col-12">
                                             <p class="small mb-0">
                                                 <a
                                                     :href="
@@ -143,8 +143,8 @@
                                                     }}
                                                 </a>
                                             </p>
-                                        </div>
-                                        <div class="col-12">
+                                        </div> -->
+                                        <!-- <div class="col-12">
                                             <p class="small mb-0">
                                                 <a
                                                     :href="route('/')"
@@ -153,7 +153,7 @@
                                                     {{ ("Register") }}
                                                 </a>
                                             </p>
-                                        </div>
+                                        </div> -->
                                     </form>
                                 </div>
                             </div>
@@ -226,7 +226,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style >
  
  @import url("public/backend/assets/vendor/bootstrap/css/bootstrap.min.css");
 @import url("public/backend/assets/vendor/bootstrap-icons/bootstrap-icons.css");

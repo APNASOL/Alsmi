@@ -22,7 +22,7 @@
                             <div class="col-xxl-4 col-md-4">
                                 <div class="card info-card">
                                     <div class="card-body">
-                                        <h5 class="card-title">Cash In</h5>
+                                        <h5 class="card-title">Current Month <br>Cash In</h5>
                                         <div
                                             class="d-flex align-items-center justify-content-between"
                                         >
@@ -43,7 +43,7 @@
                             <div class="col-xxl-4 col-md-4">
                                 <div class="card info-card">
                                     <div class="card-body">
-                                        <h5 class="card-title">Cash Out</h5>
+                                        <h5 class="card-title">Current Month <br>Cash Out</h5>
                                         <div
                                             class="d-flex align-items-center justify-content-between"
                                         >
@@ -62,7 +62,7 @@
                             <div class="col-xxl-4 col-md-4">
                                 <div class="card info-card">
                                     <div class="card-body">
-                                        <h5 class="card-title">Balance</h5>
+                                        <h5 class="card-title">Current Month <br>Balance</h5>
                                         <div
                                             class="d-flex align-items-center justify-content-between"
                                         >
@@ -98,7 +98,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">
-                                    Income vs Expense (Bar Chart - Last 6
+                                    Income vs Expense (Bar Chart - Last 12
                                     Months)
                                 </h5>
                                 <canvas id="barChart"></canvas>
@@ -109,17 +109,6 @@
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">
-                                    Expense Distribution (Pie Chart - Last 6
-                                    Months)
-                                </h5>
-                                <canvas id="pieChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">
                                     Income and Expense (Line Chart - Last 12
                                     Months)
                                 </h5>
@@ -127,6 +116,18 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-lg-12" hidden>
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    Expense Distribution (Pie Chart - Last 6
+                                    Months)
+                                </h5>
+                                <canvas id="pieChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                   
                 </div>
             </section>
         </main>
@@ -186,7 +187,7 @@ export default {
                     month.getMonth() + 1
                 }-${month.getFullYear()}`;
 
-                if (i < 6)
+                if (i < 12)
                     last6Months.push({
                         label: monthLabel,
                         income: 0,
