@@ -16,13 +16,28 @@
 
             <section class="section dashboard">
                 <div class="row">
+                    <!-- Filter -->
+                    <div class="d-flex justify-content-end mb-3">
+                        <div class="col-md-2">
+                            <Multiselect
+                                v-model="selectedFilter"
+                                :options="filterOptions"
+                                :searchable="true"
+                                @select="applyFilter"
+                                placeholder="Filter By"
+                            />
+                        </div>
+                    </div>
+
                     <!-- Top Boxes -->
                     <div class="col-lg-12">
                         <div class="row">
                             <div class="col-xxl-4 col-md-4">
                                 <div class="card info-card">
                                     <div class="card-body">
-                                        <h5 class="card-title">Current Month <br>Cash In</h5>
+                                        <h5 class="card-title">
+                                            Current Month <br />Cash In
+                                        </h5>
                                         <div
                                             class="d-flex align-items-center justify-content-between"
                                         >
@@ -43,7 +58,9 @@
                             <div class="col-xxl-4 col-md-4">
                                 <div class="card info-card">
                                     <div class="card-body">
-                                        <h5 class="card-title">Current Month <br>Cash Out</h5>
+                                        <h5 class="card-title">
+                                            Current Month <br />Cash Out
+                                        </h5>
                                         <div
                                             class="d-flex align-items-center justify-content-between"
                                         >
@@ -62,7 +79,9 @@
                             <div class="col-xxl-4 col-md-4">
                                 <div class="card info-card">
                                     <div class="card-body">
-                                        <h5 class="card-title">Current Month <br>Balance</h5>
+                                        <h5 class="card-title">
+                                            Current Month <br />Balance
+                                        </h5>
                                         <div
                                             class="d-flex align-items-center justify-content-between"
                                         >
@@ -98,8 +117,8 @@
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">
-                                    Income vs Expense (Bar Chart - Last 12
-                                    Months)
+                                    Income vs Expense (Bar Chart - Selected
+                                    Range)
                                 </h5>
                                 <canvas id="barChart"></canvas>
                             </div>
@@ -109,25 +128,13 @@
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">
-                                    Income and Expense (Line Chart - Last 12
-                                    Months)
+                                    Income and Expense (Line Chart - Selected
+                                    Range)
                                 </h5>
                                 <canvas id="lineChart"></canvas>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-12" hidden>
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    Expense Distribution (Pie Chart - Last 6
-                                    Months)
-                                </h5>
-                                <canvas id="pieChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                   
                 </div>
             </section>
         </main>
@@ -137,12 +144,16 @@
 <script>
 import Master from "../Layout/Master.vue";
 import { Chart, registerables } from "chart.js";
+import Multiselect from "@vueform/multiselect";
 import axios from "axios";
 
 Chart.register(...registerables);
 
 export default {
     layout: Master,
+    components: {
+        Multiselect,
+    },
     data() {
         return {
             transactionEntries: [],
@@ -151,6 +162,17 @@ export default {
             balance: 0,
             last6MonthsData: [],
             last12MonthsData: [],
+            selectedFilter: "3", // Default to last 3 months
+            titleCashIn: "Last 3 Months Cash In",
+            titleCashOut: "Last 3 Months Cash Out",
+            titleBalance: "Last 3 Months Balance",
+            filterLabel: "Last 3 Months",
+            filterOptions: [
+                { value: "3", label: "Last 3 Months" },
+                { value: "6", label: "Last 6 Months" },
+                { value: "12", label: "Last 1 Year" },
+                { value: "all", label: "Overall" },
+            ],
         };
     },
     methods: {
@@ -161,204 +183,267 @@ export default {
             }).format(value);
         },
 
+        applyFilter() {
+    if (this.selectedFilter === "all") {
+        // Set filter label and titles for overall data
+        this.filterLabel = "Overall";
+        this.titleCashIn = "Overall Cash In";
+        this.titleCashOut = "Overall Cash Out";
+        this.titleBalance = "Overall Balance";
+
+        // Pass all entries to calculateStats
+        this.calculateStats(this.transactionEntries);
+    } else {
+        // Handle month-based filtering
+        const filterMonths = parseInt(this.selectedFilter);
+        const currentDate = new Date();
+
+        const filteredData = this.transactionEntries.filter((entry) => {
+            const entryDate = new Date(entry.transaction_date);
+            const monthDifference =
+                (currentDate.getFullYear() - entryDate.getFullYear()) * 12 +
+                currentDate.getMonth() -
+                entryDate.getMonth();
+            return monthDifference < filterMonths;
+        });
+
+        this.filterLabel = `Last ${this.selectedFilter} Months`;
+        this.titleCashIn = `${this.filterLabel} Cash In`;
+        this.titleCashOut = `${this.filterLabel} Cash Out`;
+        this.titleBalance = `${this.filterLabel} Balance`;
+
+        this.calculateStats(filteredData);
+    }
+
+    this.updateCharts();
+},
         fetchTransactionEntries() {
             axios
                 .get(route("api.dashbaord.transaction.fetch"))
                 .then((response) => {
-                    console.log(response.data); // Debugging
-                    this.transactionEntries = response.data || []; // Default to empty array if null
-                    this.calculateStats();
-                    this.updateCharts();
+                    this.transactionEntries = response.data || [];
+                    this.applyFilter();
                 })
                 .catch((error) => {
                     console.error("Error fetching transactions:", error);
                 });
         },
+
         calculateStats() {
             const currentDate = new Date();
-            const last6Months = [];
-            const last12Months = [];
+            const filteredEntries = this.transactionEntries.filter((entry) => {
+                const entryDate = new Date(entry.transaction_date);
+                if (isNaN(entryDate)) return false;
 
-            // Prepare arrays for last 6 and 12 months
-            for (let i = 0; i < 12; i++) {
+                if (this.selectedFilter === "all") return true;
+
+                const filterMonths = parseInt(this.selectedFilter);
+                const pastDate = new Date();
+                pastDate.setMonth(currentDate.getMonth() - filterMonths);
+
+                return entryDate >= pastDate;
+            });
+
+            this.cashIn = filteredEntries.reduce(
+                (sum, entry) => sum + (parseFloat(entry.cash_in) || 0),
+                0
+            );
+            this.cashOut = filteredEntries.reduce(
+                (sum, entry) => sum + (parseFloat(entry.cash_out) || 0),
+                0
+            );
+            this.balance = this.cashIn - this.cashOut;
+
+            this.last6MonthsData = this.groupDataByMonths(filteredEntries, 6);
+            this.last12MonthsData = this.groupDataByMonths(filteredEntries, 12);
+        },
+
+        applyFilter() {
+            const filterMonths =
+                this.selectedFilter === "all"
+                    ? Infinity
+                    : parseInt(this.selectedFilter);
+            const currentDate = new Date();
+
+            const filteredData = this.transactionEntries.filter((entry) => {
+                const entryDate = new Date(entry.transaction_date);
+                const monthDifference =
+                    (currentDate.getFullYear() - entryDate.getFullYear()) * 12 +
+                    currentDate.getMonth() -
+                    entryDate.getMonth();
+                return monthDifference < filterMonths;
+            });
+
+            this.calculateStats(filteredData);
+            this.updateCharts();
+        },
+
+        groupDataByMonths(entries, months) {
+            const groupedData = [];
+            const currentDate = new Date();
+
+            for (let i = 0; i < months; i++) {
                 const month = new Date();
                 month.setMonth(currentDate.getMonth() - i);
                 const monthLabel = `${
                     month.getMonth() + 1
                 }-${month.getFullYear()}`;
 
-                if (i < 12)
-                    last6Months.push({
-                        label: monthLabel,
-                        income: 0,
-                        expense: 0,
-                    });
-                last12Months.push({ label: monthLabel, income: 0, expense: 0 });
+                groupedData.push({
+                    label: monthLabel,
+                    income: 0,
+                    expense: 0,
+                });
             }
 
-            this.transactionEntries.forEach((entry) => {
+            entries.forEach((entry) => {
                 const entryDate = new Date(entry.transaction_date);
-                if (isNaN(entryDate)) {
-                    console.error(
-                        "Invalid transaction date:",
-                        entry.transaction_date
-                    );
-                    return;
-                }
-
                 const monthLabel = `${
                     entryDate.getMonth() + 1
                 }-${entryDate.getFullYear()}`;
 
-                // Process for last 6 months
-                const last6Index = last6Months.findIndex(
+                const groupIndex = groupedData.findIndex(
                     (item) => item.label === monthLabel
                 );
-                if (last6Index !== -1) {
-                    last6Months[last6Index].income +=
-                        parseFloat(entry.cash_in) || 0;
-                    last6Months[last6Index].expense +=
-                        parseFloat(entry.cash_out) || 0;
-                }
 
-                // Process for last 12 months
-                const last12Index = last12Months.findIndex(
-                    (item) => item.label === monthLabel
-                );
-                if (last12Index !== -1) {
-                    last12Months[last12Index].income +=
+                if (groupIndex !== -1) {
+                    groupedData[groupIndex].income +=
                         parseFloat(entry.cash_in) || 0;
-                    last12Months[last12Index].expense +=
+                    groupedData[groupIndex].expense +=
                         parseFloat(entry.cash_out) || 0;
                 }
             });
 
-            // Update data for charts and top boxes
-            this.last6MonthsData = last6Months;
-            this.last12MonthsData = last12Months;
-            this.cashIn = last6Months.reduce(
-                (sum, item) => sum + item.income,
-                0
-            );
-            this.cashOut = last6Months.reduce(
-                (sum, item) => sum + item.expense,
-                0
-            );
-            this.balance = this.cashIn - this.cashOut;
+            return groupedData;
         },
+
         updateCharts() {
-            console.log("Updating charts...");
-            console.log("Last 6 Months Data:", this.last6MonthsData);
-            console.log("Last 12 Months Data:", this.last12MonthsData);
-            console.log("Cash In:", this.cashIn, "Cash Out:", this.cashOut);
-
-            // Destroy existing chart instances to prevent overlapping
-            Object.values(Chart.instances).forEach((chart) => chart.destroy());
-
-            // Destroy existing chart instances to prevent overlapping
-            // Chart.instances.forEach((chart) => chart.destroy());
+            // Check and destroy existing charts
+            if (this.barChart) {
+                this.barChart.destroy();
+            }
+            if (this.lineChart) {
+                this.lineChart.destroy();
+            }
 
             // Bar Chart (Last 6 Months)
             const barCtx = document.getElementById("barChart").getContext("2d");
-            new Chart(barCtx, {
+            this.barChart = new Chart(barCtx, {
                 type: "bar",
                 data: {
                     labels: this.last6MonthsData.map((item) => item.label),
                     datasets: [
                         {
                             label: "Income",
-                            data: this.last6MonthsData.map(
-                                (item) => item.income
-                            ),
+                            data: this.last6MonthsData.map((item) => item.income),
                             backgroundColor: "#4caf50",
                         },
                         {
                             label: "Expense",
-                            data: this.last6MonthsData.map(
-                                (item) => item.expense
-                            ),
+                            data: this.last6MonthsData.map((item) => item.expense),
                             backgroundColor: "#f44336",
                         },
                     ],
                 },
-            });
-
-            // Pie Chart (Last 6 Months)
-            const pieCtx = document.getElementById("pieChart").getContext("2d");
-            new Chart(pieCtx, {
-                type: "pie",
-                data: {
-                    labels: ["Cash In", "Cash Out"],
-                    datasets: [
-                        {
-                            data: [this.cashIn, this.cashOut],
-                            backgroundColor: ["#4caf50", "#f44336"],
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: "top",
                         },
-                    ],
+                        tooltip: {
+                            callbacks: {
+                                label: (context) =>
+                                    `${context.dataset.label}: ${this.formatCurrency(
+                                        context.raw
+                                    )}`,
+                            },
+                        },
+                    },
                 },
             });
 
             // Line Chart (Last 12 Months)
-            const lineCtx = document
-                .getElementById("lineChart")
-                .getContext("2d");
-            new Chart(lineCtx, {
+            const lineCtx = document.getElementById("lineChart").getContext("2d");
+            this.lineChart = new Chart(lineCtx, {
                 type: "line",
                 data: {
                     labels: this.last12MonthsData.map((item) => item.label),
                     datasets: [
                         {
                             label: "Income",
-                            data: this.last12MonthsData.map(
-                                (item) => item.income
-                            ),
+                            data: this.last12MonthsData.map((item) => item.income),
                             borderColor: "#4caf50",
                             fill: false,
+                            tension: 0.4,
                         },
                         {
                             label: "Expense",
-                            data: this.last12MonthsData.map(
-                                (item) => item.expense
-                            ),
+                            data: this.last12MonthsData.map((item) => item.expense),
                             borderColor: "#f44336",
                             fill: false,
+                            tension: 0.4,
                         },
                     ],
                 },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: "top",
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) =>
+                                    `${context.dataset.label}: ${this.formatCurrency(
+                                        context.raw
+                                    )}`,
+                            },
+                        },
+                    },
+                },
             });
         },
-    },
 
-    mounted() {
-        this.fetchTransactionEntries();
     },
+    mounted() {
+    this.fetchTransactionEntries();
+},
+watch: {
+    transactionEntries() {
+        this.applyFilter();
+    },
+    selectedFilter() {
+        this.applyFilter();
+    },
+},
+
 };
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
+@import "@vueform/multiselect/themes/default.css";
 .info-card {
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    font-weight: bold !important;
-}
-
-.text-danger {
-    color: #f44336 !important;
-}
-
-.text-success {
-    color: #4caf50 !important;
-}
-.icon-bubble {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 55px; /* Adjust size */
-    height: 55px; /* Adjust size */
-    border-radius: 50%;
-    font-size: 16px; /* Icon size */
+    background: #f8f9fa;
+    border: none;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 20px;
 }
+
+.icon-bubble {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+canvas {
+    width: 100% !important;
+    height: 400px !important;
+}
+
 </style>
