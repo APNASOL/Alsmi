@@ -19,7 +19,6 @@
                     <!-- Filter -->
                     <div class="d-flex justify-content-end mb-3">
                         <div class="col-md-2">
-                             
                             <Multiselect
                                 v-model="selectedFilter"
                                 :options="filterOptions"
@@ -36,9 +35,7 @@
                             <div class="col-xxl-4 col-md-4">
                                 <div class="card info-card">
                                     <div class="card-body">
-                                        <h5 class="card-title">
-                                            Cash In
-                                        </h5>
+                                        <h5 class="card-title">Cash In</h5>
                                         <div
                                             class="d-flex align-items-center justify-content-between"
                                         >
@@ -59,9 +56,7 @@
                             <div class="col-xxl-4 col-md-4">
                                 <div class="card info-card">
                                     <div class="card-body">
-                                        <h5 class="card-title">
-                                            Cash Out
-                                        </h5>
+                                        <h5 class="card-title">Cash Out</h5>
                                         <div
                                             class="d-flex align-items-center justify-content-between"
                                         >
@@ -80,9 +75,7 @@
                             <div class="col-xxl-4 col-md-4">
                                 <div class="card info-card">
                                     <div class="card-body">
-                                        <h5 class="card-title">
-                                           Balance
-                                        </h5>
+                                        <h5 class="card-title">Balance</h5>
                                         <div
                                             class="d-flex align-items-center justify-content-between"
                                         >
@@ -172,7 +165,7 @@ export default {
                 { value: "3", label: "Last 3 Months" },
                 { value: "6", label: "Last 6 Months" },
                 { value: "12", label: "Last 1 Year" },
-                { value: "120", label: "Overall" },
+                // { value: "all", label: "Overall" },
             ],
         };
     },
@@ -185,39 +178,229 @@ export default {
         },
 
         applyFilter() {
-    if (this.selectedFilter === "all") {
-        // Set filter label and titles for overall data
-        this.filterLabel = "Overall";
-        this.titleCashIn = "Overall Cash In";
-        this.titleCashOut = "Overall Cash Out";
-        this.titleBalance = "Overall Balance";
+            if (this.selectedFilter === "all") {
+                // Set filter label and titles for overall data
+                this.filterLabel = "Overall";
+                this.titleCashIn = "Overall Cash In";
+                this.titleCashOut = "Overall Cash Out";
+                this.titleBalance = "Overall Balance";
 
-        // Pass all entries to calculateStats
-        this.calculateStats(this.transactionEntries);
-    } else {
-        // Handle month-based filtering
-        const filterMonths = parseInt(this.selectedFilter);
-        const currentDate = new Date();
+                // Pass all entries to calculateStats
+                this.calculateStats(this.transactionEntries);
+            } else {
+                // Handle month-based filtering
+                const filterMonths = parseInt(this.selectedFilter);
+                const currentDate = new Date();
 
-        const filteredData = this.transactionEntries.filter((entry) => {
-            const entryDate = new Date(entry.transaction_date);
-            const monthDifference =
-                (currentDate.getFullYear() - entryDate.getFullYear()) * 12 +
-                currentDate.getMonth() -
-                entryDate.getMonth();
-            return monthDifference < filterMonths;
-        });
+                const filteredData = this.transactionEntries.filter((entry) => {
+                    const entryDate = new Date(entry.transaction_date);
+                    const monthDifference =
+                        (currentDate.getFullYear() - entryDate.getFullYear()) *
+                            12 +
+                        currentDate.getMonth() -
+                        entryDate.getMonth();
+                    return monthDifference < filterMonths;
+                });
 
-        this.filterLabel = `Last ${this.selectedFilter} Months`;
-        this.titleCashIn = `${this.filterLabel} Cash In`;
-        this.titleCashOut = `${this.filterLabel} Cash Out`;
-        this.titleBalance = `${this.filterLabel} Balance`;
+                this.filterLabel = `Last ${this.selectedFilter} Months`;
+                this.titleCashIn = `${this.filterLabel} Cash In`;
+                this.titleCashOut = `${this.filterLabel} Cash Out`;
+                this.titleBalance = `${this.filterLabel} Balance`;
 
-        this.calculateStats(filteredData);
-    }
+                this.calculateStats(filteredData);
+            }
 
-    this.updateCharts();
-},
+            this.updateCharts();
+        },
+        updateCharts() {
+            // Check and destroy existing charts
+            if (this.barChart) {
+                this.barChart.destroy();
+                this.barChart = null;
+            }
+            if (this.lineChart) {
+                this.lineChart.destroy();
+                this.lineChart = null;
+            }
+
+            if (this.selectedFilter === "all") {
+                // Aggregate totals for cash in and cash out
+                const totalCashIn = this.transactionEntries.reduce(
+                    (sum, entry) => sum + parseFloat(entry.cash_in || 0),
+                    0
+                );
+
+                const totalCashOut = this.transactionEntries.reduce(
+                    (sum, entry) => sum + parseFloat(entry.cash_out || 0),
+                    0
+                );
+
+                console.log("Cash in all " + totalCashIn);
+                console.log("Cash out all " + totalCashOut);
+
+                // Bar Chart (Overall Data for All)
+                const barCtx = document
+                    .getElementById("barChart")
+                    .getContext("2d");
+                this.barChart = new Chart(barCtx, {
+                    type: "bar",
+                    data: {
+                        labels: ["Cash In", "Cash Out"], // Overall categories
+                        datasets: [
+                            {
+                                label: "Overall Data",
+                                data: [totalCashIn, totalCashOut],
+                                backgroundColor: ["#4caf50", "#f44336"], // Green for Cash In, Red for Cash Out
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false,
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: (context) =>
+                                        `${
+                                            context.label
+                                        }: ${this.formatCurrency(context.raw)}`,
+                                },
+                            },
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: "Transaction Type",
+                                },
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: "Amount",
+                                },
+                                beginAtZero: true,
+                            },
+                        },
+                    },
+                });
+            } else {
+                // Existing logic for monthly filters
+                const barCtx = document
+                    .getElementById("barChart")
+                    .getContext("2d");
+                this.barChart = new Chart(barCtx, {
+                    type: "bar",
+                    data: {
+                        labels: this.last6MonthsData.map((item) => item.label),
+                        datasets: [
+                            {
+                                label: "Income",
+                                data: this.last6MonthsData.map(
+                                    (item) => item.income
+                                ),
+                                backgroundColor: "#4caf50",
+                            },
+                            {
+                                label: "Expense",
+                                data: this.last6MonthsData.map(
+                                    (item) => item.expense
+                                ),
+                                backgroundColor: "#f44336",
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: "top",
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: (context) =>
+                                        `${
+                                            context.dataset.label
+                                        }: ${this.formatCurrency(context.raw)}`,
+                                },
+                            },
+                        },
+                    },
+                });
+
+                const lineCtx = document
+                    .getElementById("lineChart")
+                    .getContext("2d");
+
+                this.lineChart = new Chart(lineCtx, {
+                    type: "line", // Line chart type
+                    data: {
+                        labels: this.last12MonthsData.map((item) => item.label), // X-axis labels: Months or other periods
+                        datasets: [
+                            {
+                                label: "Income", // Label for Income line
+                                data: this.last12MonthsData.map(
+                                    (item) => item.income
+                                ), // Data for Income
+                                borderColor: "#4caf50", // Green line for Income
+                                fill: false, // No fill under the line
+                                tension: 0.4, // Smooth curve
+                            },
+                            {
+                                label: "Expense", // Label for Expense line
+                                data: this.last12MonthsData.map(
+                                    (item) => item.expense
+                                ), // Data for Expense
+                                borderColor: "#f44336", // Red line for Expense
+                                fill: false, // No fill under the line
+                                tension: 0.4, // Smooth curve
+                            },
+                        ],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: "top", // Legend position at the top
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: (context) =>
+                                        `${
+                                            context.dataset.label
+                                        }: ${this.formatCurrency(context.raw)}`, // Format tooltip currency
+                                },
+                            },
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: "Month", // X-axis title (e.g., Month)
+                                },
+                                ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 12, // Limit the number of ticks on the x-axis
+                                },
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: "Amount", // Y-axis title (e.g., Amount)
+                                },
+                                beginAtZero: true, // Start y-axis from 0
+                            },
+                        },
+                    },
+                });
+            }
+        },
+
         fetchTransactionEntries() {
             axios
                 .get(route("api.dashbaord.transaction.fetch"))
@@ -255,8 +438,14 @@ export default {
             );
             this.balance = this.cashIn - this.cashOut;
 
-            this.last6MonthsData = this.groupDataByMonths(filteredEntries, this.selectedFilter);
-            this.last12MonthsData = this.groupDataByMonths(filteredEntries, this.selectedFilter);
+            this.last6MonthsData = this.groupDataByMonths(
+                filteredEntries,
+                this.selectedFilter
+            );
+            this.last12MonthsData = this.groupDataByMonths(
+                filteredEntries,
+                this.selectedFilter
+            );
         },
 
         applyFilter() {
@@ -280,147 +469,57 @@ export default {
         },
 
         groupDataByMonths(entries, months) {
-            const groupedData = [];
-            const currentDate = new Date();
+    const groupedData = [];
+    const currentDate = new Date();
 
-            for (let i = 0; i < months; i++) {
-                const month = new Date();
-                month.setMonth(currentDate.getMonth() - i);
-                const monthLabel = `${
-                    month.getMonth() + 1
-                }-${month.getFullYear()}`;
+    const formatMonth = new Intl.DateTimeFormat("en-US", {
+        month: "short", // Abbreviated month name (e.g., Jan, Feb)
+        year: "numeric", // Full year (e.g., 2025)
+    });
 
-                groupedData.push({
-                    label: monthLabel,
-                    income: 0,
-                    expense: 0,
-                });
-            }
+    for (let i = 0; i < months; i++) {
+        const month = new Date();
+        month.setMonth(currentDate.getMonth() - i);
+        const monthLabel = formatMonth.format(month);
 
-            entries.forEach((entry) => {
-                const entryDate = new Date(entry.transaction_date);
-                const monthLabel = `${
-                    entryDate.getMonth() + 1
-                }-${entryDate.getFullYear()}`;
+        groupedData.push({
+            label: monthLabel,
+            income: 0,
+            expense: 0,
+        });
+    }
 
-                const groupIndex = groupedData.findIndex(
-                    (item) => item.label === monthLabel
-                );
+    entries.forEach((entry) => {
+        const entryDate = new Date(entry.transaction_date);
+        const monthLabel = formatMonth.format(entryDate);
 
-                if (groupIndex !== -1) {
-                    groupedData[groupIndex].income +=
-                        parseFloat(entry.cash_in) || 0;
-                    groupedData[groupIndex].expense +=
-                        parseFloat(entry.cash_out) || 0;
-                }
-            });
+        const groupIndex = groupedData.findIndex(
+            (item) => item.label === monthLabel
+        );
 
-            return groupedData;
-        },
+        if (groupIndex !== -1) {
+            groupedData[groupIndex].income +=
+                parseFloat(entry.cash_in) || 0;
+            groupedData[groupIndex].expense +=
+                parseFloat(entry.cash_out) || 0;
+        }
+    });
 
-        updateCharts() {
-            // Check and destroy existing charts
-            if (this.barChart) {
-                this.barChart.destroy();
-            }
-            if (this.lineChart) {
-                this.lineChart.destroy();
-            }
-
-            // Bar Chart (Last 6 Months)
-            const barCtx = document.getElementById("barChart").getContext("2d");
-            this.barChart = new Chart(barCtx, {
-                type: "bar",
-                data: {
-                    labels: this.last6MonthsData.map((item) => item.label),
-                    datasets: [
-                        {
-                            label: "Income",
-                            data: this.last6MonthsData.map((item) => item.income),
-                            backgroundColor: "#4caf50",
-                        },
-                        {
-                            label: "Expense",
-                            data: this.last6MonthsData.map((item) => item.expense),
-                            backgroundColor: "#f44336",
-                        },
-                    ],
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: "top",
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: (context) =>
-                                    `${context.dataset.label}: ${this.formatCurrency(
-                                        context.raw
-                                    )}`,
-                            },
-                        },
-                    },
-                },
-            });
-
-            // Line Chart (Last 12 Months)
-            const lineCtx = document.getElementById("lineChart").getContext("2d");
-            this.lineChart = new Chart(lineCtx, {
-                type: "line",
-                data: {
-                    labels: this.last12MonthsData.map((item) => item.label),
-                    datasets: [
-                        {
-                            label: "Income",
-                            data: this.last12MonthsData.map((item) => item.income),
-                            borderColor: "#4caf50",
-                            fill: false,
-                            tension: 0.4,
-                        },
-                        {
-                            label: "Expense",
-                            data: this.last12MonthsData.map((item) => item.expense),
-                            borderColor: "#f44336",
-                            fill: false,
-                            tension: 0.4,
-                        },
-                    ],
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: "top",
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: (context) =>
-                                    `${context.dataset.label}: ${this.formatCurrency(
-                                        context.raw
-                                    )}`,
-                            },
-                        },
-                    },
-                },
-            });
-        },
-
+    return groupedData;
+}
+,
     },
     mounted() {
-    this.fetchTransactionEntries();
-},
-watch: {
-    transactionEntries() {
-        this.applyFilter();
+        this.fetchTransactionEntries();
     },
-    selectedFilter() {
-        this.applyFilter();
+    watch: {
+        transactionEntries() {
+            this.applyFilter();
+        },
+        selectedFilter() {
+            this.applyFilter();
+        },
     },
-},
-
 };
 </script>
 
@@ -446,5 +545,4 @@ canvas {
     width: 100% !important;
     height: 400px !important;
 }
-
 </style>
