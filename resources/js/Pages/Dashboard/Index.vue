@@ -19,6 +19,7 @@
                     <!-- Filter -->
                     <div class="d-flex justify-content-end mb-3">
                         <div class="col-md-2">
+                             
                             <Multiselect
                                 v-model="selectedFilter"
                                 :options="filterOptions"
@@ -36,7 +37,7 @@
                                 <div class="card info-card">
                                     <div class="card-body">
                                         <h5 class="card-title">
-                                            Current Month <br />Cash In
+                                            Cash In
                                         </h5>
                                         <div
                                             class="d-flex align-items-center justify-content-between"
@@ -59,7 +60,7 @@
                                 <div class="card info-card">
                                     <div class="card-body">
                                         <h5 class="card-title">
-                                            Current Month <br />Cash Out
+                                            Cash Out
                                         </h5>
                                         <div
                                             class="d-flex align-items-center justify-content-between"
@@ -80,7 +81,7 @@
                                 <div class="card info-card">
                                     <div class="card-body">
                                         <h5 class="card-title">
-                                            Current Month <br />Balance
+                                           Balance
                                         </h5>
                                         <div
                                             class="d-flex align-items-center justify-content-between"
@@ -171,7 +172,7 @@ export default {
                 { value: "3", label: "Last 3 Months" },
                 { value: "6", label: "Last 6 Months" },
                 { value: "12", label: "Last 1 Year" },
-                { value: "all", label: "Overall" },
+                { value: "120", label: "Overall" },
             ],
         };
     },
@@ -254,8 +255,8 @@ export default {
             );
             this.balance = this.cashIn - this.cashOut;
 
-            this.last6MonthsData = this.groupDataByMonths(filteredEntries, 6);
-            this.last12MonthsData = this.groupDataByMonths(filteredEntries, 12);
+            this.last6MonthsData = this.groupDataByMonths(filteredEntries, this.selectedFilter);
+            this.last12MonthsData = this.groupDataByMonths(filteredEntries, this.selectedFilter);
         },
 
         applyFilter() {
