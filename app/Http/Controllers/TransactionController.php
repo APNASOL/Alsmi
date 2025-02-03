@@ -6,10 +6,12 @@ use App\Models\Expense;
 use App\Models\Income;
 use App\Models\IncomeType;
 use App\Models\Transaction;
+use App\Models\Upload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class TransactionController extends Controller
 {
@@ -45,6 +47,14 @@ class TransactionController extends Controller
             $carbonDate = Carbon::parse($transaction->transaction_date)->format('j F Y');
             $transaction->transaction_date = $carbonDate;
             
+
+            if ($transaction->receipt_image) { 
+                // dd(get_storage_url($transaction->receipt_image));
+                $Upload = Upload::where('id', $transaction->receipt_image)->first();
+
+                $picture = get_storage_url($Upload->file_name) ?? "";
+                $transaction->receipt_image = $picture;
+            }
           
         }
 
@@ -94,6 +104,7 @@ class TransactionController extends Controller
             'ref_no'       => 'required|string|max:255',
             'method'       => 'required|string|max:255',
             'remarks'      => 'required|string|max:255',
+            'image' => 'nullable',
         ]);
 
         // Check if updating or creating a new transaction entry
@@ -123,6 +134,39 @@ class TransactionController extends Controller
         $transaction->remarks          = $request->remarks;
         $transaction->user_id          = 1;
 
+        // if ($request->receipt_image) {
+        //     // Delete existing upload if any
+        //     Upload::where('id', $transaction->id)->delete();
+        
+        //     // Decode the base64 image
+        //     $data = substr($request->receipt_image, strpos($request->receipt_image, ',') + 1);
+        //     $data = base64_decode($data);
+        
+        //     // Ensure the directory exists
+        //     $directory = 'TransactionReceipts';
+        //     if (!Storage::disk('real_public')->exists($directory)) {
+        //         Storage::disk('real_public')->makeDirectory($directory);
+        //     }
+        
+        //     // Save the file
+        //     $photo_name_with_path = $directory . '/' . Str::random(40) . '.png';
+        //     Storage::disk('real_public')->put($photo_name_with_path, $data);
+        //     $fileSize = strlen($data);
+        
+        //     // Save file details in the Uploads table
+        //     $Upload = new Upload;
+        //     $Upload->file_original_name = $photo_name_with_path;
+        //     $Upload->extension = 'png';
+        //     $Upload->type = 'image/png';
+        //     $Upload->file_size = $fileSize;
+        //     $Upload->file_name = $photo_name_with_path;
+        //     $Upload->save();
+        
+        //     // Associate the upload with the transaction
+        //     $transaction->receipt_image = $Upload->id;
+        // }
+        
+
         $transaction->save(); // Save the transaction first, this will generate the `transaction_id`
 
         // Handle saving Expenses and Incomes after transaction is saved
@@ -143,8 +187,10 @@ class TransactionController extends Controller
             $transaction->cash_in     = $request->cash_in;
             $income->save();
         }
+        
 
         $transaction->save();
+    
         return 'success';
     }
 

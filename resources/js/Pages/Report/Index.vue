@@ -94,7 +94,11 @@
                             </div>
 
                             <!-- Export Buttons -->
-                            <div class="btn-group" role="group" v-if="filteredEntries.length">
+                            <div
+                                class="btn-group"
+                                role="group"
+                                v-if="filteredEntries.length"
+                            >
                                 <button
                                     class="btn btn-primary"
                                     @click="exportToExcel"
@@ -137,6 +141,7 @@
                                     <td v-if="selectedFilter != 'Yearly'">
                                         {{ entry.date }}
                                     </td>
+
                                     <td>{{ formatCurrency(entry.income) }}</td>
                                     <td>{{ formatCurrency(entry.expense) }}</td>
                                     <td>{{ formatCurrency(entry.balance) }}</td>
@@ -159,8 +164,9 @@
                         </table>
                     </div>
                     <div v-else>
-                        <p class="text-center text-danger">No data available.</p>
-
+                        <p class="text-center text-danger">
+                            No data available.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -233,6 +239,7 @@ export default {
         },
         applyFilter() {
             if (this.selectedFilter === "Monthly" && this.selectedMonth) {
+                
                 this.filteredEntries = this.calculateMonthlyReport(
                     this.selectedMonth
                 );
@@ -489,25 +496,140 @@ export default {
             XLSX.writeFile(wb, "transactions.xlsx");
         },
 
+        // exportToPDF() {
+        //     const doc = new jsPDF();
+        //     doc.setFontSize(18);
+        //     doc.text("Transaction Report", 14, 20);
+
+        //     const rows = this.filteredEntries.map((entry) => [
+        //         entry.date,
+        //         entry.income,
+        //         entry.expense,
+        //         entry.balance,
+        //     ]);
+
+        //     doc.autoTable({
+        //         head: [["Date", "Income", "Expense", "Balance"]],
+        //         body: rows,
+        //         startY: 30,
+        //     });
+
+        //     doc.save("transactions.pdf");
+        // },
+
         exportToPDF() {
             const doc = new jsPDF();
+
+            // Helper function to get the month name
+            const getMonthName = (monthNumber) => {
+                const date = new Date(2025, monthNumber - 1, 1); // Year is arbitrary
+                return date.toLocaleString("en-US", { month: "long" });
+            };
+
+            // Determine title based on the selected filter
+            let title = "All Transactions List"; // Default title
+            if (this.selectedFilter === "Monthly" && this.selectedMonth) {
+                const monthName = getMonthName(this.selectedMonth);
+                title = `Transactions for ${monthName} ${this.selectedYear}`;
+            } else if (this.selectedFilter === "Yearly" && this.selectedYear) {
+                title = `Transactions for the Year ${this.selectedYear}`;
+            } else if (
+                this.selectedFilter === "Custom" &&
+                this.startDate &&
+                this.endDate
+            ) {
+                title = `Transactions from ${this.formatDate(
+                    this.startDate
+                )} to ${this.formatDate(this.endDate)}`;
+            }
+
+            // Ensure title is displayed correctly
+            doc.setFont("helvetica", "bold");
             doc.setFontSize(18);
-            doc.text("Transaction Report", 14, 20);
-
-            const rows = this.filteredEntries.map((entry) => [
-                entry.date,
-                entry.income,
-                entry.expense,
-                entry.balance,
-            ]);
-
-            doc.autoTable({
-                head: [["Date", "Income", "Expense", "Balance"]],
-                body: rows,
-                startY: 30,
+            doc.text(title, doc.internal.pageSize.getWidth() / 2, 20, {
+                align: "center",
             });
 
+            // Create the table content
+            const rows = this.transactionEntries.map((entry) => [
+                entry.transaction_date,
+                entry.ref_no,
+                entry.remarks,
+                entry.method,
+                entry.expense_type ?? entry.income_type,
+                entry.cash_in ?? 0,
+                entry.cash_out ?? 0,
+                this.calculateBalance(this.transactionEntries.indexOf(entry)),
+            ]);
+
+            // Add table below the title
+            doc.autoTable({
+                head: [
+                    [
+                        "Date",
+                        "Receipt No",
+                        "Descriptions",
+                        "Method",
+                        "Type",
+                        "Cash In",
+                        "Cash Out",
+                        "Balance",
+                    ],
+                ],
+                body: rows,
+                startY: 30, // Position the table below the title
+            });
+
+            // Add footer with printed date & time
+            const printedText = `Printed: ${new Date().toLocaleString("en-US", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+            })}`;
+
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+
+            doc.setFontSize(10);
+            doc.text(printedText, pageWidth - 60, pageHeight - 10); // Bottom-right
+
+            // Save the PDF
             doc.save("transactions.pdf");
+        },
+
+        // Helper function to format dates properly
+        // formatDate(date) {
+        //     const d = new Date(date);
+        //     return d.toLocaleDateString("en-US", {
+        //         day: "2-digit",
+        //         month: "short",
+        //         year: "numeric",
+        //     });
+        // },
+
+        calculateBalance(index) {
+            let balance = 0;
+            for (let i = 0; i <= index; i++) {
+                const entry = this.transactionEntries[i];
+                const cashIn = parseFloat(entry.cash_in) || 0; // Ensure it's a number
+                const cashOut = parseFloat(entry.cash_out) || 0; // Ensure it's a number
+                balance += cashIn;
+                balance -= cashOut;
+            }
+            return this.formatCurrency(balance);
+        },
+
+        // Helper function to format dates properly
+        formatDate(date) {
+            const d = new Date(date);
+            return d.toLocaleDateString("en-US", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+            });
         },
     },
 };

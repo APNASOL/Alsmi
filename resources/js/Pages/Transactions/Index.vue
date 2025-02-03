@@ -55,17 +55,32 @@
 
                                 <!-- Monthly Filter -->
                                 <div
-                                    class="col-auto"
+                                    class="col-auto d-flex gap-2"
                                     v-if="selectedFilter === 'Monthly'"
                                 >
-                                    <Multiselect
-                                        v-model="selectedMonth"
-                                        :options="monthsOptions"
-                                        :searchable="true"
-                                        @select="applyFilter"
-                                        @clear="fetchTransactionEntries"
-                                        placeholder="Select Month"
-                                    />
+                                    <!-- Year Dropdown for Monthly -->
+                                    <div class="col-auto">
+                                        <Multiselect
+                                            v-model="selectedYear"
+                                            :options="yearsOptions"
+                                            :searchable="true"
+                                            @select="applyFilter"
+                                            @clear="fetchTransactionEntries"
+                                            placeholder="Select Year"
+                                        />
+                                    </div>
+
+                                    <!-- Month Dropdown for Monthly -->
+                                    <div class="col-auto">
+                                        <Multiselect
+                                            v-model="selectedMonth"
+                                            :options="monthsOptions"
+                                            :searchable="true"
+                                            @select="applyFilter"
+                                            @clear="fetchTransactionEntries"
+                                            placeholder="Select Month"
+                                        />
+                                    </div>
                                 </div>
 
                                 <!-- Yearly Filter -->
@@ -123,8 +138,18 @@
                                 >
                                     <i class="bi bi-file-earmark-pdf"></i>
                                 </button>
+                                <button
+                                    class="btn btn-secondary"
+                                    title="Print"
+                                    @click="printSlip"
+                                >
+                                    <i class="bi bi-printer"></i>
+                                </button>
                             </div>
                         </div>
+                        <span class="text-danger" v-if="FilterErrors">
+                            {{ FilterErrors }}
+                        </span>
                     </div>
 
                     <!-- Table Section -->
@@ -134,12 +159,14 @@
                                 <tr>
                                     <th scope="col">#</th>
                                     <th scope="col">Date</th>
-                                    <th scope="col">Remarks</th>
+                                    <th scope="col">Reciept No</th>
+                                    <th scope="col">Descriptions</th>
                                     <th scope="col">Method</th>
                                     <th scope="col">Type</th>
                                     <th scope="col">Cash In</th>
                                     <th scope="col">Cash Out</th>
                                     <th scope="col">Balance</th>
+                                    <th scope="col">Reciept</th>
                                     <th scope="col">Action</th>
                                 </tr>
                             </thead>
@@ -150,6 +177,7 @@
                                 >
                                     <th scope="row">{{ index + 1 }}</th>
                                     <td>{{ entry.transaction_date }}</td>
+                                    <td>{{ entry.ref_no }}</td>
                                     <td>{{ entry.remarks }}</td>
                                     <td>{{ entry.method }}</td>
                                     <td>
@@ -158,9 +186,27 @@
                                             entry.expense_type
                                         }}
                                     </td>
-                                    <td>{{ formatCurrency(entry.cash_in) ?? 0 }}</td>
-                                    <td>{{ formatCurrency(entry.cash_out) ?? 0 }}</td>
+                                    <td>
+                                        {{ formatCurrency(entry.cash_in) ?? 0 }}
+                                    </td>
+                                    <td>
+                                        {{
+                                            formatCurrency(entry.cash_out) ?? 0
+                                        }}
+                                    </td>
                                     <td>{{ calculateBalance(index) }}</td>
+                                    <td>
+                                        <ImageZooming
+                                            v-if="entry.cash_out"
+                                            :file="'https://images.examples.com/wp-content/uploads/2017/05/Receipt-for-Employee-Salary.jpg'"
+                                            :width="100"
+                                        />
+                                        <ImageZooming
+                                            v-if="entry.cash_in"
+                                            :file="'https://cdn.prod.website-files.com/65383059db0c80e24b49540f/653afaf743e0dc4cc11a5a02_Receipt-OCR-Taggun-demo.png'"
+                                            :width="100"
+                                        />
+                                    </td>
                                     <td>
                                         <div class="btn-group">
                                             <!-- <button
@@ -179,8 +225,14 @@
                                                 :deleteId="entry.id"
                                                 @deleteThis="deleteThis"
                                             ></DeleteModal> -->
-                                            <i class="bi bi-pencil me-2" @click="warning"></i>
-                                            <i class="bi bi-trash" @click="warning"></i>
+                                            <i
+                                                class="bi bi-pencil me-2"
+                                                @click="warning"
+                                            ></i>
+                                            <i
+                                                class="bi bi-trash"
+                                                @click="warning"
+                                            ></i>
                                         </div>
                                     </td>
                                 </tr>
@@ -217,7 +269,7 @@
                         </div>
                         <div class="modal-body">
                             <div class="card card-body p-3">
-                                <div class="row g-3 ">
+                                <div class="row g-3">
                                     <div class="col-12 col-md-12 mb-3">
                                         <label>{{ "Process Type" }} </label>
                                         <Multiselect
@@ -334,7 +386,7 @@
 
                                     <div class="col-md-6 col-12">
                                         <label for="remarks" class="form-label"
-                                            >Remarks</label
+                                            >Description</label
                                         >
                                         <input
                                             type="text"
@@ -374,7 +426,7 @@
 
                                     <div class="col-md-6 col-12">
                                         <label for="type" class="form-label"
-                                            >Ref no</label
+                                            >Reciept No</label
                                         >
                                         <input
                                             type="text"
@@ -411,6 +463,38 @@
                                             class="invalid-feedback"
                                         >
                                             {{ formErrors.date[0] }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-12">
+                                        <label
+                                            for="receipt_image"
+                                            class="form-label"
+                                            >Receipt image</label
+                                        >
+                                        <br />
+                                        <CropperOffCanvas
+                                            @croppedImg="croppedImgPassToForm"
+                                            accept=".jpg,.jpeg,.png"
+                                        />
+
+                                        <br />
+
+                                        <ImageZooming
+                                            v-if="form.receipt_image"
+                                            :file="form.receipt_image"
+                                            :width="100"
+                                        />
+                                        <ImageZooming
+                                            v-else
+                                            :file="existing_receipt_image"
+                                            :width="100"
+                                        />
+
+                                        <div
+                                            v-if="formErrors.date"
+                                            class="invalid-feedback"
+                                        >
+                                            {{ formErrors.receipt_image[0] }}
                                         </div>
                                     </div>
 
@@ -512,6 +596,7 @@ export default {
                 expense_type: "",
                 income_type: "",
                 process_type: "",
+                receipt_image: "",
             },
             formErrors: [],
             formStatus: 1, // 1 = ready, 0 = saving
@@ -536,10 +621,11 @@ export default {
                 { value: 12, label: "December" },
             ],
             yearsOptions: [
-                2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024,
-                2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034,
-                2035,
+                2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033,
+                2034, 2035,
             ],
+            existing_receipt_image: "",
+            FilterErrors: "",
         };
     },
     mounted() {
@@ -578,16 +664,35 @@ export default {
         applyFilter() {
             const filter = this.selectedFilter;
 
-            if (filter === "Monthly" && this.selectedMonth) {
+            if (filter === "Monthly") {
+                // Validation: Check if both Month and Year are selected
+                if (!this.selectedMonth || !this.selectedYear) {
+                    this.FilterErrors =
+                        "Both Year and Month are required for Monthly filter.";
+                    return; // Stop further execution if validation fails
+                }
+
+                this.FilterErrors = "";
+                // Filter by both Year and Month
                 this.filteredEntries = this.transactionEntries.filter(
                     (entry) => {
+                        const entryDate = new Date(entry.transaction_date);
                         return (
-                            new Date(entry.transaction_date).getMonth() + 1 ===
-                            parseInt(this.selectedMonth)
+                            entryDate.getFullYear() ===
+                                parseInt(this.selectedYear) &&
+                            entryDate.getMonth() + 1 ===
+                                parseInt(this.selectedMonth)
                         );
                     }
                 );
-            } else if (filter === "Yearly" && this.selectedYear) {
+            } else if (filter === "Yearly") {
+                // Validation: Check if  Year are selected
+                if (!this.selectedYear) {
+                    this.FilterErrors = "Year is required for Yearly filter.";
+                    return; // Stop further execution if validation fails
+                }
+                this.FilterErrors = "";
+                // Filter by Year
                 this.filteredEntries = this.transactionEntries.filter(
                     (entry) => {
                         return (
@@ -596,7 +701,16 @@ export default {
                         );
                     }
                 );
-            } else if (filter === "Custom" && this.startDate && this.endDate) {
+            } else if (filter === "Custom") {
+                // Validation: Check if  Year are selected
+                if (!this.startDate || !this.endDate) {
+                    this.FilterErrors =
+                        "Both Date are required for Custom filter.";
+                    return; // Stop further execution if validation fails
+                }
+
+                this.FilterErrors = "";
+                // Filter by Custom Date Range
                 const start = new Date(this.startDate);
                 const end = new Date(this.endDate);
                 this.filteredEntries = this.transactionEntries.filter(
@@ -606,10 +720,10 @@ export default {
                     }
                 );
             } else {
-                this.filteredEntries = this.transactionEntries; // Reset to all
+                // Reset to all entries if no filter is applied
+                this.filteredEntries = this.transactionEntries;
             }
         },
-
         calculateBalance(index) {
             let balance = 0;
             for (let i = 0; i <= index; i++) {
@@ -621,11 +735,33 @@ export default {
             }
             return this.formatCurrency(balance);
         },
-        
+
         submit() {
+            let formData = new FormData();
+
+            formData.append("id", this.form.id);
+            formData.append("cash_in", this.form.cash_in);
+            formData.append("cash_out", this.form.cash_out);
+            formData.append("date", this.form.date);
+            formData.append("ref_no", this.form.ref_no);
+            formData.append("method", this.form.method);
+            formData.append("remarks", this.form.remarks);
+            formData.append("expense_type", this.form.expense_type);
+            formData.append("income_type", this.form.income_type);
+            formData.append("process_type", this.form.process_type);
+
+            // Append image only if it exists
+            if (this.form.receipt_image) {
+                formData.append("receipt_image", this.form.receipt_image);
+            }
+
             this.formStatus = 0;
             axios
-                .post(route("api.transaction.store"), this.form)
+                .post(route("api.transaction.store"), formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                })
                 .then(() => {
                     this.formStatus = 1;
                     this.fetchTransactionEntries();
@@ -634,14 +770,12 @@ export default {
                 })
                 .catch((error) => {
                     this.formStatus = 1;
-
                     toastr.error(error.response.data.message);
                     this.formErrors = error.response.data.errors;
                     console.log(this.formErrors);
-                    if (error.response.data.errors) {
-                    }
                 });
         },
+
         // Calculate running balance dynamically based on the previous entries
 
         formatCurrency(value) {
@@ -668,6 +802,8 @@ export default {
                 .get(route("api.transaction.show", entry_id))
                 .then((response) => {
                     this.form = { ...response.data };
+                    // this.existing_receipt_image = response.data.receipt_image;
+                    // this.form.receipt_image = response.data.receipt_image;
                 })
                 .catch((error) => {
                     console.error(error);
@@ -707,15 +843,15 @@ export default {
         // Export data to Excel
         exportToExcel() {
             const ws = XLSX.utils.json_to_sheet(
-                this.transactionEntries.map((entry) => ({
+                this.filteredEntries.map((entry) => ({
                     Date: entry.transaction_date,
-                    Remarks: entry.remarks,
+                    Descriptions: entry.remarks,
                     Method: entry.method,
                     Type: entry.expense_type ?? entry.income_type,
                     "Cash In": entry.cash_in ?? 0,
                     "Cash Out": entry.cash_out ?? 0,
                     Balance: this.calculateBalance(
-                        this.transactionEntries.indexOf(entry)
+                        this.filteredEntries.indexOf(entry)
                     ),
                 }))
             );
@@ -724,31 +860,52 @@ export default {
             XLSX.writeFile(wb, "transactions.xlsx");
         },
 
-        // Export data to PDF
         exportToPDF() {
             const doc = new jsPDF();
+            // Helper function to get the month name
+            const getMonthName = (monthNumber) => {
+                const date = new Date(2025, monthNumber - 1, 1); // Year is arbitrary
+                return date.toLocaleString("en-US", { month: "long" });
+            };
+            let title = "All Transactions List"; // Default title
+            if (this.selectedFilter === "Monthly") {
+                const monthName = getMonthName(this.selectedMonth);
+                title = `Transactions for ${monthName} ${this.selectedYear}`;
+            } else if (this.selectedFilter === "Yearly" && this.selectedYear) {
+                title = `Transactions for the Year ${this.selectedYear}`;
+            } else if (
+                this.selectedFilter === "Custom" &&
+                this.startDate &&
+                this.endDate
+            ) {
+                title = `Transactions from ${this.formatDate(
+                    this.startDate
+                )} to ${this.formatDate(this.endDate)}`;
+            }
 
-            // Add title to the PDF
-            doc.setFontSize(18); // Set the font size for the title
-            doc.text("All Transactions List", 14, 20); // Add the title at coordinates (14, 20)
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(18);
+            doc.text(title, doc.internal.pageSize.getWidth() / 2, 20, {
+                align: "center",
+            });
 
-            // Create the table content
-            const rows = this.transactionEntries.map((entry) => [
+            const rows = this.filteredEntries.map((entry) => [
                 entry.transaction_date,
+                entry.ref_no,
                 entry.remarks,
                 entry.method,
                 entry.expense_type ?? entry.income_type,
                 entry.cash_in ?? 0,
                 entry.cash_out ?? 0,
-                this.calculateBalance(this.transactionEntries.indexOf(entry)),
+                this.calculateBalance(this.filteredEntries.indexOf(entry)),
             ]);
 
-            // Add table below the title
             doc.autoTable({
                 head: [
                     [
                         "Date",
-                        "Remarks",
+                        "Receipt No",
+                        "Descriptions",
                         "Method",
                         "Type",
                         "Cash In",
@@ -757,14 +914,131 @@ export default {
                     ],
                 ],
                 body: rows,
-                startY: 30, // Set starting Y position for the table (below the title)
+                startY: 30,
             });
 
-            // Save the PDF
+            const printedText = `Printed: ${new Date().toLocaleString("en-US", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+            })}`;
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+
+            doc.setFontSize(10);
+            doc.text(printedText, pageWidth - 60, pageHeight - 10);
             doc.save("transactions.pdf");
         },
+        // Helper function to format dates properly
+        formatDate(date) {
+            const d = new Date(date);
+            return d.toLocaleDateString("en-US", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+            });
+        },
         warning() {
-            toastr.warning("This feature is not added yet! Working in progress.");
+            toastr.warning(
+                "This feature is not added yet! Working in progress."
+            );
+        },
+        croppedImgPassToForm(img) {
+            this.form.receipt_image = img;
+        },
+        printSlip() {
+            let printWindow = window.open("", "_blank");
+            const getMonthName = (monthNumber) => {
+                const date = new Date(2025, monthNumber - 1, 1); // Year is arbitrary
+                return date.toLocaleString("en-US", { month: "long" });
+            };
+            let currentDateTime = new Date().toLocaleString("en-US", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+            });
+
+            let title = "All Transactions List"; // Default title
+            if (this.selectedFilter === "Monthly") {
+                const monthName = getMonthName(this.selectedMonth);
+                title = `Transactions for ${monthName} ${this.selectedYear}`;
+            } else if (this.selectedFilter === "Yearly" && this.selectedYear) {
+                title = `Transactions for the Year ${this.selectedYear}`;
+            } else if (
+                this.selectedFilter === "Custom" &&
+                this.startDate &&
+                this.endDate
+            ) {
+                title = `Transactions from ${this.formatDate(
+                    this.startDate
+                )} to ${this.formatDate(this.endDate)}`;
+            }
+
+            printWindow.document.write(`
+        <html>
+        <head>
+            <title>Transaction Slip</title>
+            <style>
+                body { font-family: Arial, sans-serif; }
+                h2 { text-align: center; margin-bottom: 20px; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                th, td { border: 1px solid black; padding: 8px; text-align: left; }
+                th { background-color: #f2f2f2; }
+                .footer { text-align: right; font-size: 12px; margin-top: 20px; }
+            </style>
+        </head>
+        <body>
+            <h2>${title}</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Date</th>
+                        <th>Receipt No</th>
+                        <th>Descriptions</th>
+                        <th>Method</th>
+                        <th>Type</th>
+                        <th>Cash In</th>
+                        <th>Cash Out</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${this.filteredEntries
+                        .map(
+                            (entry, index) => `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${entry.transaction_date}</td>
+                            <td>${entry.ref_no}</td>
+                            <td>${entry.remarks}</td>
+                            <td>${entry.method}</td>
+                            <td>${entry.income_type ?? entry.expense_type}</td>
+                            <td>${this.formatCurrency(entry.cash_in) ?? 0}</td>
+                            <td>${this.formatCurrency(entry.cash_out) ?? 0}</td>
+                            <td>${this.calculateBalance(index)}</td>
+                        </tr>
+                    `
+                        )
+                        .join("")}
+                </tbody>
+            </table>
+            <div class="footer">Printed: ${currentDateTime}</div>
+        </body>
+        </html>
+    `);
+
+            printWindow.document.close();
+            printWindow.onload = function () {
+                printWindow.print();
+                printWindow.close();
+            };
         },
     },
 };
@@ -783,6 +1057,4 @@ export default {
 .c-filter .multiselect {
     width: 200px !important;
 }
- 
-
 </style>

@@ -4,7 +4,7 @@
         type="button"
         class="btn btn-sm btn-success fs-6"
     >
-        {{ "Change Picture" }}
+        {{ "Choose Image" }}
     </button>
 
     <button
@@ -43,7 +43,7 @@
                             <div class="col-md-8">
                                 <vue-cropper
                                     ref="cropper"
-                                    :aspect-ratio="200 / 200"
+                                    :aspect-ratio="300 / 400"
                                     :src="imgSrc"
                                     preview=".preview"
                                 />
