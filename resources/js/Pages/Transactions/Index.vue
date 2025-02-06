@@ -103,22 +103,30 @@
                                     class="col-auto d-flex gap-2"
                                     v-if="selectedFilter === 'Custom'"
                                 >
-                                    <Datepicker
-                                        autoApply
-                                        :enableTimePicker="false"
-                                        id="fromDate"
-                                        v-model="startDate"
-                                        @update:model-value="applyFilter"
-                                        placeholder="Start Date"
-                                    />
-                                    <Datepicker
-                                        autoApply
-                                        :enableTimePicker="false"
-                                        id="toDate"
-                                        v-model="endDate"
-                                        @update:model-value="applyFilter"
-                                        placeholder="End Date"
-                                    />
+                                <input
+                                            type="date"
+                                            class="form-control"
+                                            id="date"
+                                            v-model="startDate"
+                                            :class="{
+                                                'invalid-bg': formErrors.date,
+                                            }"
+                                            @update:model-value="applyFilter"
+                                            placeholder="Start Date"
+                                        />
+                                <input
+                                            type="date"
+                                            class="form-control"
+                                            id="date"
+                                            v-model="endDate"
+                                            :class="{
+                                                'invalid-bg': formErrors.date,
+                                            }"
+                                            @update:model-value="applyFilter"
+                                            placeholder="End Date"
+                                        />
+                                    
+                                    
                                 </div>
                             </div>
 
@@ -626,6 +634,7 @@ export default {
             ],
             existing_receipt_image: "",
             FilterErrors: "",
+            pdfBtnLoader:true,
         };
     },
     mounted() {
@@ -861,77 +870,52 @@ export default {
         },
 
         exportToPDF() {
-            const doc = new jsPDF();
-            // Helper function to get the month name
-            const getMonthName = (monthNumber) => {
-                const date = new Date(2025, monthNumber - 1, 1); // Year is arbitrary
-                return date.toLocaleString("en-US", { month: "long" });
-            };
-            let title = "All Transactions List"; // Default title
-            if (this.selectedFilter === "Monthly") {
-                const monthName = getMonthName(this.selectedMonth);
-                title = `Transactions for ${monthName} ${this.selectedYear}`;
-            } else if (this.selectedFilter === "Yearly" && this.selectedYear) {
-                title = `Transactions for the Year ${this.selectedYear}`;
-            } else if (
-                this.selectedFilter === "Custom" &&
-                this.startDate &&
-                this.endDate
-            ) {
-                title = `Transactions from ${this.formatDate(
-                    this.startDate
-                )} to ${this.formatDate(this.endDate)}`;
-            }
+    this.pdfBtnLoader = true;
+    let formData = new FormData();
 
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(18);
-            doc.text(title, doc.internal.pageSize.getWidth() / 2, 20, {
-                align: "center",
-            });
+    formData.append("selectedFilter", this.selectedFilter);
 
-            const rows = this.filteredEntries.map((entry) => [
-                entry.transaction_date,
-                entry.ref_no,
-                entry.remarks,
-                entry.method,
-                entry.expense_type ?? entry.income_type,
-                entry.cash_in ?? 0,
-                entry.cash_out ?? 0,
-                this.calculateBalance(this.filteredEntries.indexOf(entry)),
-            ]);
+    if (this.selectedMonth) {
+        formData.append("selectedMonth", this.selectedMonth);
+    }
+    if (this.selectedYear) {
+        formData.append("selectedYear", this.selectedYear);
+    }
+    if (this.startDate) {
+        formData.append("startDate", this.startDate);
+    }
+    if (this.endDate) {
+        formData.append("endDate", this.endDate);
+    }
 
-            doc.autoTable({
-                head: [
-                    [
-                        "Date",
-                        "Receipt No",
-                        "Descriptions",
-                        "Method",
-                        "Type",
-                        "Cash In",
-                        "Cash Out",
-                        "Balance",
-                    ],
-                ],
-                body: rows,
-                startY: 30,
-            });
+    axios
+        .post(route("download-pdf"), formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+            responseType: 'blob', // Important for handling PDF response
+        })
+        .then(response => {
+            // Create a link element
+            const link = document.createElement('a');
+            // Create a URL for the blob
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            link.href = url;
+            // Set the file name for the download
+            link.setAttribute('download', 'TransactionReport.pdf');
+            // Append the link to the body, click it to trigger download, and then remove it
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            this.pdfBtnLoader = false;
+        })
+        .catch((error) => {
+            this.pdfBtnLoader = false;
+            toastr.error(error.response?.data?.message || "Error generating PDF");
+        });
+},
 
-            const printedText = `Printed: ${new Date().toLocaleString("en-US", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true,
-            })}`;
-            const pageWidth = doc.internal.pageSize.getWidth();
-            const pageHeight = doc.internal.pageSize.getHeight();
 
-            doc.setFontSize(10);
-            doc.text(printedText, pageWidth - 60, pageHeight - 10);
-            doc.save("transactions.pdf");
-        },
         // Helper function to format dates properly
         formatDate(date) {
             const d = new Date(date);

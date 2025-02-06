@@ -51,6 +51,10 @@ Route::middleware(['web'])->group(function () {
    
  
 
+    // data saving routes
+    Route::post('/download-pdf',[TransactionController::class,'transactions_pdf_download'])->name('download-pdf');
+    Route::post('/download-excel',[TransactionController::class,'transactions_pdf_excel'])->name('download-excel');
+
 });
 
 
