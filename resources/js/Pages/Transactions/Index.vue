@@ -103,30 +103,28 @@
                                     class="col-auto d-flex gap-2"
                                     v-if="selectedFilter === 'Custom'"
                                 >
-                                <input
-                                            type="date"
-                                            class="form-control"
-                                            id="date"
-                                            v-model="startDate"
-                                            :class="{
-                                                'invalid-bg': formErrors.date,
-                                            }"
-                                            @update:model-value="applyFilter"
-                                            placeholder="Start Date"
-                                        />
-                                <input
-                                            type="date"
-                                            class="form-control"
-                                            id="date"
-                                            v-model="endDate"
-                                            :class="{
-                                                'invalid-bg': formErrors.date,
-                                            }"
-                                            @update:model-value="applyFilter"
-                                            placeholder="End Date"
-                                        />
-                                    
-                                    
+                                    <input
+                                        type="date"
+                                        class="form-control"
+                                        id="date"
+                                        v-model="startDate"
+                                        :class="{
+                                            'invalid-bg': formErrors.date,
+                                        }"
+                                        @update:model-value="applyFilter"
+                                        placeholder="Start Date"
+                                    />
+                                    <input
+                                        type="date"
+                                        class="form-control"
+                                        id="date"
+                                        v-model="endDate"
+                                        :class="{
+                                            'invalid-bg': formErrors.date,
+                                        }"
+                                        @update:model-value="applyFilter"
+                                        placeholder="End Date"
+                                    />
                                 </div>
                             </div>
 
@@ -634,7 +632,7 @@ export default {
             ],
             existing_receipt_image: "",
             FilterErrors: "",
-            pdfBtnLoader:true,
+            pdfBtnLoader: true,
         };
     },
     mounted() {
@@ -851,26 +849,7 @@ export default {
         },
         // Export data to Excel
         exportToExcel() {
-            const ws = XLSX.utils.json_to_sheet(
-                this.filteredEntries.map((entry) => ({
-                    Date: entry.transaction_date,
-                    Descriptions: entry.remarks,
-                    Method: entry.method,
-                    Type: entry.expense_type ?? entry.income_type,
-                    "Cash In": entry.cash_in ?? 0,
-                    "Cash Out": entry.cash_out ?? 0,
-                    Balance: this.calculateBalance(
-                        this.filteredEntries.indexOf(entry)
-                    ),
-                }))
-            );
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Transactions");
-            XLSX.writeFile(wb, "transactions.xlsx");
-        },
-
-        exportToPDF() {
-    this.pdfBtnLoader = true;
+    this.excelBtnLoader = true;
     let formData = new FormData();
 
     formData.append("selectedFilter", this.selectedFilter);
@@ -889,32 +868,79 @@ export default {
     }
 
     axios
-        .post(route("download-pdf"), formData, {
+        .post(route("download-excel"), formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
-            responseType: 'blob', // Important for handling PDF response
+            responseType: "blob",  // Important for handling binary data
         })
-        .then(response => {
-            // Create a link element
-            const link = document.createElement('a');
-            // Create a URL for the blob
+        .then((response) => {
+            this.excelBtnLoader = false;
+            // Create a temporary link to trigger the download
             const url = window.URL.createObjectURL(new Blob([response.data]));
-            link.href = url;
-            // Set the file name for the download
-            link.setAttribute('download', 'TransactionReport.pdf');
-            // Append the link to the body, click it to trigger download, and then remove it
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            this.pdfBtnLoader = false;
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "transaction_report.xlsx"; // File name
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         })
         .catch((error) => {
-            this.pdfBtnLoader = false;
-            toastr.error(error.response?.data?.message || "Error generating PDF");
+            this.excelBtnLoader = false;
+            toastr.error(error.response?.data?.message || "Error generating Excel");
         });
 },
 
+
+        exportToPDF() {
+            this.pdfBtnLoader = true;
+            let formData = new FormData();
+
+            formData.append("selectedFilter", this.selectedFilter);
+
+            if (this.selectedMonth) {
+                formData.append("selectedMonth", this.selectedMonth);
+            }
+            if (this.selectedYear) {
+                formData.append("selectedYear", this.selectedYear);
+            }
+            if (this.startDate) {
+                formData.append("startDate", this.startDate);
+            }
+            if (this.endDate) {
+                formData.append("endDate", this.endDate);
+            }
+
+            axios
+                .post(route("download-pdf"), formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                    responseType: "blob", // Important for handling PDF response
+                })
+                .then((response) => {
+                    // Create a link element
+                    const link = document.createElement("a");
+                    // Create a URL for the blob
+                    const url = window.URL.createObjectURL(
+                        new Blob([response.data])
+                    );
+                    link.href = url;
+                    // Set the file name for the download
+                    link.setAttribute("download", "TransactionReport.pdf");
+                    // Append the link to the body, click it to trigger download, and then remove it
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    this.pdfBtnLoader = false;
+                })
+                .catch((error) => {
+                    this.pdfBtnLoader = false;
+                    toastr.error(
+                        error.response?.data?.message || "Error generating PDF"
+                    );
+                });
+        },
 
         // Helper function to format dates properly
         formatDate(date) {

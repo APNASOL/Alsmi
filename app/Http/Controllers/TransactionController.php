@@ -11,7 +11,9 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
-use PDF;
+use PDF; 
+use App\Exports\TransactionExport; 
+use Maatwebsite\Excel\Facades\Excel;
 
 class TransactionController extends Controller
 {
@@ -256,9 +258,26 @@ class TransactionController extends Controller
         return $pdf->download('TransactionReport.pdf');
     }
 
-    public function transactions_pdf_excel(Request $request)
+    public function transactions_exportTo_excel(Request $request)
     {
-        $transactions = Transaction::where()->get();
+        // Fetch the filtered transactions based on the request parameters
+        $query = Transaction::query();
 
+        if ($request->has('selectedFilter')) {
+            $filter = $request->selectedFilter;
+            if ($filter == 'Yearly') {
+                $query->whereYear('transaction_date', $request->selectedYear);
+            } elseif ($filter == 'Monthly') {
+                $query->whereMonth('transaction_date', $request->selectedMonth)
+                      ->whereYear('transaction_date', $request->selectedYear);
+            } elseif ($filter == 'Custom') {
+                $query->whereBetween('transaction_date', [$request->startDate, $request->endDate]);
+            }
+        }
+
+        $transactions = $query->get();
+
+        // Export the transactions to Excel
+        return Excel::download(new TransactionExport($transactions), 'transaction_report.xlsx');
     }
 }
