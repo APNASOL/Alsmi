@@ -595,7 +595,6 @@ export default {
     },
     data() {
         return {
-            serachingLoading: false,
             transactionEntries: [],
             selectedFilter: "",
             selectedMonth: "",
@@ -663,6 +662,7 @@ export default {
             ],
             existing_receipt_image: "",
             FilterErrors: "",
+            serachingLoading: false,
             pdfBtnLoader: false,
             excelBtnLoader: false,
             printBtnLoader: false,
@@ -677,7 +677,6 @@ export default {
             this.form.cash_in = "";
             this.form.cash_out = "";
         },
-
         fetchTransactionEntries() {
             this.serachingLoading = true;
             // Validation checks
@@ -738,7 +737,6 @@ export default {
                     console.error(error);
                 });
         },
-
         calculateBalance(index) {
             let balance = 0;
             for (let i = 0; i <= index; i++) {
@@ -750,7 +748,6 @@ export default {
             }
             return this.formatCurrency(balance);
         },
-
         submit() {
             let formData = new FormData();
 
@@ -790,16 +787,12 @@ export default {
                     console.log(this.formErrors);
                 });
         },
-
-        // Calculate running balance dynamically based on the previous entries
-
         formatCurrency(value) {
             return new Intl.NumberFormat("en-PK", {
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0,
             }).format(value);
         },
-
         clearFields() {
             this.form = {
                 id: "",
@@ -903,7 +896,6 @@ export default {
                     );
                 });
         },
-
         exportToPDF() {
             this.pdfBtnLoader = true;
             let formData = new FormData();
@@ -953,7 +945,6 @@ export default {
                     );
                 });
         },
-
         // Helper function to format dates properly
         formatDate(date) {
             const d = new Date(date);

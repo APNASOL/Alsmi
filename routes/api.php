@@ -62,4 +62,8 @@ Route::middleware(['web'])->group(function () {
     Route::get('/income/pluck', [IncomeExpenseController::class, 'pluckIncome'])->name('api.income.pluck'); 
     Route::get('/expense/pluck', [IncomeExpenseController::class, 'pluckExpenses'])->name('api.expense.pluck'); 
     
+
+    // reports
+    Route::post('/transaction/reports/fetch', [ReportController::class, 'transactions_reports_fetch'])->name('api.transaction.report.fetch');             // Fetch all transaction entries
+
  });
