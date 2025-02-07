@@ -47,7 +47,20 @@
                                     :key="income.id"
                                 >
                                     <th scope="row">{{ index + 1 }}</th>
-                                    <td>{{ income.name }}</td>
+                                    <td>
+                                        <Link
+                                            :href="
+                                                route('income.expanse.details', [
+                                                    'Income',
+                                                    income.id,
+                                                ])
+                                            "
+                                        >
+                                            {{ income.name }}
+                                        </Link>
+                                    </td>
+
+                                     
 
                                     <td>
                                         <div class="btn-group">

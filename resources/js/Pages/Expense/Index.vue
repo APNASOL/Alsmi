@@ -36,7 +36,7 @@
                             <thead>
                                 <tr>
                                     <th scope="col">#</th>
-                                    <th scope="col">Name</th> 
+                                    <th scope="col">Name</th>
                                     <th scope="col">Action</th>
                                 </tr>
                             </thead>
@@ -46,7 +46,18 @@
                                     :key="expense.id"
                                 >
                                     <th scope="row">{{ index + 1 }}</th>
-                                    <td>{{ expense.name }}</td>
+                                    <td>
+                                        <Link
+                                            :href="
+                                                route('income.expanse.details', [
+                                                    'Expense',
+                                                    expense.id,
+                                                ])
+                                            "
+                                        >
+                                            {{ expense.name }}
+                                        </Link>
+                                    </td>
 
                                     <td>
                                         <div class="btn-group">

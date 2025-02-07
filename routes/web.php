@@ -43,6 +43,7 @@ Route::middleware(['web'])->group(function () {
     Route::get('/accounts', [AccountController::class, 'index'])->name('accounts'); 
     //  Accounts 
     Route::get('/expense/types', [IncomeExpenseController::class, 'expense_index'])->name('expense.types'); 
+    Route::get('/income/expense/details/{type}/{id}', [IncomeExpenseController::class, 'income_expense_details'])->name('income.expanse.details'); 
     Route::get('/income/types', [IncomeExpenseController::class, 'income_index'])->name('income.types'); 
     //  reports 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports'); 
