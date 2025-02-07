@@ -146,15 +146,33 @@
                                     class="btn btn-primary"
                                     title="Download as Excel"
                                     @click="exportToExcel"
+                                    :disabled="excelBtnLoader"
                                 >
-                                    <i class="bi bi-file-earmark-excel"></i>
+                                    <span
+                                        v-if="excelBtnLoader"
+                                        class="spinner-border spinner-border-sm"
+                                        role="status"
+                                        aria-hidden="true"
+                                    ></span>
+                                    <span v-if="!excelBtnLoader">
+                                        <i class="bi bi-file-earmark-excel"></i
+                                    ></span>
                                 </button>
                                 <button
                                     class="btn btn-danger"
                                     title="Download as PDF"
                                     @click="exportToPDF"
+                                    :disabled="pdfBtnLoader"
                                 >
-                                    <i class="bi bi-file-earmark-pdf"></i>
+                                    <span
+                                        v-if="pdfBtnLoader"
+                                        class="spinner-border spinner-border-sm"
+                                        role="status"
+                                        aria-hidden="true"
+                                    ></span>
+                                    <span v-if="!pdfBtnLoader">
+                                        <i class="bi bi-file-earmark-pdf"></i
+                                    ></span>
                                 </button>
                                 <button
                                     class="btn btn-secondary"
@@ -645,7 +663,9 @@ export default {
             ],
             existing_receipt_image: "",
             FilterErrors: "",
-            pdfBtnLoader: true,
+            pdfBtnLoader: false,
+            excelBtnLoader: false,
+            printBtnLoader: false,
         };
     },
     mounted() {
