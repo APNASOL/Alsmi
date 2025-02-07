@@ -46,7 +46,7 @@ Route::middleware(['web'])->group(function () {
     Route::post('/account/data/store', [AccountController::class, 'accounts_data_save'])->name('api.account.data.store');
 
                                                                                                                  // Cashbook routes
-    Route::get('/transaction/fetch', [TransactionController::class, 'fetch'])->name('api.transaction.fetch');             // Fetch all transaction entries
+    Route::post('/transaction/fetch', [TransactionController::class, 'fetch'])->name('api.transaction.fetch');             // Fetch all transaction entries
     Route::post('/transaction/store', [TransactionController::class, 'store'])->name('api.transaction.store');            // Create or update a transaction entry
     Route::get('/transaction/show/{id}', [TransactionController::class, 'show'])->name('api.transaction.show');           // Show a specific transaction entry
     Route::delete('/transaction/delete/{id}', [TransactionController::class, 'destroy'])->name('api.transaction.delete'); // Delete a specific transaction entry

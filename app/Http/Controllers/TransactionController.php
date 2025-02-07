@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Exports\TransactionExport;
 use App\Models\Expense;
 use App\Models\ExpenseType;
 use App\Models\Income;
@@ -11,9 +12,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
-use PDF; 
-use App\Exports\TransactionExport; 
 use Maatwebsite\Excel\Facades\Excel;
+use PDF;
 
 class TransactionController extends Controller
 {
@@ -24,43 +24,59 @@ class TransactionController extends Controller
     }
 
     // Fetch all transaction entries
-    public function fetch()
+    public function fetch(Request $request)
     {
-        $transactions = Transaction::all(); // Fetch all transactions
+        // Start the query builder for transactions
+        $query = Transaction::query();
+
+        // Apply filters only if request contains filtering parameters
+        if ($request->has('selectedFilter') && $request->selectedFilter) {
+            $filter = $request->selectedFilter;
+
+            if ($filter == 'Yearly' && $request->has('selectedYear')) {
+                $query->whereYear('transaction_date', $request->selectedYear);
+            } elseif ($filter == 'Monthly' && $request->has(['selectedYear', 'selectedMonth'])) {
+                $query->whereYear('transaction_date', $request->selectedYear)
+                    ->whereMonth('transaction_date', $request->selectedMonth);
+            } elseif ($filter == 'Custom' && $request->has(['startDate', 'endDate'])) {
+                $query->whereBetween('transaction_date', [$request->startDate, $request->endDate]);
+            }
+        }
+
+        // Fetch all transactions if no filters are applied
+        $transactions = $query->get();
 
         foreach ($transactions as $transaction) {
             // Check if the transaction has cash_out
             if ($transaction->cash_out) {
-                // Fetch related expense data
-                $expense      = Expense::where('transaction_id', $transaction->id)->first();
-                $expense_type = ExpenseType::where('id', $expense->expense_type_id)->first();
-
-                $transaction->expense_type = $expense_type->name . " (Expense)";
+                $expense = Expense::where('transaction_id', $transaction->id)->first();
+                if ($expense) {
+                    $expense_type              = ExpenseType::where('id', $expense->expense_type_id)->first();
+                    $transaction->expense_type = $expense_type ? $expense_type->name . " (Expense)" : "Unknown Expense";
+                }
             }
             // Check if the transaction has cash_in
             elseif ($transaction->cash_in) {
-                // Fetch related income data
-                $income      = Income::where('transaction_id', $transaction->id)->first();
-                $income_type = IncomeType::where('id', $income->income_type_id)->first();
-
-                $transaction->income_type = $income_type->name . " (Income)";
-
+                $income = Income::where('transaction_id', $transaction->id)->first();
+                if ($income) {
+                    $income_type              = IncomeType::where('id', $income->income_type_id)->first();
+                    $transaction->income_type = $income_type ? $income_type->name . " (Income)" : "Unknown Income";
+                }
             }
-            $carbonDate                    = Carbon::parse($transaction->transaction_date)->format('j F Y');
-            $transaction->transaction_date = $carbonDate;
 
+            // Format transaction date
+            $transaction->transaction_date = Carbon::parse($transaction->transaction_date)->format('j F Y');
+
+            // Handle receipt image
             if ($transaction->receipt_image) {
-                // dd(get_storage_url($transaction->receipt_image));
-                $Upload = Upload::where('id', $transaction->receipt_image)->first();
-
-                $picture                    = get_storage_url($Upload->file_name) ?? "";
-                $transaction->receipt_image = $picture;
+                $upload                     = Upload::where('id', $transaction->receipt_image)->first();
+                $transaction->receipt_image = $upload ? get_storage_url($upload->file_name) : null;
             }
-
         }
+        return $transactions;
 
-        return $transactions; // Return the transactions with related data
     }
+
     public function dashboard_fetch()
     {
         $transactions = Transaction::all(); // Fetch all transactions
@@ -226,24 +242,27 @@ class TransactionController extends Controller
 
         $query = Transaction::query();
 
-        // Build query based on filters
-        if ($selectedFilter == 'Yearly') {
-            $selectedYear = $request->selectedYear;
-            $query->whereYear('transaction_date', $selectedYear);
-        } elseif ($selectedFilter == 'Monthly') {
-            $selectedMonth = $request->selectedMonth;
-            $selectedYear  = $request->selectedYear ?? date('Y');
-            $query->whereYear('transaction_date', $selectedYear)
-                ->whereMonth('transaction_date', $selectedMonth);
-        } elseif ($selectedFilter == 'Custom') {
-            $startDate = $request->startDate;
-            $endDate   = $request->endDate;
-             
-            $query->whereBetween('transaction_date', [$startDate, $endDate]);
+        // Apply filters only if a filter is selected
+        if ($selectedFilter) {
+            if ($selectedFilter == 'Yearly') {
+                $selectedYear = $request->selectedYear;
+                $query->whereYear('transaction_date', $selectedYear);
+            } elseif ($selectedFilter == 'Monthly') {
+                $selectedMonth = $request->selectedMonth;
+                $selectedYear  = $request->selectedYear ?? date('Y');
+                $query->whereYear('transaction_date', $selectedYear)
+                    ->whereMonth('transaction_date', $selectedMonth);
+            } elseif ($selectedFilter == 'Custom') {
+                $startDate = $request->startDate;
+                $endDate   = $request->endDate;
+
+                $query->whereBetween('transaction_date', [$startDate, $endDate]);
+            }
         }
 
-   
+        // Fetch all records if no filter is applied
         $transactions = $query->get();
+
         // Generate the PDF
         $pdf = PDF::loadView('transactions_pdf', compact(
             'transactions',
@@ -260,24 +279,28 @@ class TransactionController extends Controller
 
     public function transactions_exportTo_excel(Request $request)
     {
-        // Fetch the filtered transactions based on the request parameters
+        // Start with a query builder
         $query = Transaction::query();
 
-        if ($request->has('selectedFilter')) {
+        // Apply filters only if a filter is selected
+        if ($request->has('selectedFilter') && $request->selectedFilter) {
             $filter = $request->selectedFilter;
-            if ($filter == 'Yearly') {
+
+            if ($filter == 'Yearly' && $request->selectedYear) {
                 $query->whereYear('transaction_date', $request->selectedYear);
-            } elseif ($filter == 'Monthly') {
+            } elseif ($filter == 'Monthly' && $request->selectedMonth && $request->selectedYear) {
                 $query->whereMonth('transaction_date', $request->selectedMonth)
-                      ->whereYear('transaction_date', $request->selectedYear);
-            } elseif ($filter == 'Custom') {
+                    ->whereYear('transaction_date', $request->selectedYear);
+            } elseif ($filter == 'Custom' && $request->startDate && $request->endDate) {
                 $query->whereBetween('transaction_date', [$request->startDate, $request->endDate]);
             }
         }
 
+        // Fetch all records if no filters are applied
         $transactions = $query->get();
 
         // Export the transactions to Excel
         return Excel::download(new TransactionExport($transactions), 'transaction_report.xlsx');
     }
+
 }

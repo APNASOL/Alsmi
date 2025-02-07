@@ -48,7 +48,6 @@
                                             'Custom',
                                         ]"
                                         :searchable="true"
-                                        @select="applyFilter"
                                         placeholder="Filter By"
                                     />
                                 </div>
@@ -64,7 +63,6 @@
                                             v-model="selectedYear"
                                             :options="yearsOptions"
                                             :searchable="true"
-                                            @select="applyFilter"
                                             @clear="fetchTransactionEntries"
                                             placeholder="Select Year"
                                         />
@@ -76,7 +74,6 @@
                                             v-model="selectedMonth"
                                             :options="monthsOptions"
                                             :searchable="true"
-                                            @select="applyFilter"
                                             @clear="fetchTransactionEntries"
                                             placeholder="Select Month"
                                         />
@@ -92,7 +89,6 @@
                                         v-model="selectedYear"
                                         :options="yearsOptions"
                                         :searchable="true"
-                                        @select="applyFilter"
                                         @clear="fetchTransactionEntries"
                                         placeholder="Select Year"
                                     />
@@ -109,9 +105,8 @@
                                         id="date"
                                         v-model="startDate"
                                         :class="{
-                                            'invalid-bg': formErrors.date,
+                                            'invalid-bg': formErrors.startDate,
                                         }"
-                                        @update:model-value="applyFilter"
                                         placeholder="Start Date"
                                     />
                                     <input
@@ -120,11 +115,28 @@
                                         id="date"
                                         v-model="endDate"
                                         :class="{
-                                            'invalid-bg': formErrors.date,
+                                            'invalid-bg': formErrors.endDate,
                                         }"
-                                        @update:model-value="applyFilter"
                                         placeholder="End Date"
                                     />
+                                </div>
+
+                                <div class="col-auto">
+                                    <button
+                                        @click="fetchTransactionEntries"
+                                        class="btn btn-success"
+                                        :disabled="serachingLoading"
+                                    >
+                                        <span
+                                            v-if="serachingLoading"
+                                            class="spinner-border spinner-border-sm"
+                                            role="status"
+                                            aria-hidden="true"
+                                        ></span>
+                                        <span v-if="!serachingLoading"
+                                            >Search</span
+                                        >
+                                    </button>
                                 </div>
                             </div>
 
@@ -178,7 +190,7 @@
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="(entry, index) in filteredEntries"
+                                    v-for="(entry, index) in transactionEntries"
                                     :key="entry.id"
                                 >
                                     <th scope="row">{{ index + 1 }}</th>
@@ -235,10 +247,10 @@
                                                 class="bi bi-pencil me-2"
                                                 @click="warning"
                                             ></i>
-                                            <i
+                                            <!-- <i
                                                 class="bi bi-trash"
                                                 @click="warning"
-                                            ></i>
+                                            ></i> -->
                                         </div>
                                     </td>
                                 </tr>
@@ -565,7 +577,8 @@ export default {
     },
     data() {
         return {
-            filteredEntries: [],
+            serachingLoading: false,
+            transactionEntries: [],
             selectedFilter: "",
             selectedMonth: "",
             selectedYear: "",
@@ -645,92 +658,67 @@ export default {
             this.form.cash_out = "";
         },
 
-        // fetchTransactionEntries() {
-        //     axios
-        //         .get(route("api.transaction.fetch"))
-        //         .then((response) => {
-        //             this.transactionEntries = response.data;
-        //             console.log(this.transactionEntries);
-        //         })
-        //         .catch((error) => {
-        //             console.error(error);
-        //         });
-        // },
         fetchTransactionEntries() {
+            this.serachingLoading = true;
+            // Validation checks
+            this.FilterErrors = "";
+            if (
+                this.selectedFilter === "Monthly" &&
+                (!this.selectedMonth || !this.selectedYear)
+            ) {
+                this.FilterErrors =
+                    "Please select both Month and Year for the Monthly filter.";
+                return;
+            }
+
+            if (this.selectedFilter === "Yearly" && !this.selectedYear) {
+                this.FilterErrors =
+                    "Please select a Year for the Yearly filter.";
+                return;
+            }
+
+            if (
+                this.selectedFilter === "Custom" &&
+                (!this.startDate || !this.endDate)
+            ) {
+                this.FilterErrors =
+                    "Please select both Start Date and End Date for the Custom filter.";
+                return;
+            }
+
+            let formData = new FormData();
+
+            formData.append("selectedFilter", this.selectedFilter);
+
+            if (this.selectedMonth) {
+                formData.append("selectedMonth", this.selectedMonth);
+            }
+            if (this.selectedYear) {
+                formData.append("selectedYear", this.selectedYear);
+            }
+            if (this.startDate) {
+                formData.append("startDate", this.startDate);
+            }
+            if (this.endDate) {
+                formData.append("endDate", this.endDate);
+            }
+
             axios
-                .get(route("api.transaction.fetch"))
+                .post(route("api.transaction.fetch"), formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                })
                 .then((response) => {
+                    this.serachingLoading = false;
                     this.transactionEntries = response.data;
-                    this.filteredEntries = response.data; // Default to all entries
                 })
                 .catch((error) => {
+                    this.serachingLoading = false;
                     console.error(error);
                 });
         },
 
-        applyFilter() {
-            const filter = this.selectedFilter;
-
-            if (filter === "Monthly") {
-                // Validation: Check if both Month and Year are selected
-                if (!this.selectedMonth || !this.selectedYear) {
-                    this.FilterErrors =
-                        "Both Year and Month are required for Monthly filter.";
-                    return; // Stop further execution if validation fails
-                }
-
-                this.FilterErrors = "";
-                // Filter by both Year and Month
-                this.filteredEntries = this.transactionEntries.filter(
-                    (entry) => {
-                        const entryDate = new Date(entry.transaction_date);
-                        return (
-                            entryDate.getFullYear() ===
-                                parseInt(this.selectedYear) &&
-                            entryDate.getMonth() + 1 ===
-                                parseInt(this.selectedMonth)
-                        );
-                    }
-                );
-            } else if (filter === "Yearly") {
-                // Validation: Check if  Year are selected
-                if (!this.selectedYear) {
-                    this.FilterErrors = "Year is required for Yearly filter.";
-                    return; // Stop further execution if validation fails
-                }
-                this.FilterErrors = "";
-                // Filter by Year
-                this.filteredEntries = this.transactionEntries.filter(
-                    (entry) => {
-                        return (
-                            new Date(entry.transaction_date).getFullYear() ===
-                            parseInt(this.selectedYear)
-                        );
-                    }
-                );
-            } else if (filter === "Custom") {
-                // Validation: Check if  Year are selected
-                if (!this.startDate || !this.endDate) {
-                    this.FilterErrors =
-                        "Both Date are required for Custom filter.";
-                    return; // Stop further execution if validation fails
-                }
-
-                this.FilterErrors = "";
-                // Filter by Custom Date Range
-                const start = new Date(this.startDate);
-                const end = new Date(this.endDate);
-                this.filteredEntries = this.transactionEntries.filter(
-                    (entry) => {
-                        const date = new Date(entry.transaction_date);
-                        return date >= start && date <= end;
-                    }
-                );
-            } else {
-                // Reset to all entries if no filter is applied
-                this.filteredEntries = this.transactionEntries;
-            }
-        },
         calculateBalance(index) {
             let balance = 0;
             for (let i = 0; i <= index; i++) {
@@ -849,48 +837,52 @@ export default {
         },
         // Export data to Excel
         exportToExcel() {
-    this.excelBtnLoader = true;
-    let formData = new FormData();
+            this.excelBtnLoader = true;
+            let formData = new FormData();
 
-    formData.append("selectedFilter", this.selectedFilter);
+            formData.append("selectedFilter", this.selectedFilter);
 
-    if (this.selectedMonth) {
-        formData.append("selectedMonth", this.selectedMonth);
-    }
-    if (this.selectedYear) {
-        formData.append("selectedYear", this.selectedYear);
-    }
-    if (this.startDate) {
-        formData.append("startDate", this.startDate);
-    }
-    if (this.endDate) {
-        formData.append("endDate", this.endDate);
-    }
+            if (this.selectedMonth) {
+                formData.append("selectedMonth", this.selectedMonth);
+            }
+            if (this.selectedYear) {
+                formData.append("selectedYear", this.selectedYear);
+            }
+            if (this.startDate) {
+                formData.append("startDate", this.startDate);
+            }
+            if (this.endDate) {
+                formData.append("endDate", this.endDate);
+            }
 
-    axios
-        .post(route("download-excel"), formData, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-            responseType: "blob",  // Important for handling binary data
-        })
-        .then((response) => {
-            this.excelBtnLoader = false;
-            // Create a temporary link to trigger the download
-            const url = window.URL.createObjectURL(new Blob([response.data]));
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "transaction_report.xlsx"; // File name
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-        })
-        .catch((error) => {
-            this.excelBtnLoader = false;
-            toastr.error(error.response?.data?.message || "Error generating Excel");
-        });
-},
-
+            axios
+                .post(route("download-excel"), formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                    responseType: "blob", // Important for handling binary data
+                })
+                .then((response) => {
+                    this.excelBtnLoader = false;
+                    // Create a temporary link to trigger the download
+                    const url = window.URL.createObjectURL(
+                        new Blob([response.data])
+                    );
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "transaction_report.xlsx"; // File name
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                })
+                .catch((error) => {
+                    this.excelBtnLoader = false;
+                    toastr.error(
+                        error.response?.data?.message ||
+                            "Error generating Excel"
+                    );
+                });
+        },
 
         exportToPDF() {
             this.pdfBtnLoader = true;
@@ -1020,7 +1012,7 @@ export default {
                     </tr>
                 </thead>
                 <tbody>
-                    ${this.filteredEntries
+                    ${this.transactionEntries
                         .map(
                             (entry, index) => `
                         <tr>
