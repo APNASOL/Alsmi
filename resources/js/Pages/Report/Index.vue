@@ -19,7 +19,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title theme-text-color">
-                        All Transaction & Reports
+                        All Transaction & Reports  {{ selectedFilter }}
                     </h5>
                     <!-- Filter Section -->
                     <div class="card card-body p-2">
@@ -85,6 +85,7 @@
                                 </div>
 
                                 <!-- Custom Date Range -->
+                                
                                 <div
                                     class="col-auto d-flex gap-2"
                                     v-if="selectedFilter === 'Custom'"
@@ -94,9 +95,7 @@
                                         class="form-control"
                                         id="date"
                                         v-model="startDate"
-                                        :class="{
-                                            'invalid-bg': formErrors.startDate,
-                                        }"
+                                         
                                         placeholder="Start Date"
                                     />
                                     <input
@@ -104,9 +103,7 @@
                                         class="form-control"
                                         id="date"
                                         v-model="endDate"
-                                        :class="{
-                                            'invalid-bg': formErrors.endDate,
-                                        }"
+                                        
                                         placeholder="End Date"
                                     />
                                 </div>
@@ -465,18 +462,51 @@ export default {
 
         // Export to Excel
         exportToExcel() {
-            const ws = XLSX.utils.json_to_sheet(
-                this.transactionEntries.map((entry) => ({
-                    Date: entry.date,
-                    Income: entry.income,
-                    Expense: entry.expense,
-                    Balance: entry.balance,
-                }))
-            );
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Transactions");
-            XLSX.writeFile(wb, "transactions.xlsx");
-        },
+    this.excelBtnLoader = true;
+    let formData = new FormData();
+
+    formData.append("selectedFilter", this.selectedFilter);
+
+    if (this.selectedMonth) {
+        formData.append("selectedMonth", this.selectedMonth);
+    }
+    if (this.selectedYear) {
+        formData.append("selectedYear", this.selectedYear);
+    }
+    if (this.startDate) {
+        formData.append("startDate", this.startDate);
+    }
+    if (this.endDate) {
+        formData.append("endDate", this.endDate);
+    }
+
+    axios
+        .post(route("download-report-excel"), formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+            responseType: "blob", // Important for handling Excel response
+        })
+        .then((response) => {
+            // Create a link element
+            const link = document.createElement("a");
+            // Create a URL for the blob
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            link.href = url;
+            // Set the file name for the download
+            link.setAttribute("download", "TransactionReport.xlsx");
+            // Append the link to the body, click it to trigger download, and then remove it
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            this.excelBtnLoader = false;
+        })
+        .catch((error) => {
+            this.excelBtnLoader = false;
+            toastr.error(error.response?.data?.message || "Error generating Excel");
+        });
+},
+
 
         // Export to PDF
         exportToPDF() {
