@@ -57,6 +57,7 @@ Route::middleware(['web'])->group(function () {
     Route::post('/download-report-pdf',[ReportController::class,'report_pdf_download'])->name('download-report-pdf');
     Route::post('/download-excel',[TransactionController::class,'transactions_exportTo_excel'])->name('download-excel');
     Route::post('/download-report-excel',[ReportController::class,'report_exportTo_excel'])->name('download-report-excel');
+    Route::post('/download-income-statement-pdf', [IncomeStatementController::class, 'downloadIncomeStatementPDF'])->name('download-income-statement-pdf');
 
 });
 

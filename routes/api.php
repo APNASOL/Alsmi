@@ -6,6 +6,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IncomeExpenseController;
+use App\Http\Controllers\IncomeStatementController;
 use App\Http\Controllers\ReportController;
 /*
 |--------------------------------------------------------------------------
@@ -65,5 +66,7 @@ Route::middleware(['web'])->group(function () {
 
     // reports
     Route::post('/transaction/reports/fetch', [ReportController::class, 'transactions_reports_fetch'])->name('api.transaction.report.fetch');             // Fetch all transaction entries
+    // income statements reports 
+    Route::post('/transaction/income/statements/fetch', [IncomeStatementController::class, 'transactions_reports_fetch'])->name('api.transaction.income.statements.fetch');             // Fetch all transaction entries
 
  });

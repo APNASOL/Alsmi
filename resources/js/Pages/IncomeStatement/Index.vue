@@ -38,86 +38,147 @@
                                             'Custom',
                                         ]"
                                         :searchable="true"
-                                        @select="applyFilter"
                                         placeholder="Filter By"
                                     />
                                 </div>
 
                                 <!-- Monthly Filter -->
                                 <div
+                                    class="col-auto d-flex gap-2"
                                     v-if="selectedFilter === 'Monthly'"
-                                    class="col-auto"
                                 >
-                                    <Multiselect
-                                        v-model="selectedMonth"
-                                        :options="monthsOptions"
-                                        :searchable="true"
-                                        @select="applyFilter"
-                                        placeholder="Select Month"
-                                    />
+                                    <!-- Year Dropdown for Monthly -->
+                                    <div class="col-auto">
+                                        <Multiselect
+                                            v-model="selectedYear"
+                                            :options="yearsOptions"
+                                            :searchable="true"
+                                            @clear="fetchTransactionEntries"
+                                            placeholder="Select Year"
+                                        />
+                                    </div>
+
+                                    <!-- Month Dropdown for Monthly -->
+                                    <div class="col-auto">
+                                        <Multiselect
+                                            v-model="selectedMonth"
+                                            :options="monthsOptions"
+                                            :searchable="true"
+                                            @clear="fetchTransactionEntries"
+                                            placeholder="Select Month"
+                                        />
+                                    </div>
                                 </div>
 
                                 <!-- Yearly Filter -->
                                 <div
-                                    v-if="selectedFilter === 'Yearly'"
                                     class="col-auto"
+                                    v-if="selectedFilter === 'Yearly'"
                                 >
                                     <Multiselect
                                         v-model="selectedYear"
                                         :options="yearsOptions"
                                         :searchable="true"
-                                        @select="applyFilter"
+                                        @clear="fetchTransactionEntries"
                                         placeholder="Select Year"
                                     />
                                 </div>
 
                                 <!-- Custom Date Range -->
                                 <div
-                                    v-if="selectedFilter === 'Custom'"
                                     class="col-auto d-flex gap-2"
+                                    v-if="selectedFilter === 'Custom'"
                                 >
-                                    <Datepicker
-                                        autoApply
-                                        :enableTimePicker="false"
+                                    <input
+                                        type="date"
+                                        class="form-control"
+                                        id="date"
                                         v-model="startDate"
-                                        @update:model-value="applyFilter"
+                                         
                                         placeholder="Start Date"
                                     />
-                                    <Datepicker
-                                        autoApply
-                                        :enableTimePicker="false"
+                                    <input
+                                        type="date"
+                                        class="form-control"
+                                        id="date"
                                         v-model="endDate"
-                                        @update:model-value="applyFilter"
+                                         
                                         placeholder="End Date"
                                     />
+                                </div>
+
+                                <div class="col-auto">
+                                    <button
+                                        @click="fetchTransactionEntries"
+                                        class="btn btn-success"
+                                        :disabled="serachingLoading"
+                                    >
+                                        <span
+                                            v-if="serachingLoading"
+                                            class="spinner-border spinner-border-sm"
+                                            role="status"
+                                            aria-hidden="true"
+                                        ></span>
+                                        <span v-if="!serachingLoading"
+                                            >Search</span
+                                        >
+                                    </button>
                                 </div>
                             </div>
 
                             <!-- Export Buttons -->
-                            <div
-                                class="btn-group"
-                                role="group"
-                                v-if="filteredEntries.length"
-                            >
+                            <div class="btn-group" role="group">
                                 <!-- <button
                                     class="btn btn-primary"
+                                    title="Download as Excel"
                                     @click="exportToExcel"
+                                    :disabled="excelBtnLoader"
                                 >
-                                    <i class="bi bi-file-earmark-excel"></i>
+                                    <span
+                                        v-if="excelBtnLoader"
+                                        class="spinner-border spinner-border-sm"
+                                        role="status"
+                                        aria-hidden="true"
+                                    ></span>
+                                    <span v-if="!excelBtnLoader">
+                                        <i class="bi bi-file-earmark-excel"></i
+                                    ></span>
                                 </button> -->
                                 <button
                                     class="btn btn-danger"
+                                    title="Download as PDF"
                                     @click="exportToPDF"
+                                    :disabled="pdfBtnLoader"
                                 >
-                                    <i class="bi bi-file-earmark-pdf"></i>
+                                    <span
+                                        v-if="pdfBtnLoader"
+                                        class="spinner-border spinner-border-sm"
+                                        role="status"
+                                        aria-hidden="true"
+                                    ></span>
+                                    <span v-if="!pdfBtnLoader">
+                                        <i class="bi bi-file-earmark-pdf"></i
+                                    ></span>
                                 </button>
+                                <!-- <button
+                                    class="btn btn-secondary"
+                                    title="Print"
+                                    @click="printSlip"
+                                >
+                                    <i class="bi bi-printer"></i>
+                                </button> -->
                             </div>
                         </div>
+                        <span class="text-danger" v-if="FilterErrors">
+                            {{ FilterErrors }}
+                        </span>
                     </div>
 
                     <!-- Income Statement Summary -->
-                    <div v-if="filteredEntries.length">
+
+                    <div v-if="transactionEntries.length">
                         <table class="table table-bordered">
+                        
                             <thead>
                                 <tr>
                                     <th colspan="2">Title</th>
@@ -205,6 +266,11 @@ export default {
             totalIncome: 0, // Total Income
             totalExpense: 0, // Total Expense
             totalProfit: 0, // Total Profit
+
+            FilterErrors: "",
+            serachingLoading: false,
+            pdfBtnLoader: false,
+            excelBtnLoader: false,
         };
     },
     mounted() {
@@ -212,15 +278,76 @@ export default {
     },
     methods: {
         fetchTransactionEntries() {
+            this.serachingLoading = true;
+            this.FilterErrors = "";
+
+            // Validation checks
+            if (
+                this.selectedFilter === "Monthly" &&
+                (!this.selectedMonth || !this.selectedYear)
+            ) {
+                this.FilterErrors =
+                    "Please select both Month and Year for the Monthly filter.";
+                this.serachingLoading = false;
+                return;
+            }
+
+            if (this.selectedFilter === "Yearly" && !this.selectedYear) {
+                this.FilterErrors =
+                    "Please select a Year for the Yearly filter.";
+                this.serachingLoading = false;
+                return;
+            }
+
+            if (
+                this.selectedFilter === "Custom" &&
+                (!this.startDate || !this.endDate)
+            ) {
+                this.FilterErrors =
+                    "Please select both Start Date and End Date for the Custom filter.";
+                this.serachingLoading = false;
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("selectedFilter", this.selectedFilter);
+
+            if (this.selectedMonth) {
+                formData.append("selectedMonth", this.selectedMonth);
+            }
+            if (this.selectedYear) {
+                formData.append("selectedYear", this.selectedYear);
+            }
+            if (this.startDate) {
+                formData.append("startDate", this.startDate);
+            }
+            if (this.endDate) {
+                formData.append("endDate", this.endDate);
+            }
+
             axios
-                .get(route("api.transaction.fetch"))
+                .post(
+                    route("api.transaction.income.statements.fetch"),
+                    formData,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    }
+                )
                 .then((response) => {
-                    this.transactionEntries = response.data;
-                    this.filteredEntries = response.data; // Default to all entries
-                    this.applyFilter();
+                    this.serachingLoading = false;
+                    console.log(response.data);
+                    // Updating the data properly
+                    this.transactionEntries =
+                        response.data.transactionEntries || [];
+                    this.totalIncome = response.data.totalIncome || 0;
+                    this.totalExpense = response.data.totalExpense || 0;
+                    this.totalProfit = response.data.totalProfit || 0;
                 })
                 .catch((error) => {
-                    console.error("Error fetching transactions:", error);
+                    this.serachingLoading = false;
+                    console.error(error);
                 });
         },
 
@@ -281,19 +408,55 @@ export default {
         //     XLSX.writeFile(wb, "income_statement.xlsx");
         // },
 
-        exportToPDF() {
-            const doc = new jsPDF();
-            doc.autoTable({
-                head: [["Total Income", "Total Expenses", "Net Profit"]],
-                body: [
-                    [
-                        this.formatCurrency(this.totalIncome),
-                        this.formatCurrency(this.totalExpense),
-                        this.formatCurrency(this.totalProfit),
-                    ],
-                ],
-            });
-            doc.save("income_statement.pdf");
+       // Export to PDF
+       exportToPDF() {
+            this.pdfBtnLoader = true;
+            let formData = new FormData();
+
+            formData.append("selectedFilter", this.selectedFilter);
+
+            if (this.selectedMonth) {
+                formData.append("selectedMonth", this.selectedMonth);
+            }
+            if (this.selectedYear) {
+                formData.append("selectedYear", this.selectedYear);
+            }
+            if (this.startDate) {
+                formData.append("startDate", this.startDate);
+            }
+            if (this.endDate) {
+                formData.append("endDate", this.endDate);
+            }
+
+            axios
+                .post(route("download-income-statement-pdf"), formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                    responseType: "blob", // Important for handling PDF response
+                })
+                .then((response) => {
+                    // Create a link element
+                    const link = document.createElement("a");
+                    // Create a URL for the blob
+                    const url = window.URL.createObjectURL(
+                        new Blob([response.data])
+                    );
+                    link.href = url;
+                    // Set the file name for the download
+                    link.setAttribute("download", "TransactionReport.pdf");
+                    // Append the link to the body, click it to trigger download, and then remove it
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    this.pdfBtnLoader = false;
+                })
+                .catch((error) => {
+                    this.pdfBtnLoader = false;
+                    toastr.error(
+                        error.response?.data?.message || "Error generating PDF"
+                    );
+                });
         },
     },
 };
