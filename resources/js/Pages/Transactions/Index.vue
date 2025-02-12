@@ -17,6 +17,7 @@
                 <button
                     class="btn btn-success mt-3"
                     data-bs-toggle="modal"
+                    ref="openTransactionModal"
                     data-bs-target="#transactionmodal"
                     @click="clearFields"
                 >
@@ -233,13 +234,7 @@
                                     <td>{{ calculateBalance(index) }}</td>
                                     <td>
                                         <ImageZooming
-                                            v-if="entry.cash_out"
-                                            :file="'https://images.examples.com/wp-content/uploads/2017/05/Receipt-for-Employee-Salary.jpg'"
-                                            :width="100"
-                                        />
-                                        <ImageZooming
-                                            v-if="entry.cash_in"
-                                            :file="'https://cdn.prod.website-files.com/65383059db0c80e24b49540f/653afaf743e0dc4cc11a5a02_Receipt-OCR-Taggun-demo.png'"
+                                            :file="entry.receipt_image"
                                             :width="100"
                                         />
                                     </td>
@@ -256,15 +251,17 @@
                                                 "
                                             >
                                                 <i class="bi bi-pencil"></i>
-                                            </button>
+                                            </button> -->
+                                            <!--
                                             <DeleteModal
                                                 :deleteId="entry.id"
                                                 @deleteThis="deleteThis"
                                             ></DeleteModal> -->
-                                            <i
+                                            <!-- <i
                                                 class="bi bi-pencil me-2"
-                                                @click="warning"
-                                            ></i>
+                                                @click="editTransaction(entery.id)"
+
+                                            ></i> -->
                                             <!-- <i
                                                 class="bi bi-trash"
                                                 @click="warning"
@@ -767,7 +764,7 @@ export default {
                 formData.append("receipt_image", this.form.receipt_image);
             }
 
-            this.formStatus = 0;
+            // this.formStatus = 0;
             axios
                 .post(route("api.transaction.store"), formData, {
                     headers: {
@@ -809,14 +806,30 @@ export default {
             axios
                 .get(route("api.transaction.show", entry_id))
                 .then((response) => {
-                    this.form = { ...response.data };
-                    // this.existing_receipt_image = response.data.receipt_image;
-                    // this.form.receipt_image = response.data.receipt_image;
+                    console.log(response.data);
+
+                   
+                    this.form = {
+                        id: response.data.id,
+                        cash_in: response.data.cash_in,
+                        cash_out: response.data.cash_out,
+                        date: response.data.transaction_date,  
+                        ref_no: response.data.ref_no,
+                        method: response.data.method,
+                        remarks: response.data.remarks,
+                        expense_type: response.data.expense_type || "",  
+                        income_type: response.data.income_type || "",
+                        process_type: response.data.process_type || "",
+                    };
+
+                    // Set existing receipt image for preview
+                    this.existing_receipt_image = response.data.receipt_image;
                 })
                 .catch((error) => {
-                    console.error(error);
+                    toastr.error(error.response.data.message);
                 });
         },
+
         deleteThis(id) {
             axios
                 .delete(route("api.transaction.delete", id))
@@ -1052,6 +1065,10 @@ export default {
                 printWindow.print();
                 printWindow.close();
             };
+        },
+        editTransaction(id) {
+            this.$refs.openTransactionModal.click();
+            this.clearFields();
         },
     },
 };

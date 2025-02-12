@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 use PDF;
+use Storage;
 
 class TransactionController extends Controller
 {
@@ -70,7 +71,7 @@ class TransactionController extends Controller
             // Handle receipt image
             if ($transaction->receipt_image) {
                 $upload                     = Upload::where('id', $transaction->receipt_image)->first();
-                $transaction->receipt_image = $upload ? get_storage_url($upload->file_name) : null;
+                $transaction->receipt_image = $upload ? getFileUrl($upload->file_name) : null;
             }
         }
         return $transactions;
@@ -82,6 +83,14 @@ class TransactionController extends Controller
         $transactions = Transaction::all(); // Fetch all transactions
 
         foreach ($transactions as $transaction) {
+
+            // if ($transaction->receipt_image) {
+            //     $upload = Uploads::find($transaction->receipt_image);
+            //     if ($upload) {
+            //         $transaction->receipt_image_url = getFileUrl($upload->file_name);
+            //     }
+            // }
+
             // Check if the transaction has cash_out
             if ($transaction->cash_out) {
                 // Fetch related expense data
@@ -124,9 +133,19 @@ class TransactionController extends Controller
 
         // Check if updating or creating a new transaction entry
         if ($request->id) {
+             
             $transaction = Transaction::findOrFail($request->id);
             $expense     = Expense::where('transaction_id', $request->id)->first();
+            if (!$expense) {
+                $expense     = new Expense();
+                $expense->id = Str::orderedUuid();
+            }
             $income      = Income::where('transaction_id', $request->id)->first();
+            if (!$income) {
+                $income     = new Income();
+                $income->id = Str::orderedUuid();
+            }
+
         } else {
             $transaction     = new Transaction;
             $transaction->id = Str::orderedUuid(); // Generate UUID for new record
@@ -149,42 +168,45 @@ class TransactionController extends Controller
         $transaction->remarks          = $request->remarks;
         $transaction->user_id          = 1;
 
-        // if ($request->receipt_image) {
-        //     // Delete existing upload if any
-        //     Upload::where('id', $transaction->id)->delete();
+        if ($request->receipt_image) {
+            // Delete existing receipt image if it exists
+            if ($transaction->receipt_image) {
+                $existingInUploads = Upload::where('id', $transaction->receipt_image)->first();
+                if ($existingInUploads) {
+                    Storage::delete($existingInUploads->file_name);
+                    $existingInUploads->delete();
+                }
+            }
 
-        //     // Decode the base64 image
-        //     $data = substr($request->receipt_image, strpos($request->receipt_image, ',') + 1);
-        //     $data = base64_decode($data);
+            // Decode Base64 image
+            $data = substr($request->receipt_image, strpos($request->receipt_image, ',') + 1);
+            $data = base64_decode($data);
 
-        //     // Ensure the directory exists
-        //     $directory = 'TransactionReceipts';
-        //     if (!Storage::disk('real_public')->exists($directory)) {
-        //         Storage::disk('real_public')->makeDirectory($directory);
-        //     }
+            // Generate unique file name and path for TransactionReceipts folder
+            $image_name           = Str::random(40) . '.png';
+            $image_name_with_path = 'TransactionReceipts/' . $image_name;
 
-        //     // Save the file
-        //     $photo_name_with_path = $directory . '/' . Str::random(40) . '.png';
-        //     Storage::disk('real_public')->put($photo_name_with_path, $data);
-        //     $fileSize = strlen($data);
+            // Store the image in the 'public' disk
+            Storage::disk('public')->put($image_name_with_path, $data);
 
-        //     // Save file details in the Uploads table
-        //     $Upload = new Upload;
-        //     $Upload->file_original_name = $photo_name_with_path;
-        //     $Upload->extension = 'png';
-        //     $Upload->type = 'image/png';
-        //     $Upload->file_size = $fileSize;
-        //     $Upload->file_name = $photo_name_with_path;
-        //     $Upload->save();
+            // Save file details to the database
+            $upload                     = new Upload();
+            $upload->file_original_name = $image_name;
+            $upload->extension          = 'png';
+            $upload->type               = 'image/png';
+            $upload->file_name          = $image_name_with_path;
+            $upload->save();
 
-        //     // Associate the upload with the transaction
-        //     $transaction->receipt_image = $Upload->id;
-        // }
+            // Update tour model with uploaded file ID
+            $transaction->receipt_image = $upload->id;
+
+        }
 
         $transaction->save(); // Save the transaction first, this will generate the `transaction_id`
 
         // Handle saving Expenses and Incomes after transaction is saved
         if ($request->process_type == 'Expense') {
+           
             $expense->transaction_id   = $transaction->id; // Link the transaction ID
             $expense->expense_type_id  = $request->expense_type;
             $expense->transaction_date = $request->date;
@@ -192,14 +214,16 @@ class TransactionController extends Controller
             $transaction->cash_out     = $request->cash_out;
             $expense->save();
         }
-
+        
         if ($request->process_type == 'Income') {
+         
             $income->transaction_id   = $transaction->id;      // Link the transaction ID
             $income->income_type_id   = $request->income_type; // Ensure correct income type is set
             $income->transaction_date = $request->date;
             $income->amount           = $request->cash_in;
             $transaction->cash_in     = $request->cash_in;
             $income->save();
+             
         }
 
         $transaction->save();
@@ -210,9 +234,29 @@ class TransactionController extends Controller
     // Display a specific transaction entry
     public function show($id)
     {
-        $transaction = Transaction::select('id', 'notes', 'type', 'cash_in', 'cash_out', 'balance', 'date', 'status', 'created_at', 'updated_at')
-            ->findOrFail($id);
+        $transaction = Transaction::findOrFail($id);
+         
+        if ($transaction->receipt_image) {
+            $upload                     = Upload::where('id', $transaction->receipt_image)->first();
+            $transaction->receipt_image = $upload ? getFileUrl($upload->file_name) : null;
+        }
 
+        // Determine process type based on cash_in
+        if($transaction->cash_in)
+        {
+            $income_type = Income::where('transaction_id',$id)->first();
+            $transaction->income_type = $income_type->income_type_id;
+            $transaction->process_type = 'Income';
+        }
+        if($transaction->cash_out)
+        {
+            $expense_type = Expense::where('transaction_id',$id)->first();
+            $transaction->expense_type = $expense_type->expense_type_id;
+            $transaction->process_type = 'Expense';
+
+        }
+         
+        
         return $transaction;
     }
 
