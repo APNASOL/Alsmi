@@ -18,7 +18,7 @@
                 <div class="row">
                     <!-- Filter -->
                     <div class="d-flex justify-content-end mb-3">
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <Multiselect
                                 v-model="selectedFilter"
                                 :options="filterOptions"

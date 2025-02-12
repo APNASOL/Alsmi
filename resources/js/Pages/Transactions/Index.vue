@@ -240,7 +240,7 @@
                                     </td>
                                     <td>
                                         <div class="btn-group">
-                                            <!-- <button
+                                            <button
                                                 class="btn btn-sm fs-6"
                                                 title="Edit"
                                                 data-bs-toggle="modal"
@@ -251,7 +251,7 @@
                                                 "
                                             >
                                                 <i class="bi bi-pencil"></i>
-                                            </button> -->
+                                            </button>
                                             <!--
                                             <DeleteModal
                                                 :deleteId="entry.id"
@@ -748,21 +748,25 @@ export default {
         submit() {
             let formData = new FormData();
 
-            formData.append("id", this.form.id);
-            formData.append("cash_in", this.form.cash_in);
-            formData.append("cash_out", this.form.cash_out);
-            formData.append("date", this.form.date);
-            formData.append("ref_no", this.form.ref_no);
-            formData.append("method", this.form.method);
-            formData.append("remarks", this.form.remarks);
-            formData.append("expense_type", this.form.expense_type);
-            formData.append("income_type", this.form.income_type);
-            formData.append("process_type", this.form.process_type);
+// Helper function to handle null, undefined, or empty values
+const sanitizeValue = (value) => (value ?? "").toString().trim() === "" ? "" : value;
 
-            // Append image only if it exists
-            if (this.form.receipt_image) {
-                formData.append("receipt_image", this.form.receipt_image);
-            }
+formData.append("id", sanitizeValue(this.form.id));
+formData.append("cash_in", sanitizeValue(this.form.cash_in));
+formData.append("cash_out", sanitizeValue(this.form.cash_out));
+formData.append("date", sanitizeValue(this.form.date));
+formData.append("ref_no", sanitizeValue(this.form.ref_no));
+formData.append("method", sanitizeValue(this.form.method));
+formData.append("remarks", sanitizeValue(this.form.remarks));
+formData.append("expense_type", sanitizeValue(this.form.expense_type));
+formData.append("income_type", sanitizeValue(this.form.income_type));
+formData.append("process_type", sanitizeValue(this.form.process_type));
+
+// Append image only if it exists
+if (this.form.receipt_image) {
+    formData.append("receipt_image", this.form.receipt_image);
+}
+
 
             // this.formStatus = 0;
             axios
@@ -811,7 +815,7 @@ export default {
                    
                     this.form = {
                         id: response.data.id,
-                        cash_in: response.data.cash_in,
+                        cash_in: parseInt(response.data.cash_in),
                         cash_out: response.data.cash_out,
                         date: response.data.transaction_date,  
                         ref_no: response.data.ref_no,

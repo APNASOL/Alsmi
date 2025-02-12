@@ -49,18 +49,17 @@
                                     <th scope="row">{{ index + 1 }}</th>
                                     <td>
                                         <Link
+                                            class="c-text-theme"
                                             :href="
-                                                route('income.expanse.details', [
-                                                    'Income',
-                                                    income.id,
-                                                ])
+                                                route(
+                                                    'income.expanse.details',
+                                                    ['Income', income.id]
+                                                )
                                             "
                                         >
                                             {{ income.name }}
                                         </Link>
                                     </td>
-
-                                     
 
                                     <td>
                                         <div class="btn-group">

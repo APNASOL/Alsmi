@@ -48,6 +48,7 @@
                                     <th scope="row">{{ index + 1 }}</th>
                                     <td>
                                         <Link
+                                        class="c-text-theme"
                                             :href="
                                                 route('income.expanse.details', [
                                                     'Expense',

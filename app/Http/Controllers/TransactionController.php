@@ -128,48 +128,53 @@ class TransactionController extends Controller
             'ref_no'       => 'required|string|max:255',
             'method'       => 'required|string|max:255',
             'remarks'      => 'required|string|max:255',
-            'image'        => 'nullable',
         ]);
 
-        // Check if updating or creating a new transaction entry
         if ($request->id) {
-             
+            // Fetch existing transaction
             $transaction = Transaction::findOrFail($request->id);
-            $expense     = Expense::where('transaction_id', $request->id)->first();
-            if (!$expense) {
-                $expense     = new Expense();
-                $expense->id = Str::orderedUuid();
-            }
-            $income      = Income::where('transaction_id', $request->id)->first();
-            if (!$income) {
-                $income     = new Income();
-                $income->id = Str::orderedUuid();
+
+            // Determine previous process type correctly
+            if ($transaction->cash_in > 0) {
+                $previousProcessType = "Income";
+            } elseif ($transaction->cash_out > 0) {
+                $previousProcessType = "Expense";
+            } else {
+                $previousProcessType = null;
             }
 
+            // Fetch related records
+            $expense = Expense::where('transaction_id', $transaction->id)->first();
+            $income  = Income::where('transaction_id', $transaction->id)->first();
+
+            // Handle process type change
+            if ($previousProcessType !== $request->process_type) {
+                if ($previousProcessType === "Income" && $income) {
+                    $income->delete(); // Delete old income record
+                }
+                if ($previousProcessType === "Expense" && $expense) {
+                    $expense->delete(); // Delete old expense record
+                }
+
+                // Reset cash_in or cash_out in transaction to prevent mixed values
+                $transaction->cash_in  = null;
+                $transaction->cash_out = null;
+            }
         } else {
-            $transaction     = new Transaction;
-            $transaction->id = Str::orderedUuid(); // Generate UUID for new record
-
-            if ($request->process_type == 'Expense') {
-                $expense     = new Expense();
-                $expense->id = Str::orderedUuid();
-            }
-
-            if ($request->process_type == 'Income') {
-                $income     = new Income();
-                $income->id = Str::orderedUuid();
-            }
+            // New Transaction
+            $transaction     = new Transaction();
+            $transaction->id = Str::orderedUuid();
         }
 
-        // Save the transaction first
+        // Save transaction details
         $transaction->transaction_date = $request->date;
         $transaction->ref_no           = $request->ref_no;
         $transaction->method           = $request->method;
         $transaction->remarks          = $request->remarks;
         $transaction->user_id          = 1;
 
+        // Handle receipt image
         if ($request->receipt_image) {
-            // Delete existing receipt image if it exists
             if ($transaction->receipt_image) {
                 $existingInUploads = Upload::where('id', $transaction->receipt_image)->first();
                 if ($existingInUploads) {
@@ -182,48 +187,63 @@ class TransactionController extends Controller
             $data = substr($request->receipt_image, strpos($request->receipt_image, ',') + 1);
             $data = base64_decode($data);
 
-            // Generate unique file name and path for TransactionReceipts folder
-            $image_name           = Str::random(40) . '.png';
-            $image_name_with_path = 'TransactionReceipts/' . $image_name;
+            // Generate unique file name and path
+            $image_name = Str::random(40) . '.png';
+            $image_path = 'TransactionReceipts/' . $image_name;
 
-            // Store the image in the 'public' disk
-            Storage::disk('public')->put($image_name_with_path, $data);
+            // Store the image
+            Storage::disk('public')->put($image_path, $data);
 
-            // Save file details to the database
+            // Save file details
             $upload                     = new Upload();
             $upload->file_original_name = $image_name;
             $upload->extension          = 'png';
             $upload->type               = 'image/png';
-            $upload->file_name          = $image_name_with_path;
+            $upload->file_name          = $image_path;
             $upload->save();
 
-            // Update tour model with uploaded file ID
+            // Assign uploaded image to transaction
             $transaction->receipt_image = $upload->id;
-
         }
 
-        $transaction->save(); // Save the transaction first, this will generate the `transaction_id`
+        $transaction->save();
 
-        // Handle saving Expenses and Incomes after transaction is saved
+        // Handle Expense
         if ($request->process_type == 'Expense') {
-           
-            $expense->transaction_id   = $transaction->id; // Link the transaction ID
+            $expense = Expense::where('transaction_id', $transaction->id)->first();
+            if (! $expense) {
+                $expense     = new Expense();
+                $expense->id = Str::orderedUuid();
+            }
+            $expense->transaction_id   = $transaction->id;
             $expense->expense_type_id  = $request->expense_type;
             $expense->transaction_date = $request->date;
             $expense->amount           = $request->cash_out;
-            $transaction->cash_out     = $request->cash_out;
+
+            // Ensure transaction reflects the expense correctly
+            $transaction->cash_out = $request->cash_out;
+            $transaction->cash_in  = null; // Ensure cash_in is reset when switching
+
             $expense->save();
         }
-        
+
+        // Handle Income
         if ($request->process_type == 'Income') {
-         
-            $income->transaction_id   = $transaction->id;      // Link the transaction ID
-            $income->income_type_id   = $request->income_type; // Ensure correct income type is set
+            $income = Income::where('transaction_id', $transaction->id)->first();
+            if (! $income) {
+                $income     = new Income();
+                $income->id = Str::orderedUuid();
+            }
+            $income->transaction_id   = $transaction->id;
+            $income->income_type_id   = $request->income_type;
             $income->transaction_date = $request->date;
             $income->amount           = $request->cash_in;
-            $transaction->cash_in     = $request->cash_in;
+
+            // Ensure transaction reflects the income correctly
+            $transaction->cash_in  = $request->cash_in;
+            $transaction->cash_out = null; // Ensure cash_out is reset when switching
+
             $income->save();
-             
         }
 
         $transaction->save();
@@ -235,28 +255,25 @@ class TransactionController extends Controller
     public function show($id)
     {
         $transaction = Transaction::findOrFail($id);
-         
+
         if ($transaction->receipt_image) {
             $upload                     = Upload::where('id', $transaction->receipt_image)->first();
             $transaction->receipt_image = $upload ? getFileUrl($upload->file_name) : null;
         }
 
         // Determine process type based on cash_in
-        if($transaction->cash_in)
-        {
-            $income_type = Income::where('transaction_id',$id)->first();
-            $transaction->income_type = $income_type->income_type_id;
+        if ($transaction->cash_in) {
+            $income_type               = Income::where('transaction_id', $id)->first();
+            $transaction->income_type  = $income_type->income_type_id;
             $transaction->process_type = 'Income';
         }
-        if($transaction->cash_out)
-        {
-            $expense_type = Expense::where('transaction_id',$id)->first();
+        if ($transaction->cash_out) {
+            $expense_type              = Expense::where('transaction_id', $id)->first();
             $transaction->expense_type = $expense_type->expense_type_id;
             $transaction->process_type = 'Expense';
 
         }
-         
-        
+
         return $transaction;
     }
 

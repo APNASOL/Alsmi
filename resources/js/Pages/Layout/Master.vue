@@ -270,7 +270,7 @@ export default {
     font-weight: bold;
     text-transform: uppercase;
     position: relative;
-    color: rgb(13, 32, 201);
+    color: #012970;
 }
 /* .section-title h5::before {
     content: "";
@@ -288,7 +288,7 @@ export default {
     display: block;
     width: 40px;
     height: 3px;
-    background: rgb(13, 32, 201);
+    background: #012970;
     bottom: 0;
     left: calc(50% - 20px);
 } */
@@ -304,18 +304,18 @@ export default {
 }
 
 .btn-success {
-    background-color: rgb(65, 84, 241) !important;
-    border-color: rgb(65, 84, 241) !important;
+    background-color: #012970 !important;
+    border-color: #012970 !important;
 }
 
 .btn-success:hover {
-    background-color: rgb(13, 32, 201) !important;
-    border-color: rgb(13, 32, 201) !important;
+    background-color: #012970 !important;
+    border-color: #012970 !important;
 }
 
 .btn-success:active {
-    background-color: rgb(13, 32, 201) !important;
-    border-color: rgb(13, 32, 201) !important;
+    background-color: #012970 !important;
+    border-color: #012970 !important;
 }
 
 .btn-success:focus {
@@ -323,20 +323,31 @@ export default {
     box-shadow: none !important;
 }
 .toast-success {
-    background-color: rgb(65, 84, 241) !important;
+    background-color: #012970 !important;
 }
 .theme-text-color {
-    color: rgb(13, 32, 201) !important;
+    color: #012970 !important;
     font-weight: bold;
 }
 .theme-bg-color {
-    background-color: rgb(13, 32, 201) !important;
+    background-color: #012970 !important;
 }
 .text-primary {
-    color: rgb(13, 32, 201) !important;
+    color: #012970 !important;
 }
 .logo img {
   max-height: 57px;
   margin-right: 6px;
+}
+.multiselect-option.is-selected {
+    background: #012970;
+    color: var(--ms-option-color-selected, #fff);
+}
+.multiselect-option.is-selected.is-pointed {
+    background: #012970;
+    color: var(--ms-option-color-selected, #fff);
+}
+.c-text-theme{
+    color: #012970 !important;
 }
 </style>
