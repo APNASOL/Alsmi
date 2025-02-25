@@ -14,8 +14,7 @@ use Illuminate\Support\Facades\Storage;
 //     // Combine the base URL with the relative URL
 //     return $baseUrl . $relativeUrl;
 // }
-
-
+ 
 if (!function_exists('getFileUrl')) {
     function getFileUrl($file_name)
     {
