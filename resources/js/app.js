@@ -1,9 +1,7 @@
 import { createApp, h } from "vue";
 import { InertiaProgress } from "@inertiajs/progress";
- 
-import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
- 
 import { createInertiaApp,Link } from "@inertiajs/vue3";
+import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 
 import toastr from "toastr";
 window.toastr = toastr;
