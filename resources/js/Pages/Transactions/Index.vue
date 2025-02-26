@@ -232,7 +232,8 @@
                                         }}
                                     </td>
                                     <td>{{ calculateBalance(index) }}</td>
-                                    <td> 
+                                    <td>
+                                        Test -  {{ entry.receipt_image}}
                                             
                                         <ImageZooming
                                             :file="entry.receipt_image"

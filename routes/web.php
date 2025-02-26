@@ -3,7 +3,8 @@
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
- 
+use Illuminate\Support\Facades\Artisan;
+
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\IncomeExpenseController;
@@ -23,6 +24,12 @@ use Inertia\Inertia;
 | be assigned to the "web" middleware group. Make something great!
 |
  */
+
+ Route::get('/storage-link', function () {
+    Artisan::call('storage:link');
+    return "Storage link has been created successfully!";
+});
+
 Route::get('/', [HomeController::class, 'index'])->name('/');
 Route::get('/login', [HomeController::class, 'index'])->name('login');
 Route::middleware(['web'])->group(function () {
