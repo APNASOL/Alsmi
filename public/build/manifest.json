@@ -1,0 +1,86 @@
+{
+  "Master.css": {
+    "file": "assets/Master-045ecd6f.css",
+    "src": "Master.css"
+  },
+  "_Master-fb5c0c75.js": {
+    "css": [
+      "assets/Master-045ecd6f.css"
+    ],
+    "file": "assets/Master-fb5c0c75.js",
+    "imports": [
+      "resources/js/app.js"
+    ],
+    "isDynamicEntry": true
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-4ed993c7.js",
+    "isEntry": true,
+    "src": "resources/css/app.css"
+  },
+  "resources/js/Pages/Dashboard/Index.vue": {
+    "file": "assets/Index-6ffa576d.js",
+    "imports": [
+      "_Master-fb5c0c75.js",
+      "resources/js/app.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Dashboard/Index.vue"
+  },
+  "resources/js/Pages/Events/Create.vue": {
+    "file": "assets/Create-bdf4d29b.js",
+    "imports": [
+      "_Master-fb5c0c75.js",
+      "resources/js/app.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Events/Create.vue"
+  },
+  "resources/js/Pages/Events/Index.vue": {
+    "file": "assets/Index-457606a1.js",
+    "imports": [
+      "_Master-fb5c0c75.js",
+      "resources/js/app.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Events/Index.vue"
+  },
+  "resources/js/Pages/Programs/Index.vue": {
+    "file": "assets/Index-a1d6e7a3.js",
+    "imports": [
+      "_Master-fb5c0c75.js",
+      "resources/js/app.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Programs/Index.vue"
+  },
+  "resources/js/Pages/Students/Index.css": {
+    "file": "assets/Index-c6a5267e.css",
+    "src": "resources/js/Pages/Students/Index.css"
+  },
+  "resources/js/Pages/Students/Index.vue": {
+    "css": [
+      "assets/Index-c6a5267e.css"
+    ],
+    "file": "assets/Index-d2a1696f.js",
+    "imports": [
+      "_Master-fb5c0c75.js",
+      "resources/js/app.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/Pages/Students/Index.vue"
+  },
+  "resources/js/app.js": {
+    "dynamicImports": [
+      "resources/js/Pages/Dashboard/Index.vue",
+      "resources/js/Pages/Events/Create.vue",
+      "resources/js/Pages/Events/Index.vue",
+      "_Master-fb5c0c75.js",
+      "resources/js/Pages/Programs/Index.vue",
+      "resources/js/Pages/Students/Index.vue"
+    ],
+    "file": "assets/app-f41362ce.js",
+    "isEntry": true,
+    "src": "resources/js/app.js"
+  }
+}
