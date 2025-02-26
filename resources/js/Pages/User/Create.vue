@@ -171,8 +171,7 @@
         </section>
     </main>
     <!-- End #main -->
-</template>
-
+</template> 
 <script>
 // import Master from "@/Pages/Backend/Layouts/Master";
 import Master from "../Layout/Master.vue";
