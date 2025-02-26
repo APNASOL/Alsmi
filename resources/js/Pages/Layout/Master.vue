@@ -6,14 +6,8 @@
                     :href="route('dashboard')"
                     class="logo d-flex align-items-center"
                 >
-                    <img
-                         src="/images/logo.png"
-                         height="150"
-                        alt=""
-                    />
-                    <span class="d-none d-lg-block theme-text-color"
-                        >ASH</span
-                    >
+                    <img src="/images/logo.png" height="150" alt="" />
+                    <span class="d-none d-lg-block theme-text-color">ASH</span>
                 </a>
                 <i class="bi bi-list toggle-sidebar-btn"></i>
             </div>
@@ -36,7 +30,7 @@
                             data-bs-toggle="dropdown"
                         >
                             <img
-                                src="http://alsmi.test/backend/assets/img/profile-img.jpg"
+                                :src="'/backend/assets/img/profile-img.jpg'"
                                 alt="Profile"
                                 class="rounded-circle"
                             />
@@ -49,7 +43,7 @@
                             class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile"
                         >
                             <li class="dropdown-header">
-                                <h6>Kevin Anderson</h6>
+                                <h6>Admin</h6>
                                 <span>Account Officer</span>
                             </li>
                             <li>
@@ -122,7 +116,6 @@
                     </a>
                 </li>
 
-               
                 <!-- Users Nav Item -->
                 <li class="nav-item">
                     <a
@@ -146,8 +139,8 @@
                         <span>Income Types</span>
                     </a>
                 </li>
-                 <!-- Income Statements Nav Item -->
-                 <li class="nav-item">
+                <!-- Income Statements Nav Item -->
+                <li class="nav-item">
                     <a
                         class="nav-link collapsed"
                         :class="{ active: isActive('/income-statements') }"
@@ -170,7 +163,7 @@
                         <span>Reports</span>
                     </a>
                 </li>
-                
+
                 <li class="nav-item">
                     <a
                         class="nav-link collapsed"
@@ -205,17 +198,20 @@
 </template>
 
 <script>
-import "http://alsmi.test/backend/assets/vendor/bootstrap/js/bootstrap.bundle.min.js";
+// import "http://alsmi.test/backend/assets/vendor/bootstrap/js/bootstrap.bundle.min.js";
 import axios from "axios";
 
 export default {
     mounted() {
-        let mainJs = document.createElement("script");
-        mainJs.setAttribute(
+        let bootstrapJs = document.createElement("script");
+        bootstrapJs.setAttribute(
             "src",
-            "http://alsmi.test/backend/assets/js/main.js"
+            "/backend/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"
         );
+        document.head.appendChild(bootstrapJs);
 
+        let mainJs = document.createElement("script");
+        mainJs.setAttribute("src", "/backend/assets/js/main.js");
         document.head.appendChild(mainJs);
     },
 
@@ -336,8 +332,8 @@ export default {
     color: #012970 !important;
 }
 .logo img {
-  max-height: 57px;
-  margin-right: 6px;
+    max-height: 57px;
+    margin-right: 6px;
 }
 .multiselect-option.is-selected {
     background: #012970;
@@ -347,7 +343,7 @@ export default {
     background: #012970;
     color: var(--ms-option-color-selected, #fff);
 }
-.c-text-theme{
+.c-text-theme {
     color: #012970 !important;
 }
 </style>
