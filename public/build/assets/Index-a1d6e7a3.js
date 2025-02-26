@@ -1,1 +1,0 @@
-import{_ as e,M as t}from"./Master-fb5c0c75.js";import{o,a as s,b as r}from"./app-f41362ce.js";import"http://freshtemp.test/backend/assets/vendor/bootstrap/js/bootstrap.bundle.min.js";const a={layout:t,setup(){return{}}},n=r("h2",null,"Department ",-1),c=[n];function _(p,d,i,l,u,m){return o(),s("div",null,c)}const $=e(a,[["render",_]]);export{$ as default};
