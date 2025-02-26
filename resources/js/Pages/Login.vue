@@ -17,12 +17,12 @@
                             class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center"
                         >
                             <div class="d-flex justify-content-center py-4">
-                                <a :href="route('/')"> 
+                                <a :href="route('/')">
                                     <img
                                         src="/images/logo.png"
                                         height="150"
                                         alt="logo"
-                                    /> 
+                                    />
                                 </a>
                             </div>
                             <!-- End Logo -->
@@ -33,11 +33,7 @@
                                         <h5
                                             class="card-title text-center pb-0 fs-4"
                                         >
-                                            {{
-                                                (
-                                                    "Login to Your Account"
-                                                )
-                                            }}
+                                            {{ "Login to Your Account" }}
                                         </h5>
                                     </div>
 
@@ -49,7 +45,7 @@
                                             <label
                                                 for="email"
                                                 class="form-label"
-                                                >{{ ("Email") }}
+                                                >{{ "Email" }}
                                             </label>
                                             <input
                                                 type="email"
@@ -60,9 +56,7 @@
                                                 }"
                                                 id="email"
                                                 v-model="form.email"
-                                                :placeholder="
-                                                    ('Email')
-                                                "
+                                                :placeholder="'Email'"
                                                 autocomplete="current-email"
                                             />
                                             <div
@@ -77,9 +71,7 @@
                                             <label
                                                 for="password"
                                                 class="form-label"
-                                                >{{
-                                                    ("Password")
-                                                }}</label
+                                                >{{ "Password" }}</label
                                             >
                                             <input
                                                 type="password"
@@ -90,9 +82,7 @@
                                                         formErrors.email,
                                                 }"
                                                 v-model="form.password"
-                                                :placeholder="
-                                                    ('Password')
-                                                "
+                                                :placeholder="'Password'"
                                                 autocomplete="current-password"
                                             />
                                             <div
@@ -110,7 +100,7 @@
                                                     class="btn btn-success w-100"
                                                     type="submit"
                                                 >
-                                                    {{ ("Login") }}
+                                                    {{ "Login" }}
                                                 </button>
 
                                                 <button
@@ -119,7 +109,7 @@
                                                     disabled
                                                     v-else
                                                 >
-                                                    {{ ("Login") }}
+                                                    {{ "Login" }}
                                                     <span
                                                         class="spinner-border spinner-border-sm"
                                                         role="status"
@@ -226,9 +216,8 @@ export default {
 };
 </script>
 
-<style >
- 
- @import url("public/backend/assets/vendor/bootstrap/css/bootstrap.min.css");
+<style>
+@import url("public/backend/assets/vendor/bootstrap/css/bootstrap.min.css");
 @import url("public/backend/assets/vendor/bootstrap-icons/bootstrap-icons.css");
 @import url("public/backend/assets/vendor/boxicons/css/boxicons.min.css");
 @import url("public/backend/assets/vendor/remixicon/remixicon.css");
@@ -236,7 +225,7 @@ export default {
 @import url("public/backend/assets/css/style.css");
 @import url("public/backend/assets/css/custom.css");
 @import "toastr";
- 
+
 .c-file-padding {
     padding: 1rem 0.75rem !important;
 }
@@ -247,8 +236,6 @@ export default {
     border-color: #f8d4d4 !important;
     background-color: #f8d4d4 !important;
 }
-
- 
 
 .btn-success {
     background-color: rgb(65, 84, 241) !important;
@@ -272,13 +259,11 @@ export default {
 .toast-success {
     background-color: rgb(65, 84, 241) !important;
 }
-.theme-text-color
-{
+.theme-text-color {
     color: rgb(13, 32, 201) !important;
     font-weight: bold;
 }
-.theme-bg-color
-{
+.theme-bg-color {
     background-color: rgb(13, 32, 201) !important;
 }
 </style>
