@@ -232,7 +232,8 @@
                                         }}
                                     </td>
                                     <td>{{ calculateBalance(index) }}</td>
-                                    <td>
+                                    <td> 
+                                            
                                         <ImageZooming
                                             :file="entry.receipt_image"
                                             :width="100"
@@ -510,8 +511,8 @@
                                             accept=".jpg,.jpeg,.png"
                                         />
 
+                                        
                                         <br />
-
                                         <ImageZooming
                                             v-if="form.receipt_image"
                                             :file="form.receipt_image"

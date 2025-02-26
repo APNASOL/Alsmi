@@ -16,6 +16,10 @@
                         <div
                             class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center"
                         >
+                        <div style="background: yellow; padding: 10px; text-align: center; font-weight: bold;">
+    The system is currently in the testing and configuration phase. Some features may not work as expected.
+</div>
+
                             <div class="d-flex justify-content-center py-4">
                                 <a :href="route('/')">
                                     <img
