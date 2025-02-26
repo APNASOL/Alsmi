@@ -316,6 +316,7 @@ export default {
                 this.FilterErrors =
                     "Please select a Year for the Yearly filter.";
                 this.serachingLoading = false;
+                
                 return;
             }
 

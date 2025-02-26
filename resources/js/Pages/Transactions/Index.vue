@@ -232,8 +232,7 @@
                                         }}
                                     </td>
                                     <td>{{ calculateBalance(index) }}</td>
-                                    <td>
-                                        Test -  {{ entry.receipt_image}}
+                                    <td> 
                                             
                                         <ImageZooming
                                             :file="entry.receipt_image"
@@ -686,12 +685,14 @@ export default {
             ) {
                 this.FilterErrors =
                     "Please select both Month and Year for the Monthly filter.";
+                    this.serachingLoading = false;
                 return;
             }
 
             if (this.selectedFilter === "Yearly" && !this.selectedYear) {
                 this.FilterErrors =
                     "Please select a Year for the Yearly filter.";
+                    this.serachingLoading = false;
                 return;
             }
 
@@ -701,6 +702,7 @@ export default {
             ) {
                 this.FilterErrors =
                     "Please select both Start Date and End Date for the Custom filter.";
+                    this.serachingLoading = false;
                 return;
             }
 
