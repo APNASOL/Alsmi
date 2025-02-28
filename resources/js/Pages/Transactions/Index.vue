@@ -33,6 +33,56 @@
                         All Transaction Entries
                     </h5>
                     <!-- Filter Section -->
+                    <div class="d-flex justify-content-end p-2">
+                        <!-- Export Buttons -->
+                        <div
+                            class="btn-group"
+                            role="group"
+                            v-if="
+                                transactionEntries && transactionEntries.length
+                            "
+                        >
+                            <button
+                                class="btn btn-primary"
+                                title="Download as Excel"
+                                @click="exportToExcel"
+                                :disabled="excelBtnLoader"
+                            >
+                                <span
+                                    v-if="excelBtnLoader"
+                                    class="spinner-border spinner-border-sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                ></span>
+                                <span v-if="!excelBtnLoader">
+                                    <i class="bi bi-file-earmark-excel"></i
+                                ></span>
+                            </button>
+                            <button
+                                class="btn btn-danger"
+                                title="Download as PDF"
+                                @click="exportToPDF"
+                                :disabled="pdfBtnLoader"
+                            >
+                                <span
+                                    v-if="pdfBtnLoader"
+                                    class="spinner-border spinner-border-sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                ></span>
+                                <span v-if="!pdfBtnLoader">
+                                    <i class="bi bi-file-earmark-pdf"></i
+                                ></span>
+                            </button>
+                            <button
+                                class="btn btn-secondary"
+                                title="Print"
+                                @click="printSlip"
+                            >
+                                <i class="bi bi-printer"></i>
+                            </button>
+                        </div>
+                    </div>
                     <div class="card card-body p-2">
                         <div
                             class="d-flex justify-content-between align-items-center c-filter"
@@ -140,49 +190,6 @@
                                     </button>
                                 </div>
                             </div>
-
-                            <!-- Export Buttons -->
-                            <div class="btn-group" role="group" v-if="transactionEntries && transactionEntries.length">
-                                <button
-                                    class="btn btn-primary"
-                                    title="Download as Excel"
-                                    @click="exportToExcel"
-                                    :disabled="excelBtnLoader"
-                                >
-                                    <span
-                                        v-if="excelBtnLoader"
-                                        class="spinner-border spinner-border-sm"
-                                        role="status"
-                                        aria-hidden="true"
-                                    ></span>
-                                    <span v-if="!excelBtnLoader">
-                                        <i class="bi bi-file-earmark-excel"></i
-                                    ></span>
-                                </button>
-                                <button
-                                    class="btn btn-danger"
-                                    title="Download as PDF"
-                                    @click="exportToPDF"
-                                    :disabled="pdfBtnLoader"
-                                >
-                                    <span
-                                        v-if="pdfBtnLoader"
-                                        class="spinner-border spinner-border-sm"
-                                        role="status"
-                                        aria-hidden="true"
-                                    ></span>
-                                    <span v-if="!pdfBtnLoader">
-                                        <i class="bi bi-file-earmark-pdf"></i
-                                    ></span>
-                                </button>
-                                <button
-                                    class="btn btn-secondary"
-                                    title="Print"
-                                    @click="printSlip"
-                                >
-                                    <i class="bi bi-printer"></i>
-                                </button>
-                            </div>
                         </div>
                         <span class="text-danger" v-if="FilterErrors">
                             {{ FilterErrors }}
@@ -234,7 +241,10 @@
                                     <td>{{ calculateBalance(index) }}</td>
                                     <td>
                                         <ImageZooming
-                                            :file="entry.receipt_image ?? '/images/default.jpg'"
+                                            :file="
+                                                entry.receipt_image ??
+                                                '/images/default.jpg'
+                                            "
                                             :width="100"
                                         />
                                     </td>
@@ -252,7 +262,7 @@
                                             >
                                                 <i class="bi bi-pencil"></i>
                                             </button>
-                                            
+
                                             <DeleteModal
                                                 :deleteId="entry.id"
                                                 @deleteThis="deleteThis"
@@ -374,7 +384,9 @@
                                         class="col-12 col-md-6"
                                         v-if="form.process_type == 'Expense'"
                                     >
-                                        <label class="form-label">{{ "Expense Type" }} </label>
+                                        <label class="form-label"
+                                            >{{ "Expense Type" }}
+                                        </label>
                                         <Multiselect
                                             v-model="form.expense_type"
                                             :options="ExpansTypesOpions"
@@ -440,7 +452,9 @@
                                     </div>
 
                                     <div class="col-12 col-md-6">
-                                        <label class="form-label">{{ "Payment Method" }} </label>
+                                        <label class="form-label"
+                                            >{{ "Payment Method" }}
+                                        </label>
                                         <Multiselect
                                             v-model="form.method"
                                             :options="methodTypesOpions"
@@ -514,12 +528,18 @@
                                         <br />
                                         <img
                                             v-if="form.receipt_image"
-                                            :src="form.receipt_image ?? '/images/default.jpg'"
+                                            :src="
+                                                form.receipt_image ??
+                                                '/images/default.jpg'
+                                            "
                                             :width="100"
                                         />
                                         <img
                                             v-else-if="existing_receipt_image"
-                                            :src="existing_receipt_image ?? '/images/default.jpg'"
+                                            :src="
+                                                existing_receipt_image ??
+                                                '/images/default.jpg'
+                                            "
                                             :width="100"
                                         />
                                         <img
@@ -658,7 +678,10 @@ export default {
                 { value: 11, label: "November" },
                 { value: 12, label: "December" },
             ],
-            yearsOptions: Array.from({ length: 2050 - 2025 + 1 }, (_, i) => 2025 + i),
+            yearsOptions: Array.from(
+                { length: 2050 - 2025 + 1 },
+                (_, i) => 2025 + i
+            ),
 
             existing_receipt_image: "",
             FilterErrors: "",
@@ -666,8 +689,7 @@ export default {
             pdfBtnLoader: false,
             excelBtnLoader: false,
             printBtnLoader: false,
-            today: new Date().toISOString().split("T")[0] // Get today's date in YYYY-MM-DD format
-
+            today: new Date().toISOString().split("T")[0], // Get today's date in YYYY-MM-DD format
         };
     },
     mounted() {
@@ -754,7 +776,7 @@ export default {
             return this.formatCurrency(balance);
         },
         submit() {
-            let formData = new FormData(); 
+            let formData = new FormData();
             // Helper function to handle null, undefined, or empty values
             const sanitizeValue = (value) =>
                 (value ?? "").toString().trim() === "" ? "" : value;
@@ -820,10 +842,10 @@ export default {
                 cash_out: "",
 
                 date: "",
-                receipt_image:"",
+                receipt_image: "",
             };
-            this.existing_receipt_image = '';
-             
+            this.existing_receipt_image = "";
+
             this.formErrors = [];
         },
         showEntry(entry_id) {

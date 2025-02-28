@@ -21,34 +21,88 @@
                     <h5 class="card-title theme-text-color">
                         Income Statement
                     </h5>
+                    <div class="d-flex justify-content-end p-2">
+                        <!-- Export Buttons -->
+                        <div
+                            class="btn-group"
+                            role="group"
+                            v-if="
+                                transactionEntries && transactionEntries.length
+                            "
+                        >
+                            <button
+                                class="btn btn-danger"
+                                title="Download as PDF"
+                                @click="exportToPDF"
+                                :disabled="pdfBtnLoader"
+                            >
+                                <span
+                                    v-if="pdfBtnLoader"
+                                    class="spinner-border spinner-border-sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                ></span>
+                                <span v-if="!pdfBtnLoader">
+                                    <i class="bi bi-file-earmark-pdf"></i
+                                ></span>
+                            </button>
+                        </div>
+                    </div>
                     <!-- Filter Section -->
                     <div class="card card-body p-2">
-                        <div
-                            class="d-flex justify-content-between align-items-center c-filter"
-                        >
-                            <!-- Filters Section -->
-                            <div class="d-flex align-items-center gap-2">
-                                <!-- Main Filter -->
-                                <div class="col-auto">
-                                    <Multiselect
-                                        v-model="selectedFilter"
-                                        :options="[
-                                            'Monthly',
-                                            'Yearly',
-                                            'Custom',
-                                        ]"
-                                        :searchable="true"
-                                        placeholder="Filter By"
-                                    />
-                                </div>
-
-                                <!-- Monthly Filter -->
-                                <div
-                                    class="col-auto d-flex gap-2"
-                                    v-if="selectedFilter === 'Monthly'"
-                                >
-                                    <!-- Year Dropdown for Monthly -->
+                        <div class="row">
+                            <div
+                                class="d-flex justify-content-between align-items-center c-filter"
+                            >
+                                <!-- Filters Section -->
+                                <div class="d-flex align-items-center gap-2">
+                                    <!-- Main Filter -->
                                     <div class="col-auto">
+                                        <Multiselect
+                                            v-model="selectedFilter"
+                                            :options="[
+                                                'Monthly',
+                                                'Yearly',
+                                                'Custom',
+                                            ]"
+                                            :searchable="true"
+                                            placeholder="Filter By"
+                                        />
+                                    </div>
+
+                                    <!-- Monthly Filter -->
+                                    <div
+                                        class="col-auto d-flex gap-2"
+                                        v-if="selectedFilter === 'Monthly'"
+                                    >
+                                        <!-- Year Dropdown for Monthly -->
+                                        <div class="col-auto">
+                                            <Multiselect
+                                                v-model="selectedYear"
+                                                :options="yearsOptions"
+                                                :searchable="true"
+                                                @clear="fetchTransactionEntries"
+                                                placeholder="Select Year"
+                                            />
+                                        </div>
+
+                                        <!-- Month Dropdown for Monthly -->
+                                        <div class="col-auto">
+                                            <Multiselect
+                                                v-model="selectedMonth"
+                                                :options="monthsOptions"
+                                                :searchable="true"
+                                                @clear="fetchTransactionEntries"
+                                                placeholder="Select Month"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <!-- Yearly Filter -->
+                                    <div
+                                        class="col-auto"
+                                        v-if="selectedFilter === 'Yearly'"
+                                    >
                                         <Multiselect
                                             v-model="selectedYear"
                                             :options="yearsOptions"
@@ -58,115 +112,45 @@
                                         />
                                     </div>
 
-                                    <!-- Month Dropdown for Monthly -->
-                                    <div class="col-auto">
-                                        <Multiselect
-                                            v-model="selectedMonth"
-                                            :options="monthsOptions"
-                                            :searchable="true"
-                                            @clear="fetchTransactionEntries"
-                                            placeholder="Select Month"
+                                    <!-- Custom Date Range -->
+                                    <div
+                                        class="col-auto d-flex gap-2"
+                                        v-if="selectedFilter === 'Custom'"
+                                    >
+                                        <input
+                                            type="date"
+                                            class="form-control"
+                                            id="date"
+                                            v-model="startDate"
+                                            placeholder="Start Date"
+                                        />
+                                        <input
+                                            type="date"
+                                            class="form-control"
+                                            id="date"
+                                            v-model="endDate"
+                                            placeholder="End Date"
                                         />
                                     </div>
-                                </div>
 
-                                <!-- Yearly Filter -->
-                                <div
-                                    class="col-auto"
-                                    v-if="selectedFilter === 'Yearly'"
-                                >
-                                    <Multiselect
-                                        v-model="selectedYear"
-                                        :options="yearsOptions"
-                                        :searchable="true"
-                                        @clear="fetchTransactionEntries"
-                                        placeholder="Select Year"
-                                    />
-                                </div>
-
-                                <!-- Custom Date Range -->
-                                <div
-                                    class="col-auto d-flex gap-2"
-                                    v-if="selectedFilter === 'Custom'"
-                                >
-                                    <input
-                                        type="date"
-                                        class="form-control"
-                                        id="date"
-                                        v-model="startDate"
-                                         
-                                        placeholder="Start Date"
-                                    />
-                                    <input
-                                        type="date"
-                                        class="form-control"
-                                        id="date"
-                                        v-model="endDate"
-                                         
-                                        placeholder="End Date"
-                                    />
-                                </div>
-
-                                <div class="col-auto">
-                                    <button
-                                        @click="fetchTransactionEntries"
-                                        class="btn btn-success"
-                                        :disabled="serachingLoading"
-                                    >
-                                        <span
-                                            v-if="serachingLoading"
-                                            class="spinner-border spinner-border-sm"
-                                            role="status"
-                                            aria-hidden="true"
-                                        ></span>
-                                        <span v-if="!serachingLoading"
-                                            >Search</span
+                                    <div class="col-auto">
+                                        <button
+                                            @click="fetchTransactionEntries"
+                                            class="btn btn-success"
+                                            :disabled="serachingLoading"
                                         >
-                                    </button>
+                                            <span
+                                                v-if="serachingLoading"
+                                                class="spinner-border spinner-border-sm"
+                                                role="status"
+                                                aria-hidden="true"
+                                            ></span>
+                                            <span v-if="!serachingLoading"
+                                                >Search</span
+                                            >
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <!-- Export Buttons -->
-                            <div class="btn-group" role="group"  v-if="transactionEntries && transactionEntries.length">
-                                <!-- <button
-                                    class="btn btn-primary"
-                                    title="Download as Excel"
-                                    @click="exportToExcel"
-                                    :disabled="excelBtnLoader"
-                                >
-                                    <span
-                                        v-if="excelBtnLoader"
-                                        class="spinner-border spinner-border-sm"
-                                        role="status"
-                                        aria-hidden="true"
-                                    ></span>
-                                    <span v-if="!excelBtnLoader">
-                                        <i class="bi bi-file-earmark-excel"></i
-                                    ></span>
-                                </button> -->
-                                <button
-                                    class="btn btn-danger"
-                                    title="Download as PDF"
-                                    @click="exportToPDF"
-                                    :disabled="pdfBtnLoader"
-                                >
-                                    <span
-                                        v-if="pdfBtnLoader"
-                                        class="spinner-border spinner-border-sm"
-                                        role="status"
-                                        aria-hidden="true"
-                                    ></span>
-                                    <span v-if="!pdfBtnLoader">
-                                        <i class="bi bi-file-earmark-pdf"></i
-                                    ></span>
-                                </button>
-                                <!-- <button
-                                    class="btn btn-secondary"
-                                    title="Print"
-                                    @click="printSlip"
-                                >
-                                    <i class="bi bi-printer"></i>
-                                </button> -->
                             </div>
                         </div>
                         <span class="text-danger" v-if="FilterErrors">
@@ -178,7 +162,6 @@
 
                     <div v-if="transactionEntries.length">
                         <table class="table table-bordered">
-                        
                             <thead>
                                 <tr>
                                     <th colspan="2">Title</th>
@@ -261,8 +244,11 @@ export default {
                 { value: 11, label: "November" },
                 { value: 12, label: "December" },
             ],
-            
-            yearsOptions: Array.from({ length: 2050 - 2025 + 1 }, (_, i) => 2025 + i),
+
+            yearsOptions: Array.from(
+                { length: 2050 - 2025 + 1 },
+                (_, i) => 2025 + i
+            ),
 
             transactionEntries: [],
             totalIncome: 0, // Total Income
@@ -410,8 +396,8 @@ export default {
         //     XLSX.writeFile(wb, "income_statement.xlsx");
         // },
 
-       // Export to PDF
-       exportToPDF() {
+        // Export to PDF
+        exportToPDF() {
             this.pdfBtnLoader = true;
             let formData = new FormData();
 

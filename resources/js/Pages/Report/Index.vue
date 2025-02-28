@@ -21,10 +21,56 @@
                     <h5 class="card-title theme-text-color">
                         All Transaction & Reports  {{ selectedFilter }}
                     </h5>
+                     <!-- Filter Section -->
+                     <div class="d-flex justify-content-end p-2">
+                        
+                    <!-- Export Buttons -->
+                    <div class="btn-group" role="group"  v-if="transactionEntries && transactionEntries.length">
+                                <button
+                                    class="btn btn-primary"
+                                    title="Download as Excel"
+                                    @click="exportToExcel"
+                                    :disabled="excelBtnLoader"
+                                >
+                                    <span
+                                        v-if="excelBtnLoader"
+                                        class="spinner-border spinner-border-sm"
+                                        role="status"
+                                        aria-hidden="true"
+                                    ></span>
+                                    <span v-if="!excelBtnLoader">
+                                        <i class="bi bi-file-earmark-excel"></i
+                                    ></span>
+                                </button>
+                                <button
+                                    class="btn btn-danger"
+                                    title="Download as PDF"
+                                    @click="exportToPDF"
+                                    :disabled="pdfBtnLoader"
+                                >
+                                    <span
+                                        v-if="pdfBtnLoader"
+                                        class="spinner-border spinner-border-sm"
+                                        role="status"
+                                        aria-hidden="true"
+                                    ></span>
+                                    <span v-if="!pdfBtnLoader">
+                                        <i class="bi bi-file-earmark-pdf"></i
+                                    ></span>
+                                </button>
+                                <button
+                                    class="btn btn-secondary"
+                                    title="Print"
+                                    @click="printSlip"
+                                >
+                                    <i class="bi bi-printer"></i>
+                                </button>
+                            </div>
+                    </div>
                     <!-- Filter Section -->
-                    <div class="card card-body p-2">
+                    <div class="card card-body p-2 ">
                         <div
-                            class="d-flex justify-content-between align-items-center c-filter"
+                            class="d-flex justify-content-between align-items-center c-filter col-12"
                         >
                             <!-- Filters Section -->
                             <div class="d-flex align-items-center gap-2">
@@ -127,48 +173,7 @@
                                 </div>
                             </div>
 
-                            <!-- Export Buttons -->
-                            <div class="btn-group" role="group"  v-if="transactionEntries && transactionEntries.length">
-                                <button
-                                    class="btn btn-primary"
-                                    title="Download as Excel"
-                                    @click="exportToExcel"
-                                    :disabled="excelBtnLoader"
-                                >
-                                    <span
-                                        v-if="excelBtnLoader"
-                                        class="spinner-border spinner-border-sm"
-                                        role="status"
-                                        aria-hidden="true"
-                                    ></span>
-                                    <span v-if="!excelBtnLoader">
-                                        <i class="bi bi-file-earmark-excel"></i
-                                    ></span>
-                                </button>
-                                <button
-                                    class="btn btn-danger"
-                                    title="Download as PDF"
-                                    @click="exportToPDF"
-                                    :disabled="pdfBtnLoader"
-                                >
-                                    <span
-                                        v-if="pdfBtnLoader"
-                                        class="spinner-border spinner-border-sm"
-                                        role="status"
-                                        aria-hidden="true"
-                                    ></span>
-                                    <span v-if="!pdfBtnLoader">
-                                        <i class="bi bi-file-earmark-pdf"></i
-                                    ></span>
-                                </button>
-                                <button
-                                    class="btn btn-secondary"
-                                    title="Print"
-                                    @click="printSlip"
-                                >
-                                    <i class="bi bi-printer"></i>
-                                </button>
-                            </div>
+                            
                         </div>
                         <span class="text-danger" v-if="FilterErrors">
                             {{ FilterErrors }}
