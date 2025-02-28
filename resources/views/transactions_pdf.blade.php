@@ -87,14 +87,14 @@
             <thead>
                 <tr>
                     <th>#</th>
+                    <th>Date</th>
                     <th>Ref No</th>
                     <th>Description</th>
-                    <th>Transaction Date</th>
+                    <th>Method</th>
                     <th>Cash In</th>
                     <th>Cash Out</th>
                     <th>Balance</th>
-                    <th>Method</th>
-                    <th>Remarks</th>
+                    
                 </tr>
             </thead>
             <tbody>
@@ -113,14 +113,14 @@
                     @endphp
                     <tr>
                         <td>{{ $index + 1 }}</td>
+                        <td>{{ \Carbon\Carbon::parse($transaction->transaction_date)->format('d-M-Y') }}</td>
                         <td>{{ $transaction->ref_no }}</td>
                         <td>{{ $transaction->remarks ?? 'N/A' }}</td>
-                        <td>{{ \Carbon\Carbon::parse($transaction->transaction_date)->format('d-M-Y') }}</td>
+                        <td>{{ $transaction->method }}</td>
                         <td>{{ $cashIn ?  number_format($cashIn) : '-' }}</td>
                         <td>{{ $cashOut ?  number_format($cashOut) : '-' }}</td>
                         <td>{{  number_format($balance) }}</td>
-                        <td>{{ $transaction->method }}</td>
-                        <td>{{ $transaction->remarks }}</td>
+                     
                     </tr>
                 @endforeach
             </tbody>

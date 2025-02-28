@@ -617,6 +617,7 @@ export default {
     },
     data() {
         return {
+            today: this.getPakistanDate(),
             transactionEntries: [],
             selectedFilter: "",
             selectedMonth: "",
@@ -689,7 +690,6 @@ export default {
             pdfBtnLoader: false,
             excelBtnLoader: false,
             printBtnLoader: false,
-            today: new Date().toISOString().split("T")[0], // Get today's date in YYYY-MM-DD format
         };
     },
     mounted() {
@@ -697,6 +697,24 @@ export default {
     },
 
     methods: {
+        getPakistanDate() {
+            // Get the current date in Pakistan Standard Time (Asia/Karachi)
+            let formatter = new Intl.DateTimeFormat("en-CA", {
+                timeZone: "Asia/Karachi",
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+            });
+
+            // Format it correctly for the <input type="date">
+            let parts = formatter.formatToParts(new Date());
+
+            let year = parts.find((p) => p.type === "year").value;
+            let month = parts.find((p) => p.type === "month").value;
+            let day = parts.find((p) => p.type === "day").value;
+
+            return `${year}-${month}-${day}`; // YYYY-MM-DD format
+        },
         clearProcessType() {
             this.form.cash_in = "";
             this.form.cash_out = "";
