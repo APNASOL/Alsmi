@@ -512,14 +512,19 @@
                                         />
 
                                         <br />
-                                        <ImageZooming
+                                        <img
                                             v-if="form.receipt_image"
-                                            :file="form.receipt_image ?? '/images/default.jpg'"
+                                            :src="form.receipt_image ?? '/images/default.jpg'"
                                             :width="100"
                                         />
-                                        <ImageZooming
+                                        <img
+                                            v-else-if="existing_receipt_image"
+                                            :src="existing_receipt_image ?? '/images/default.jpg'"
+                                            :width="100"
+                                        />
+                                        <img
                                             v-else
-                                            :file="existing_receipt_image ?? '/images/default.jpg'"
+                                            :src="'/images/default.jpg'"
                                             :width="100"
                                         />
 

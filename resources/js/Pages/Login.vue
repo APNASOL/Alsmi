@@ -6,7 +6,7 @@
         rel="stylesheet"
     />
 
-    <main>
+    <main class="bg-template">
         <div class="container">
             <section
                 class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4"
@@ -16,7 +16,7 @@
                         <div
                             class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center"
                         >
-                            <div
+                            <!-- <div
                                 style="
                                     background: yellow;
                                     padding: 10px;
@@ -27,22 +27,22 @@
                                 The system is currently in the testing and
                                 configuration phase. Some features may not work
                                 as expected.
-                            </div>
+                            </div> -->
 
-                            <div class="d-flex justify-content-center py-4">
-                                <a :href="route('/')">
-                                    <img
-                                        src="/images/logo.png"
-                                        height="150"
-                                        alt="logo"
-                                    />
-                                </a>
-                            </div>
                             <!-- End Logo -->
-
+                            
                             <div class="card mb-3">
+                                <div class="d-flex justify-content-center py-4">
+                                    <a :href="route('/')">
+                                        <img
+                                            src="/images/logo.png"
+                                            height="100"
+                                            alt="logo"
+                                        />
+                                    </a>
+                                </div>
                                 <div class="card-body">
-                                    <div class="pt-4 pb-2">
+                                    <div class="pb-2">
                                         <h5
                                             class="card-title text-center pb-0 fs-4"
                                         >
@@ -290,4 +290,55 @@ export default {
 .theme-bg-color {
     background-color: rgb(13, 32, 201) !important;
 }
+</style>
+<style scope>
+.bg-template {
+    position: relative;
+    background: url('/images/alshahamahospital.jpg') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.bg-template::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3); /* Red overlay with 30% opacity */
+}
+
+.btn-success {
+    background-color: #012970 !important;
+    border-color: #012970 !important;
+}
+
+.btn-success:hover {
+    background-color: #012970 !important;
+    border-color: #012970 !important;
+}
+
+.btn-success:active {
+    background-color: #012970 !important;
+    border-color: #012970 !important;
+}
+
+.btn-success:focus {
+    color: #fff !important;
+    box-shadow: none !important;
+}
+.toast-success {
+    background-color: #012970 !important;
+}
+.theme-text-color {
+    color: #012970 !important;
+    font-weight: bold;
+}
+.theme-bg-color {
+    background-color: #012970 !important;
+}
+.text-primary {
+    color: #012970 !important;
+}
+
 </style>
