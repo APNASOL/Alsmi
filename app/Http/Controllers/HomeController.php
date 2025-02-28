@@ -172,18 +172,26 @@ class HomeController extends Controller
         ]);
     }
 
+    // public function logout_user(Request $request)
+    // {
+
+    //     if (Auth::check()) {
+    //         Auth::user()->tokens()->delete();
+    //     }
+
+    //     Auth::guard('web')->logout();
+    //     $request->session()->flush();
+    //     session()->forget('auth_token');
+    // }
+
     public function logout_user(Request $request)
     {
-
-        if (Auth::check()) {
-            Auth::user()->tokens()->delete();
-        }
-
-        Auth::guard('web')->logout();
-        $request->session()->flush();
-        session()->forget('auth_token');
+        // dd($request);
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return 'success';
     }
-
     public function forgotPassword()
     {
         return Inertia::render('Backend/forgotPassword');

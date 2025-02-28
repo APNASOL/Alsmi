@@ -142,7 +142,7 @@
                             </div>
 
                             <!-- Export Buttons -->
-                            <div class="btn-group" role="group">
+                            <div class="btn-group" role="group" v-if="transactionEntries && transactionEntries.length">
                                 <button
                                     class="btn btn-primary"
                                     title="Download as Excel"
@@ -232,8 +232,7 @@
                                         }}
                                     </td>
                                     <td>{{ calculateBalance(index) }}</td>
-                                    <td> 
-                                            
+                                    <td>
                                         <ImageZooming
                                             :file="entry.receipt_image"
                                             :width="100"
@@ -375,7 +374,7 @@
                                         class="col-12 col-md-6"
                                         v-if="form.process_type == 'Expense'"
                                     >
-                                        <label>{{ "Expense Type" }} </label>
+                                        <label class="form-label">{{ "Expense Type" }} </label>
                                         <Multiselect
                                             v-model="form.expense_type"
                                             :options="ExpansTypesOpions"
@@ -441,7 +440,7 @@
                                     </div>
 
                                     <div class="col-12 col-md-6">
-                                        <label>{{ "Payment Method" }} </label>
+                                        <label class="form-label">{{ "Payment Method" }} </label>
                                         <Multiselect
                                             v-model="form.method"
                                             :options="methodTypesOpions"
@@ -486,6 +485,7 @@
                                         <input
                                             type="date"
                                             class="form-control"
+                                            :max="today"
                                             id="date"
                                             v-model="form.date"
                                             :class="{
@@ -511,7 +511,6 @@
                                             accept=".jpg,.jpeg,.png"
                                         />
 
-                                        
                                         <br />
                                         <ImageZooming
                                             v-if="form.receipt_image"
@@ -664,6 +663,8 @@ export default {
             pdfBtnLoader: false,
             excelBtnLoader: false,
             printBtnLoader: false,
+            today: new Date().toISOString().split("T")[0] // Get today's date in YYYY-MM-DD format
+
         };
     },
     mounted() {
@@ -685,14 +686,14 @@ export default {
             ) {
                 this.FilterErrors =
                     "Please select both Month and Year for the Monthly filter.";
-                    this.serachingLoading = false;
+                this.serachingLoading = false;
                 return;
             }
 
             if (this.selectedFilter === "Yearly" && !this.selectedYear) {
                 this.FilterErrors =
                     "Please select a Year for the Yearly filter.";
-                    this.serachingLoading = false;
+                this.serachingLoading = false;
                 return;
             }
 
@@ -702,7 +703,7 @@ export default {
             ) {
                 this.FilterErrors =
                     "Please select both Start Date and End Date for the Custom filter.";
-                    this.serachingLoading = false;
+                this.serachingLoading = false;
                 return;
             }
 
@@ -752,25 +753,34 @@ export default {
         submit() {
             let formData = new FormData();
 
-// Helper function to handle null, undefined, or empty values
-const sanitizeValue = (value) => (value ?? "").toString().trim() === "" ? "" : value;
+            // Helper function to handle null, undefined, or empty values
+            const sanitizeValue = (value) =>
+                (value ?? "").toString().trim() === "" ? "" : value;
 
-formData.append("id", sanitizeValue(this.form.id));
-formData.append("cash_in", sanitizeValue(this.form.cash_in));
-formData.append("cash_out", sanitizeValue(this.form.cash_out));
-formData.append("date", sanitizeValue(this.form.date));
-formData.append("ref_no", sanitizeValue(this.form.ref_no));
-formData.append("method", sanitizeValue(this.form.method));
-formData.append("remarks", sanitizeValue(this.form.remarks));
-formData.append("expense_type", sanitizeValue(this.form.expense_type));
-formData.append("income_type", sanitizeValue(this.form.income_type));
-formData.append("process_type", sanitizeValue(this.form.process_type));
+            formData.append("id", sanitizeValue(this.form.id));
+            formData.append("cash_in", sanitizeValue(this.form.cash_in));
+            formData.append("cash_out", sanitizeValue(this.form.cash_out));
+            formData.append("date", sanitizeValue(this.form.date));
+            formData.append("ref_no", sanitizeValue(this.form.ref_no));
+            formData.append("method", sanitizeValue(this.form.method));
+            formData.append("remarks", sanitizeValue(this.form.remarks));
+            formData.append(
+                "expense_type",
+                sanitizeValue(this.form.expense_type)
+            );
+            formData.append(
+                "income_type",
+                sanitizeValue(this.form.income_type)
+            );
+            formData.append(
+                "process_type",
+                sanitizeValue(this.form.process_type)
+            );
 
-// Append image only if it exists
-if (this.form.receipt_image) {
-    formData.append("receipt_image", this.form.receipt_image);
-}
-
+            // Append image only if it exists
+            if (this.form.receipt_image) {
+                formData.append("receipt_image", this.form.receipt_image);
+            }
 
             // this.formStatus = 0;
             axios
@@ -789,6 +799,7 @@ if (this.form.receipt_image) {
                     this.formStatus = 1;
                     toastr.error(error.response.data.message);
                     this.formErrors = error.response.data.errors;
+                    console.log(this.formErrors);
                     console.log(this.formErrors);
                 });
         },
@@ -816,16 +827,15 @@ if (this.form.receipt_image) {
                 .then((response) => {
                     console.log(response.data);
 
-                   
                     this.form = {
                         id: response.data.id,
                         cash_in: parseInt(response.data.cash_in),
                         cash_out: response.data.cash_out,
-                        date: response.data.transaction_date,  
+                        date: response.data.transaction_date,
                         ref_no: response.data.ref_no,
                         method: response.data.method,
                         remarks: response.data.remarks,
-                        expense_type: response.data.expense_type || "",  
+                        expense_type: response.data.expense_type || "",
                         income_type: response.data.income_type || "",
                         process_type: response.data.process_type || "",
                     };

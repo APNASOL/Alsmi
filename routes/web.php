@@ -31,9 +31,15 @@ use Inertia\Inertia;
 });
 
 Route::get('/', [HomeController::class, 'index'])->name('/');
-Route::get('/login', [HomeController::class, 'index'])->name('login');
-Route::middleware(['web'])->group(function () {
 
+
+Route::get('/login', [HomeController::class, 'index'])->name('login');
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    
+    Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+    Route::get('/profile/show/{id}', [UserController::class, 'profile_show'])->name('api.profile.show');
+    Route::post('/profile/update', [UserController::class, 'profile_update'])->name('api.profile.update');
     // Dashboard Routes
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 

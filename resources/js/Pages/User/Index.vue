@@ -49,7 +49,7 @@
                                     :key="user.id"
                                 >
                                     <th class="text-center">{{ index + 1 }}</th>
-                                    <td>{{ user.name }}</td>
+                                    <td>{{ user.first_name }} {{ user.last_name }}</td>
                                     <td>{{ user.email }}</td>
                                     <td>{{ user.role }}</td>
 
@@ -64,11 +64,9 @@
                                                 <i class="bi bi-pencil"></i>
                                             </Link> -->
                                             <!-- <DeleteModal v-if="restrictAdmin(user.role,$page.props.user.role)" :deleteId="user.id"  @deleteThis="deleteThis"></DeleteModal> -->
+                                           
                                             <Link
-                                                v-if="
-                                                    user.role == 'admin' ||
-                                                    user.role == 'super admin'
-                                                "
+                                                 v-if="$page.props.user.role == 'admin' && user.role != 'admin'"
                                                 type="button"
                                                 class="btn btn-sm fs-6"
                                                 :title="'Edit'"
@@ -82,10 +80,7 @@
                                                 <i class="bi bi-pencil"></i>
                                             </Link>
                                             <DeleteModal
-                                                v-if="
-                                                    user.role == 'admin' ||
-                                                    user.role == 'super admin'
-                                                "
+                                                v-if="$page.props.user.role == 'admin'  && user.role != 'admin'"
                                                 :deleteId="user.id"
                                                 @deleteThis="deleteThis"
                                             ></DeleteModal>

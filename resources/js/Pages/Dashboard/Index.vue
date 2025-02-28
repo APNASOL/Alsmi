@@ -157,11 +157,14 @@ export default {
             last6MonthsData: [],
             last12MonthsData: [],
             selectedFilter: "3", // Default to last 3 months
+            titleCashIn: "Current Month Cash In",
+            titleCashIn: "Current Month Cash Out",
             titleCashIn: "Last 3 Months Cash In",
             titleCashOut: "Last 3 Months Cash Out",
             titleBalance: "Last 3 Months Balance",
             filterLabel: "Last 3 Months",
             filterOptions: [
+                { value: "1", label: "Current Month" },
                 { value: "3", label: "Last 3 Months" },
                 { value: "6", label: "Last 6 Months" },
                 { value: "12", label: "Last 1 Year" },

@@ -29,35 +29,26 @@
                             href="#"
                             data-bs-toggle="dropdown"
                         >
-                            <img
+                            <!-- <img
                                 :src="'/backend/assets/img/profile-img.jpg'"
                                 alt="Profile"
                                 class="rounded-circle"
-                            />
+                            /> -->
                             <span class="d-none d-md-block dropdown-toggle ps-2"
-                                >K. Anderson</span
+                                >{{ $page.props.user.first_name }}
+                                {{ $page.props.user.last_name }}</span
                             > </a
                         ><!-- End Profile Iamge Icon -->
 
                         <ul
                             class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile"
                         >
-                            <li class="dropdown-header">
-                                <h6>Admin</h6>
-                                <span>Account Officer</span>
-                            </li>
-                            <li>
-                                <hr class="dropdown-divider" />
-                            </li>
-
-                            <li>
-                                <hr class="dropdown-divider" />
-                            </li>
-
+                         
+                           
                             <li>
                                 <a
                                     class="dropdown-item d-flex align-items-center"
-                                    href="users-profile.html"
+                                    href="/profile"
                                 >
                                     <i class="bi bi-gear"></i>
                                     <span>Account Settings</span>

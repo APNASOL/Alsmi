@@ -128,7 +128,7 @@
                             </div>
 
                             <!-- Export Buttons -->
-                            <div class="btn-group" role="group">
+                            <div class="btn-group" role="group"  v-if="transactionEntries && transactionEntries.length">
                                 <button
                                     class="btn btn-primary"
                                     title="Download as Excel"

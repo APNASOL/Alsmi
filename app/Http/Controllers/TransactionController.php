@@ -116,7 +116,7 @@ class TransactionController extends Controller
 
     // Store or update a transaction entry
     public function store(Request $request)
-    {
+    { 
         // Validate the incoming request
         $request->validate([
             'process_type' => 'required',
@@ -171,7 +171,7 @@ class TransactionController extends Controller
         $transaction->ref_no           = $request->ref_no;
         $transaction->method           = $request->method;
         $transaction->remarks          = $request->remarks;
-        $transaction->user_id          = 1;
+        $transaction->user_id          = auth()->user()->id;
 
         // Handle receipt image
         if ($request->receipt_image) {
