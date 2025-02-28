@@ -290,7 +290,7 @@ class TransactionController extends Controller
 
         // Fetch all records if no filter is applied
         $transactions = $query->get();
-
+ 
         // Generate the PDF
         $pdf = PDF::loadView('transactions_pdf', compact(
             'transactions',

@@ -86,14 +86,14 @@
         <table>
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Date</th>
-                    <th>Ref No</th>
-                    <th>Description</th>
-                    <th>Method</th>
-                    <th>Cash In</th>
-                    <th>Cash Out</th>
-                    <th>Balance</th>
+                    <th style="font-size:12px">#</th>
+                    <th style="font-size:12px">Date</th>
+                    <th style="font-size:12px">Ref No</th>
+                    <th style="font-size:12px">Description</th>
+                    <th style="font-size:12px">Method</th>
+                    <th style="font-size:12px">Cash In</th>
+                    <th style="font-size:12px">Cash Out</th>
+                    <th style="font-size:12px">Balance</th>
                     
                 </tr>
             </thead>
@@ -112,14 +112,14 @@
                         $totalCashOut += $cashOut;
                     @endphp
                     <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td>{{ \Carbon\Carbon::parse($transaction->transaction_date)->format('d-M-Y') }}</td>
-                        <td>{{ $transaction->ref_no }}</td>
-                        <td>{{ $transaction->remarks ?? 'N/A' }}</td>
-                        <td>{{ $transaction->method }}</td>
-                        <td>{{ $cashIn ?  number_format($cashIn) : '-' }}</td>
-                        <td>{{ $cashOut ?  number_format($cashOut) : '-' }}</td>
-                        <td>{{  number_format($balance) }}</td>
+                        <td style="font-size:10px">{{ $index + 1 }}</td>
+                        <td style="font-size:10px">{{ \Carbon\Carbon::parse($transaction->transaction_date)->format('d-M-Y') }}</td>
+                        <td style="font-size:10px">{{ $transaction->ref_no }}</td>
+                        <td style="font-size:10px">{{ $transaction->remarks ?? 'N/A' }}</td>
+                        <td style="font-size:10px">{{ $transaction->method }}</td>
+                        <td style="font-size:10px">{{ $cashIn ?  number_format($cashIn) : '-' }}</td>
+                        <td style="font-size:10px">{{ $cashOut ?  number_format($cashOut) : '-' }}</td>
+                        <td style="font-size:10px">{{  number_format($balance) }}</td>
                      
                     </tr>
                 @endforeach

@@ -82,21 +82,21 @@
     <table>
         <thead>
             <tr>
-                <th>#</th>
-                <th>{{ $selectedFilter == 'Yearly' ? 'Month' : 'Date' }}</th>
-                <th>Income</th>
-                <th>Expense</th>
-                <th>Balance</th>
+                <th style="font-size:12px">#</th>
+                <th style="font-size:12px">{{ $selectedFilter == 'Yearly' ? 'Month' : 'Date' }}</th>
+                <th style="font-size:12px">Income</th>
+                <th style="font-size:12px">Expense</th>
+                <th style="font-size:12px">Balance</th>
             </tr>
         </thead>
         <tbody>
             @foreach($transactions as $index => $entry)
                 <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ $entry['date'] }}</td>
-                    <td>{{ number_format($entry['income'], 2) }}</td>
-                    <td>{{ number_format($entry['expense'], 2) }}</td>
-                    <td>{{ number_format($entry['balance'], 2) }}</td>
+                    <td style="font-size:12px">{{ $index + 1 }}</td>
+                    <td style="font-size:12px">{{ $entry['date'] }}</td>
+                    <td style="font-size:12px">{{ number_format($entry['income'], 2) }}</td>
+                    <td style="font-size:12px">{{ number_format($entry['expense'], 2) }}</td>
+                    <td style="font-size:12px">{{ number_format($entry['balance'], 2) }}</td>
                 </tr>
             @endforeach
         </tbody>
