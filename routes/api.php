@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IncomeExpenseController;
 use App\Http\Controllers\IncomeStatementController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\DashboardController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -26,7 +27,9 @@ Route::post('login', [HomeController::class, 'login'])->name('api.login');
 Route::middleware(['web'])->group(function () {
     Route::post('/logout', [HomeController::class, 'logout_user'])->name('api.logout');
     
-    Route::get('/dashbaord/transaction/fetch', [TransactionController::class, 'dashboard_fetch'])->name('api.dashbaord.transaction.fetch');    
+    Route::get('/dashbaord/transaction/fetch', [DashboardController::class, 'dashboard_fetch'])->name('api.dashbaord.transaction.fetch');    
+    Route::get('/dashbaord/income/details/fetch', [DashboardController::class, 'income_details'])->name('api.dashboard.income.details.fetch');    
+    Route::get('/dashbaord/expense/details/fetch', [DashboardController::class, 'expense_details'])->name('api.dashboard.expense.details.fetch');    
              // Fetch all transaction entries
     // Users Api
     Route::get('/users/fetch', [UserController::class, 'users_fetch'])->name('api.users.fetch');

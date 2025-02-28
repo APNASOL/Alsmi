@@ -10,6 +10,9 @@ class IncomeType extends Model
     use HasFactory;
     public $incrementing=false;
     protected $table = 'income_types';
-    
+    public function incomes()
+    {
+        return $this->hasMany(Income::class, 'income_type_id');
+    }
 }
 

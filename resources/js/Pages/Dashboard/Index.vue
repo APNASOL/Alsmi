@@ -17,7 +17,83 @@
             <section class="section dashboard">
                 <div class="row">
                     <!-- Filter -->
-                    <div class="d-flex justify-content-end mb-3">
+
+                    <!-- Top Boxes -->
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-12 col-md-6">
+                                <div class="card info-card bg-white h-100">
+                                    <!-- Ensure same height -->
+                                    <div class="card-body d-flex flex-column">
+                                        <div
+                                            class="d-flex align-items-center justify-content-between"
+                                        >
+                                            <h6>Incomes</h6>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <!-- Ensures content stretches -->
+                                            <h5 class="card-title">
+                                                Total: {{ incomeTypeTotal }}
+                                            </h5>
+
+                                            <div
+                                                v-for="income in incomeTypeDetails"
+                                                :key="income.id"
+                                                class="d-flex justify-content-between border-bottom py-1"
+                                            >
+                                                <span>{{ income.name }}</span>
+                                                <span>
+                                                    {{
+                                                        income.total_income_type
+                                                    }}
+                                                    ({{
+                                                        income.percentage_of_total
+                                                    }}%)
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="card info-card bg-white h-100">
+                                    <!-- Ensure same height -->
+                                    <div class="card-body d-flex flex-column">
+                                        <div
+                                            class="d-flex align-items-center justify-content-between"
+                                        >
+                                            <h6>Expense</h6>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <!-- Ensures content stretches -->
+                                            <h5 class="card-title">
+                                                Total: {{ expenseTypeTotal }}
+                                            </h5>
+
+                                            <div
+                                                v-for="expense in expenseTypeDetails"
+                                                :key="expense.id"
+                                                class="d-flex justify-content-between border-bottom py-1"
+                                            >
+                                                <span>{{ expense.name }}</span>
+                                                <span>
+                                                    {{
+                                                        expense.total_expense_type
+                                                    }}
+                                                    ({{
+                                                        expense.percentage_of_total
+                                                    }}%)
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mb-3 mt-3">
                         <div class="col-md-3">
                             <Multiselect
                                 v-model="selectedFilter"
@@ -28,12 +104,10 @@
                             />
                         </div>
                     </div>
-
-                    <!-- Top Boxes -->
                     <div class="col-lg-12">
                         <div class="row">
                             <div class="col-xxl-4 col-md-4">
-                                <div class="card info-card">
+                                <div class="card info-card bg-white">
                                     <div class="card-body">
                                         <h5 class="card-title">Cash In</h5>
                                         <div
@@ -54,7 +128,7 @@
                                 </div>
                             </div>
                             <div class="col-xxl-4 col-md-4">
-                                <div class="card info-card">
+                                <div class="card info-card bg-white">
                                     <div class="card-body">
                                         <h5 class="card-title">Cash Out</h5>
                                         <div
@@ -73,7 +147,7 @@
                                 </div>
                             </div>
                             <div class="col-xxl-4 col-md-4">
-                                <div class="card info-card">
+                                <div class="card info-card bg-white">
                                     <div class="card-body">
                                         <h5 class="card-title">Balance</h5>
                                         <div
@@ -151,6 +225,9 @@ export default {
     data() {
         return {
             transactionEntries: [],
+            incomeTypeDetails: [],
+            incomeTypeTotal: 0,
+            expenseDetails: [],
             cashIn: 0,
             cashOut: 0,
             balance: 0,
@@ -180,6 +257,30 @@ export default {
             }).format(value);
         },
 
+        fetchExpenseDetails() {
+            axios
+                .get(route("api.dashboard.expense.details.fetch"))
+                .then((response) => {
+                    this.expenseDetails = response.data || [];
+                    this.expenseTypeDetails = response.data.expense_types;
+                    this.expenseTypeTotal = response.data.total_expense;
+                })
+                .catch((error) => {
+                    console.error("Error fetching transactions:", error);
+                });
+        },
+        fetchIncomeDetails() {
+            axios
+                .get(route("api.dashboard.income.details.fetch"))
+                .then((response) => {
+                    console.log(response.data);
+                    this.incomeTypeDetails = response.data.income_types;
+                    this.incomeTypeTotal = response.data.total_income;
+                })
+                .catch((error) => {
+                    console.error("Error fetching transactions:", error);
+                });
+        },
         applyFilter() {
             if (this.selectedFilter === "all") {
                 // Set filter label and titles for overall data
@@ -472,45 +573,44 @@ export default {
         },
 
         groupDataByMonths(entries, months) {
-    const groupedData = [];
-    const currentDate = new Date();
+            const groupedData = [];
+            const currentDate = new Date();
 
-    const formatMonth = new Intl.DateTimeFormat("en-US", {
-        month: "short", // Abbreviated month name (e.g., Jan, Feb)
-        year: "numeric", // Full year (e.g., 2025)
-    });
+            const formatMonth = new Intl.DateTimeFormat("en-US", {
+                month: "short", // Abbreviated month name (e.g., Jan, Feb)
+                year: "numeric", // Full year (e.g., 2025)
+            });
 
-    for (let i = 0; i < months; i++) {
-        const month = new Date();
-        month.setMonth(currentDate.getMonth() - i);
-        const monthLabel = formatMonth.format(month);
+            for (let i = 0; i < months; i++) {
+                const month = new Date();
+                month.setMonth(currentDate.getMonth() - i);
+                const monthLabel = formatMonth.format(month);
 
-        groupedData.push({
-            label: monthLabel,
-            income: 0,
-            expense: 0,
-        });
-    }
+                groupedData.push({
+                    label: monthLabel,
+                    income: 0,
+                    expense: 0,
+                });
+            }
 
-    entries.forEach((entry) => {
-        const entryDate = new Date(entry.transaction_date);
-        const monthLabel = formatMonth.format(entryDate);
+            entries.forEach((entry) => {
+                const entryDate = new Date(entry.transaction_date);
+                const monthLabel = formatMonth.format(entryDate);
 
-        const groupIndex = groupedData.findIndex(
-            (item) => item.label === monthLabel
-        );
+                const groupIndex = groupedData.findIndex(
+                    (item) => item.label === monthLabel
+                );
 
-        if (groupIndex !== -1) {
-            groupedData[groupIndex].income +=
-                parseFloat(entry.cash_in) || 0;
-            groupedData[groupIndex].expense +=
-                parseFloat(entry.cash_out) || 0;
-        }
-    });
+                if (groupIndex !== -1) {
+                    groupedData[groupIndex].income +=
+                        parseFloat(entry.cash_in) || 0;
+                    groupedData[groupIndex].expense +=
+                        parseFloat(entry.cash_out) || 0;
+                }
+            });
 
-    return groupedData;
-}
-,
+            return groupedData;
+        },
     },
     mounted() {
         this.fetchTransactionEntries();
@@ -522,6 +622,10 @@ export default {
         selectedFilter() {
             this.applyFilter();
         },
+    },
+    created() {
+        this.fetchIncomeDetails();
+        this.fetchExpenseDetails();
     },
 };
 </script>

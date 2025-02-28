@@ -10,6 +10,10 @@ class ExpenseType extends Model
     use HasFactory;
     public $incrementing=false;
     protected $table = 'expense_types';
+    public function expenses()
+    {
+        return $this->hasMany(Expense::class, 'expense_type_id');
+    }
     
 }
 
