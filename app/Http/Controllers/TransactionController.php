@@ -290,7 +290,7 @@ class TransactionController extends Controller
 
         // Fetch all records if no filter is applied
         $transactions = $query->get();
- 
+        
         // Generate the PDF
         $pdf = PDF::loadView('transactions_pdf', compact(
             'transactions',
@@ -300,7 +300,8 @@ class TransactionController extends Controller
             'startDate',
             'endDate'
         ));
-
+        
+        // $timestamp = Carbon::now('Asia/Karachi')->format('Y-m-d_H-i-s');
         // Return the PDF as a download
         return $pdf->download('TransactionReport.pdf');
     }
