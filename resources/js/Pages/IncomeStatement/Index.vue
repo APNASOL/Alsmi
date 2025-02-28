@@ -261,7 +261,9 @@ export default {
                 { value: 11, label: "November" },
                 { value: 12, label: "December" },
             ],
-            yearsOptions: [2020, 2021, 2022, 2023, 2024, 2025],
+            
+            yearsOptions: Array.from({ length: 2050 - 2025 + 1 }, (_, i) => 2025 + i),
+
             transactionEntries: [],
             totalIncome: 0, // Total Income
             totalExpense: 0, // Total Expense

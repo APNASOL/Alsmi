@@ -227,6 +227,9 @@ export default {
             transactionEntries: [],
             incomeTypeDetails: [],
             incomeTypeTotal: 0,
+            expenseTypeDetails:[],
+            expenseTypeTotal: 0,
+
             expenseDetails: [],
             cashIn: 0,
             cashOut: 0,
@@ -273,7 +276,7 @@ export default {
             axios
                 .get(route("api.dashboard.income.details.fetch"))
                 .then((response) => {
-                    console.log(response.data);
+                     
                     this.incomeTypeDetails = response.data.income_types;
                     this.incomeTypeTotal = response.data.total_income;
                 })
@@ -338,10 +341,7 @@ export default {
                     (sum, entry) => sum + parseFloat(entry.cash_out || 0),
                     0
                 );
-
-                console.log("Cash in all " + totalCashIn);
-                console.log("Cash out all " + totalCashOut);
-
+ 
                 // Bar Chart (Overall Data for All)
                 const barCtx = document
                     .getElementById("barChart")

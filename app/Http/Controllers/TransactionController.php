@@ -45,7 +45,7 @@ class TransactionController extends Controller
         }
 
         // Fetch all transactions if no filters are applied
-        $transactions = $query->get();
+        $transactions = $query->orderByDesc('transaction_date')->get();
 
         foreach ($transactions as $transaction) {
             // Check if the transaction has cash_out
@@ -78,8 +78,6 @@ class TransactionController extends Controller
 
     }
 
-    
-
     // Store or update a transaction entry
     public function store(Request $request)
     { 
@@ -88,13 +86,14 @@ class TransactionController extends Controller
             'process_type' => 'required',
             'income_type'  => 'required_if:process_type,Income',
             'expense_type' => 'required_if:process_type,Expense',
-            'cash_in'      => 'nullable|numeric|required_without:cash_out',
-            'cash_out'     => 'nullable|numeric|required_without:cash_in',
+            'cash_in'      => 'nullable|numeric|required_without:cash_out|required_if:income_type,!null',
+            'cash_out'     => 'nullable|numeric|required_without:cash_in|required_if:expense_type,!null',
             'date'         => 'required|date',
             'ref_no'       => 'required|string|max:255',
             'method'       => 'required|string|max:255',
             'remarks'      => 'required|string|max:255',
         ]);
+        
 
         if ($request->id) {
             // Fetch existing transaction
@@ -228,16 +227,18 @@ class TransactionController extends Controller
         }
 
         // Determine process type based on cash_in
-        if ($transaction->cash_in) {
+        if ($transaction->cash_in && $transaction->cash_in > 0) {
             $income_type               = Income::where('transaction_id', $id)->first();
             $transaction->income_type  = $income_type->income_type_id;
             $transaction->process_type = 'Income';
+            $transaction->cash_out = 0;
         }
-        if ($transaction->cash_out) {
+        if ($transaction->cash_out && $transaction->cash_out > 0) {
             $expense_type              = Expense::where('transaction_id', $id)->first();
             $transaction->expense_type = $expense_type->expense_type_id;
             $transaction->process_type = 'Expense';
 
+            $transaction->cash_in = 0;
         }
 
         return $transaction;

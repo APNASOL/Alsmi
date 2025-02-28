@@ -78,7 +78,7 @@ class DashboardController extends Controller
         });
 
         return response()->json([
-            'total_income' => $total_income,
+            'total_income' => number_format($total_income, 2), 
             'income_types' => $incomeTypes,
         ]);
     }

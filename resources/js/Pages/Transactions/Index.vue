@@ -234,7 +234,7 @@
                                     <td>{{ calculateBalance(index) }}</td>
                                     <td>
                                         <ImageZooming
-                                            :file="entry.receipt_image"
+                                            :file="entry.receipt_image ?? '/images/default.jpg'"
                                             :width="100"
                                         />
                                     </td>
@@ -353,7 +353,7 @@
                                             >Cash In</label
                                         >
                                         <input
-                                            type="number"
+                                            type="text"
                                             class="form-control"
                                             id="cash_in"
                                             v-model="form.cash_in"
@@ -400,7 +400,7 @@
                                             >Cash Out</label
                                         >
                                         <input
-                                            type="number"
+                                            type="text"
                                             class="form-control"
                                             id="cash_out"
                                             v-model="form.cash_out"
@@ -514,17 +514,17 @@
                                         <br />
                                         <ImageZooming
                                             v-if="form.receipt_image"
-                                            :file="form.receipt_image"
+                                            :file="form.receipt_image ?? '/images/default.jpg'"
                                             :width="100"
                                         />
                                         <ImageZooming
                                             v-else
-                                            :file="existing_receipt_image"
+                                            :file="existing_receipt_image ?? '/images/default.jpg'"
                                             :width="100"
                                         />
 
                                         <div
-                                            v-if="formErrors.date"
+                                            v-if="formErrors.receipt_image"
                                             class="invalid-feedback"
                                         >
                                             {{ formErrors.receipt_image[0] }}
@@ -535,7 +535,7 @@
                                         <button
                                             type="submit"
                                             class="btn btn-success"
-                                            v-if="formStatus === 1"
+                                            v-if="formStatus == 1"
                                             @click="submit"
                                         >
                                             Save
@@ -653,10 +653,8 @@ export default {
                 { value: 11, label: "November" },
                 { value: 12, label: "December" },
             ],
-            yearsOptions: [
-                2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033,
-                2034, 2035,
-            ],
+            yearsOptions: Array.from({ length: 2050 - 2025 + 1 }, (_, i) => 2025 + i),
+
             existing_receipt_image: "",
             FilterErrors: "",
             serachingLoading: false,
@@ -751,8 +749,7 @@ export default {
             return this.formatCurrency(balance);
         },
         submit() {
-            let formData = new FormData();
-
+            let formData = new FormData(); 
             // Helper function to handle null, undefined, or empty values
             const sanitizeValue = (value) =>
                 (value ?? "").toString().trim() === "" ? "" : value;
@@ -782,7 +779,7 @@ export default {
                 formData.append("receipt_image", this.form.receipt_image);
             }
 
-            // this.formStatus = 0;
+            this.formStatus = 0;
             axios
                 .post(route("api.transaction.store"), formData, {
                     headers: {
@@ -818,7 +815,10 @@ export default {
                 cash_out: "",
 
                 date: "",
+                receipt_image:"",
             };
+            this.existing_receipt_image = '';
+             
             this.formErrors = [];
         },
         showEntry(entry_id) {
@@ -992,6 +992,9 @@ export default {
         },
         croppedImgPassToForm(img) {
             this.form.receipt_image = img;
+        },
+        setAltImg(event) {
+            event.target.src = "/images/default.jpg";
         },
         printSlip() {
             let printWindow = window.open("", "_blank");
