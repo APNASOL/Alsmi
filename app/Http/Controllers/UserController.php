@@ -51,7 +51,7 @@ class UserController extends Controller
         $User->email = $request->email;
         $User->role = $request->role;
         $User->password = Hash::make($request->password);
-         
+        $User->email_verified_at = Carbon::now();
         $User->save();
  
         // $website_name = Setting::where('type', 'website_name')->first();

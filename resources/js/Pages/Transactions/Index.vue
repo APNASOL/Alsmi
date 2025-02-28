@@ -252,11 +252,11 @@
                                             >
                                                 <i class="bi bi-pencil"></i>
                                             </button>
-                                            <!--
+                                            
                                             <DeleteModal
                                                 :deleteId="entry.id"
                                                 @deleteThis="deleteThis"
-                                            ></DeleteModal> -->
+                                            ></DeleteModal>
                                             <!-- <i
                                                 class="bi bi-pencil me-2"
                                                 @click="editTransaction(entery.id)"

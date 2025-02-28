@@ -74,10 +74,10 @@
                                             >
                                                 <i class="bi bi-pencil"></i>
                                             </button>
-                                            <DeleteModal
+                                            <!-- <DeleteModal
                                                 :deleteId="expense.id"
                                                 @deleteThis="deleteThis"
-                                            ></DeleteModal>
+                                            ></DeleteModal> -->
                                         </div>
                                     </td>
                                 </tr>

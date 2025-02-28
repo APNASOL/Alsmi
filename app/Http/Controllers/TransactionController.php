@@ -331,4 +331,21 @@ class TransactionController extends Controller
         return Excel::download(new TransactionExport($transactions), 'transaction_report.xlsx');
     }
 
+
+    public function destroy($id)
+    { 
+
+        $transaction = Transaction::findOrFail($id);
+        if ($transaction->receipt_image) {
+            $existingInUploads = Upload::where('id', $transaction->receipt_image)->first();
+            if ($existingInUploads) {
+                Storage::delete($existingInUploads->file_name);
+                $existingInUploads->delete();
+            }
+        }
+        $transaction->delete();
+        return 'success';
+
+    }
+
 }

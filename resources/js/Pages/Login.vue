@@ -16,9 +16,18 @@
                         <div
                             class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center"
                         >
-                        <div style="background: yellow; padding: 10px; text-align: center; font-weight: bold;">
-    The system is currently in the testing and configuration phase. Some features may not work as expected.
-</div>
+                            <div
+                                style="
+                                    background: yellow;
+                                    padding: 10px;
+                                    text-align: center;
+                                    font-weight: bold;
+                                "
+                            >
+                                The system is currently in the testing and
+                                configuration phase. Some features may not work
+                                as expected.
+                            </div>
 
                             <div class="d-flex justify-content-center py-4">
                                 <a :href="route('/')">
@@ -216,6 +225,17 @@ export default {
                 toastr.success(this.message);
             }
         },
+    },
+    mounted() {
+        // detect when the user navigates back
+        window.addEventListener("popstate", () => {
+            setTimeout(() => {
+                window.location.href = route("/");
+            }, 1000);
+        });
+
+        // add a new entry to the browser's history
+        history.pushState(null, null, location.href);
     },
 };
 </script>
